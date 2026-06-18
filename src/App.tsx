@@ -201,7 +201,8 @@ function App() {
 
   const frame = frameState.current
   const isVideoFocused = isPlaying && !hasEnded
-  const develop = hasEnded ? 1 : progress
+  const isPausedMidClip = !isPlaying && progress > 0 && !hasEnded
+  const develop = hasEnded || isPausedMidClip ? 1 : progress
 
   const clock = now
     .toLocaleTimeString([], {
@@ -600,9 +601,11 @@ function App() {
             <div className="font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600">
               {hasEnded
                 ? `the note · ${voiceLabels[activeNote.note.voice]}`
-                : develop > 0
-                  ? 'developing'
-                  : ''}
+                : isPausedMidClip
+                  ? 'the note'
+                  : develop > 0
+                    ? 'developing'
+                    : ''}
             </div>
 
             <p
@@ -807,9 +810,11 @@ function App() {
         <div className="font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600">
           {hasEnded
             ? `the note · ${voiceLabels[activeNote.note.voice]}`
-            : develop > 0
-              ? 'developing'
-              : ''}
+            : isPausedMidClip
+              ? 'the note'
+              : develop > 0
+                ? 'developing'
+                : ''}
         </div>
         <p
           className="mt-4 max-w-[34ch] font-crimson font-normal tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
