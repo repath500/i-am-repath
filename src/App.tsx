@@ -42,6 +42,9 @@ const makeFrameQueue = (excludeId?: string): Frame[] => {
 const FRAME_STORAGE_KEY = 'repath:frames:v1'
 const OUTRO_SRC = '/audio/sparky-deathcap-september.mp3'
 const OUTRO_CROSSFADE_AT = 0.86
+const MUSIC_AMBIENT = 0.34
+const MUSIC_DUCKED = 0.14
+const MUSIC_FULL = 1
 
 type FrameState = { current: Frame; queue: Frame[] }
 
@@ -175,7 +178,7 @@ function App() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const outroRef = useRef<HTMLAudioElement>(null)
   const noteRef = useRef<HTMLElement>(null)
-  const outroStartedRef = useRef(false)
+  const fadeRafRef = useRef<number | null>(null)
 
   const frame = frameState.current
   const isVideoFocused = isPlaying && !hasEnded
@@ -203,20 +206,68 @@ function App() {
     saveFrameState(frameState)
   }, [frameState])
 
-  const stopOutroMusic = () => {
+  const stopMusic = () => {
+    if (fadeRafRef.current) {
+      cancelAnimationFrame(fadeRafRef.current)
+      fadeRafRef.current = null
+    }
+
     const audio = outroRef.current
     if (audio) {
       audio.pause()
       audio.currentTime = 0
       audio.volume = 0
     }
-    outroStartedRef.current = false
 
     const video = videoRef.current
     if (video) {
       video.volume = 1
     }
   }
+
+  const fadeAudioVolume = (target: number, durationMs = 1200) => {
+    const audio = outroRef.current
+    if (!audio) return Promise.resolve()
+
+    if (fadeRafRef.current) {
+      cancelAnimationFrame(fadeRafRef.current)
+      fadeRafRef.current = null
+    }
+
+    const from = audio.volume
+    const start = performance.now()
+
+    return new Promise<void>((resolve) => {
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / durationMs)
+        const eased = t * t * (3 - 2 * t)
+        audio.volume = from + (target - from) * eased
+        if (t < 1) {
+          fadeRafRef.current = requestAnimationFrame(tick)
+        } else {
+          fadeRafRef.current = null
+          resolve()
+        }
+      }
+      fadeRafRef.current = requestAnimationFrame(tick)
+    })
+  }
+
+  const startSiteMusic = () => {
+    const audio = outroRef.current
+    if (!audio) return Promise.reject()
+
+    audio.loop = true
+
+    if (!audio.paused) {
+      return fadeAudioVolume(MUSIC_AMBIENT, 900)
+    }
+
+    audio.volume = 0
+    return audio.play().then(() => fadeAudioVolume(MUSIC_AMBIENT, 2200))
+  }
+
+  const duckSiteMusic = () => fadeAudioVolume(MUSIC_DUCKED, 700)
 
   const beginOutroCrossfade = (blend: number) => {
     const video = videoRef.current
@@ -225,14 +276,13 @@ function App() {
 
     video.volume = Math.max(0, 1 - blend)
 
-    if (!outroStartedRef.current) {
-      outroStartedRef.current = true
-      audio.currentTime = 0
+    if (audio.paused) {
+      audio.loop = true
       audio.volume = 0
       audio.play().catch(() => {})
     }
 
-    audio.volume = Math.min(1, blend)
+    audio.volume = MUSIC_DUCKED + (MUSIC_FULL - MUSIC_DUCKED) * blend
   }
 
   const finishOutro = () => {
@@ -246,35 +296,24 @@ function App() {
 
     if (!audio) return
 
-    if (outroStartedRef.current) {
-      audio.volume = 1
+    audio.loop = true
+    if (audio.paused) {
+      audio.volume = 0
+      audio
+        .play()
+        .then(() => fadeAudioVolume(MUSIC_FULL, 1200))
+        .catch(() => {})
       return
     }
 
-    outroStartedRef.current = true
-    audio.currentTime = 0
-    audio.volume = 0
-    audio
-      .play()
-      .then(() => {
-        const fadeStart = performance.now()
-        const fade = (now: number) => {
-          const t = Math.min(1, (now - fadeStart) / 2200)
-          const eased = t * t * (3 - 2 * t)
-          audio.volume = eased
-          if (t < 1) window.requestAnimationFrame(fade)
-        }
-        window.requestAnimationFrame(fade)
-      })
-      .catch(() => {})
+    audio.volume = MUSIC_FULL
   }
 
   useEffect(() => {
-    outroStartedRef.current = false
-    stopOutroMusic()
+    stopMusic()
     videoRef.current?.load()
 
-    return () => stopOutroMusic()
+    return () => stopMusic()
   }, [frame])
 
   const playWithSound = () => {
@@ -290,13 +329,18 @@ function App() {
     if (!introDone) return
 
     const timer = window.setTimeout(() => {
-      playWithSound()
+      Promise.all([playWithSound(), startSiteMusic()])
         .then(() => setSoundBlocked(false))
         .catch(() => setSoundBlocked(true))
     }, 260)
 
     return () => window.clearTimeout(timer)
   }, [frame, introDone])
+
+  useEffect(() => {
+    if (!isPlaying || hasEnded) return
+    duckSiteMusic()
+  }, [isPlaying, hasEnded])
 
   useEffect(() => {
     if (!hasEnded) return
@@ -313,15 +357,17 @@ function App() {
     const video = videoRef.current
     if (!video) return
 
-    stopOutroMusic()
     setHasEnded(false)
     setProgress(0)
     video.currentTime = 0
-    playWithSound().catch(() => setSoundBlocked(true))
+    video.volume = 1
+    playWithSound()
+      .then(() => duckSiteMusic())
+      .catch(() => setSoundBlocked(true))
   }
 
   const chooseAnother = () => {
-    stopOutroMusic()
+    stopMusic()
     setHasEnded(false)
     setIsPlaying(false)
     setIsReady(false)
@@ -341,7 +387,9 @@ function App() {
   }
 
   const enableSound = () => {
-    playWithSound().then(() => setSoundBlocked(false))
+    Promise.all([playWithSound(), startSiteMusic()])
+      .then(() => setSoundBlocked(false))
+      .catch(() => setSoundBlocked(true))
   }
 
   const togglePlay = () => {
@@ -357,7 +405,7 @@ function App() {
 
   return (
     <main className="relative min-h-[100dvh] overflow-x-hidden bg-[#050505] text-stone-100">
-      <audio ref={outroRef} src={OUTRO_SRC} preload="auto" />
+      <audio ref={outroRef} src={OUTRO_SRC} preload="auto" loop />
       <div className="pointer-events-none fixed inset-0 grain opacity-[0.13]" />
       <div
         className={`pointer-events-none fixed inset-0 z-20 bg-[#050505]/88 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden ${
