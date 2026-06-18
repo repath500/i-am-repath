@@ -113,39 +113,39 @@ const getNoteTypography = (text: string, variant: 'desktop' | 'mobile') => {
 
   if (variant === 'desktop') {
     if (length > 320) {
-      return { fontSize: 'clamp(0.9rem, 1.05vw, 1.2rem)', lineHeight: 1.3 }
+      return { fontSize: 'clamp(1.05rem, 1.25vw, 1.45rem)', lineHeight: 1.26 }
     }
     if (length > 260) {
-      return { fontSize: 'clamp(0.95rem, 1.15vw, 1.3rem)', lineHeight: 1.26 }
+      return { fontSize: 'clamp(1.1rem, 1.4vw, 1.55rem)', lineHeight: 1.22 }
     }
     if (length > 200) {
-      return { fontSize: 'clamp(1.05rem, 1.35vw, 1.45rem)', lineHeight: 1.22 }
+      return { fontSize: 'clamp(1.25rem, 1.65vw, 1.85rem)', lineHeight: 1.16 }
     }
     if (length > 150) {
-      return { fontSize: 'clamp(1.15rem, 1.55vw, 1.65rem)', lineHeight: 1.16 }
+      return { fontSize: 'clamp(1.45rem, 2vw, 2.2rem)', lineHeight: 1.12 }
     }
     if (length > 100) {
-      return { fontSize: 'clamp(1.35rem, 1.85vw, 2rem)', lineHeight: 1.12 }
+      return { fontSize: 'clamp(1.65rem, 2.35vw, 2.65rem)', lineHeight: 1.08 }
     }
-    return { fontSize: 'clamp(1.55rem, 2.2vw, 2.45rem)', lineHeight: 1.08 }
+    return { fontSize: 'clamp(1.85rem, 3vw, 3.25rem)', lineHeight: 1.04 }
   }
 
   if (length > 320) {
-    return { fontSize: 'clamp(1rem, 3.6vw, 1.3rem)', lineHeight: 1.3 }
+    return { fontSize: 'clamp(1.05rem, 3.8vw, 1.4rem)', lineHeight: 1.28 }
   }
   if (length > 260) {
-    return { fontSize: 'clamp(1.05rem, 3.9vw, 1.4rem)', lineHeight: 1.26 }
+    return { fontSize: 'clamp(1.1rem, 4.1vw, 1.5rem)', lineHeight: 1.24 }
   }
   if (length > 200) {
-    return { fontSize: 'clamp(1.15rem, 4.2vw, 1.55rem)', lineHeight: 1.22 }
+    return { fontSize: 'clamp(1.2rem, 4.5vw, 1.7rem)', lineHeight: 1.18 }
   }
   if (length > 150) {
-    return { fontSize: 'clamp(1.3rem, 4.8vw, 1.85rem)', lineHeight: 1.16 }
+    return { fontSize: 'clamp(1.35rem, 5vw, 2rem)', lineHeight: 1.14 }
   }
   if (length > 100) {
-    return { fontSize: 'clamp(1.45rem, 5.4vw, 2.15rem)', lineHeight: 1.12 }
+    return { fontSize: 'clamp(1.55rem, 5.6vw, 2.35rem)', lineHeight: 1.1 }
   }
-  return { fontSize: 'clamp(1.65rem, 6vw, 2.5rem)', lineHeight: 1.08 }
+  return { fontSize: 'clamp(1.75rem, 6.2vw, 2.75rem)', lineHeight: 1.06 }
 }
 
 const getNoteRise = (text: string, variant: 'desktop' | 'mobile') => {
@@ -169,6 +169,7 @@ function App() {
   const [isReady, setIsReady] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [now, setNow] = useState(() => new Date())
   const videoRef = useRef<HTMLVideoElement>(null)
   const noteRef = useRef<HTMLElement>(null)
 
@@ -179,6 +180,20 @@ function App() {
   const mobileNoteTypography = useMemo(() => getNoteTypography(note, 'mobile'), [note])
   const desktopNoteRise = useMemo(() => getNoteRise(note, 'desktop'), [note])
   const mobileNoteRise = useMemo(() => getNoteRise(note, 'mobile'), [note])
+
+  const clock = now
+    .toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    })
+    .toLowerCase()
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 1000)
+    return () => window.clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     saveFrameState(frameState)
@@ -286,7 +301,7 @@ function App() {
         )}
 
         <div className="mx-auto grid w-full max-w-[1400px] flex-1 items-center gap-8 py-12 md:grid-cols-[minmax(0,1fr)_minmax(360px,0.68fr)] md:gap-12 md:py-6">
-          <div className="relative z-30 order-2 hidden min-h-0 max-h-[min(64dvh,560px)] flex-col justify-center md:order-1 md:flex">
+          <div className="relative z-30 order-2 hidden min-h-0 max-h-[min(72dvh,640px)] flex-col justify-center py-6 md:order-1 md:flex md:py-8">
             <p
               className={`mb-8 max-w-[38ch] font-crimson text-xl italic leading-[1.18] text-stone-400 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 develop > 0.08
@@ -447,8 +462,8 @@ function App() {
           </div>
         </div>
 
-        <footer className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-4 border-t border-white/10 pt-4 font-stoke text-[0.6rem] lowercase tracking-[0.1em] text-stone-500 sm:text-[0.68rem] sm:tracking-[0.14em]">
-          <span className="flex items-center gap-2">
+        <footer className="mx-auto grid w-full max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center gap-4 border-t border-white/10 pt-4 font-stoke text-[0.6rem] lowercase tracking-[0.1em] text-stone-500 sm:text-[0.68rem] sm:tracking-[0.14em]">
+          <span className="flex items-center gap-2 justify-self-start">
             <span>2026</span>
             <span className="text-white/15" aria-hidden="true">|</span>
             <a
@@ -462,7 +477,13 @@ function App() {
               notes
             </a>
           </span>
-          <span>
+          <span
+            className="justify-self-center tabular-nums tracking-[0.12em] text-stone-400 sm:tracking-[0.22em]"
+            aria-label="local time"
+          >
+            {clock}
+          </span>
+          <span className="justify-self-end">
             ©{' '}
             <a
               href="https://www.linkedin.com/in/repathkhan/"
