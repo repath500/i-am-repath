@@ -18,31 +18,31 @@ const frames: Frame[] = [
 ]
 
 const notes: string[] = [
-  'kindness is still the sharpest thing i know. not soft, not naive, just a decision to leave people lighter than i found them.',
-  'who you are when no one is watching becomes the shape of your whole life. i am trying to make that version honest.',
-  'some days are just proof that patience has a sound. breathe, keep your word, and let the next right thing arrive cleanly.',
-  'you do not become yourself all at once. you choose it in small rooms, in quiet replies, in the moment you could have been colder.',
-  'i want to remember the ordinary parts too. the walk, the light, the laugh after a hard week. that is where most of life is hiding.',
-  'motivation comes and goes. the deeper thing is resolve: a quiet promise to keep moving even when no one claps for it.',
-  'care is not only what you feel. it is what you protect, what you repair, what you refuse to make worse.',
-  'i am still becoming. less noise, more truth. less performance, more presence. more love in the places where it counts.',
-  'some mornings nothing has changed except you remembered you are allowed to be glad anyway.',
-  'the version of you that kept going through the worst days is not a smaller version. it is the realest one.',
-  'nobody tells you that healing is boring. same kitchen, same doubts, same you — except slowly, quietly, less afraid.',
-  'life has seasons that do not ask permission. you are allowed to be tired in all of them.',
-  'you have already survived every bad day you swore you would not. that is not nothing. that is a whole life of proof.',
-  'there is still time to become the person you needed when you were younger.',
-  'some grief does not leave. you just learn to carry it without letting it steer.',
-  'a soft life is not a weak one. rest is not the opposite of ambition.',
-  'what you repeat in private becomes what people trust in public. build something honest there.',
-  'you are not behind. you are on your own clock, and it still ticks.',
-  'it is okay if today is only survival. survival is still a kind of courage.',
-  'joy does not have to be loud to be real. a warm cup, a message back, a window of light — that counts.',
-  'the hard days do not mean you are failing. sometimes the world is just heavy, and you are still here.',
-  'you do not need to have it figured out to keep going. clarity often arrives after the step, not before it.',
-  'being gentle with yourself is not giving up. it is how you stay in the fight long enough to win it.',
-  'one honest conversation can undo weeks of silence. reach when you can.',
-  'you are allowed to outgrow what once saved you. that is not betrayal. that is growth.',
+  'kindness is the sharpest thing i know. not softness, not the wish to be liked, but a steady decision to leave people lighter than i found them, even on the days no one would blame me for being colder.',
+  'who you are when no one is watching slowly becomes the whole shape of your life. the private self is the real one. everything else is just the part of it the world happens to see.',
+  'patience has a sound, and most days it is quiet. it is the breath you take before answering, the word you keep, the small refusal to rush a thing that was never yours to rush.',
+  'you do not become yourself all at once. you choose it in small rooms, in unanswered messages, in the seconds you could have been crueler and were not. character is the sum of those invisible choices.',
+  'remember the ordinary parts too. the walk home, the light through a window, the laugh after a hard week. most of a life is not the milestones. it is the quiet middle nobody photographs.',
+  'motivation visits. resolve stays. one is a feeling that comes and goes with the weather, the other is a promise you keep to yourself long after the feeling has left the room.',
+  'care is not only what you feel. it is what you protect when it is inconvenient, what you repair when it is easier to replace, what you refuse to make worse just because you could.',
+  'i am still becoming. less noise, more truth. less performance, more presence. i would rather be slowly honest than quickly admired, and i am learning the difference between the two.',
+  'some mornings nothing has changed except you. same room, same weight, same unfinished life, and yet you wake up remembering you are allowed to be glad anyway. that is its own quiet kind of strength.',
+  'the version of you that kept going through the worst of it is not a smaller, broken version. it is the truest one you have. do not be ashamed of who you had to become to survive.',
+  'nobody warns you that healing is boring. it is the same kitchen, the same doubts, the same familiar fears, lived through again and again until one day they are quieter, and you are less afraid without knowing when it happened.',
+  'life moves in seasons that never ask your permission. there are springs you did nothing to earn and winters you did nothing to deserve. you are allowed to be tired in all of them.',
+  'you have already survived every single day you once swore you could not. that is not a small thing. that is a long, unbroken record of a person who kept getting back up when no one was counting.',
+  'there is still time to become the person you needed when you were younger. you cannot go back and rescue that version of you, but you can make sure no one else has to face it as alone as you did.',
+  'some grief does not leave. you do not get over the people and the years you lose. you just slowly learn to carry them in a way that no longer decides where you walk.',
+  'a soft life is not a weak one. rest is not the opposite of ambition, it is the thing that makes ambition survivable. you are allowed to build a life that is gentle on the person living it.',
+  'what you repeat in private becomes what people trust in public. reputation is just the echo of a thousand small moments no one saw. build something honest in the quiet, and the rest takes care of itself.',
+  'you are not behind. there is no schedule you were handed at birth, no race that everyone else secretly understood. you are on your own clock, and against all the noise, it is still ticking forward.',
+  'it is okay if today was only survival. not every day has to be progress. sometimes staying, breathing, and refusing to disappear is the entire achievement, and it is enough.',
+  'joy does not have to be loud to count. a warm cup, a message answered, a window of late light across the floor. learn to notice the small good things, because they are most of the good there is.',
+  'the hard days are not proof that you are failing. sometimes the world is simply heavy, the timing is wrong, and the weight is real. you can be doing everything right and still be tired. you are still here, and that matters.',
+  'you do not need to have it all figured out to keep moving. clarity usually arrives after the step, not before it. faith is just walking toward a door you cannot yet see open.',
+  'being gentle with yourself is not giving up. it is how you stay in the fight long enough to actually win it. you cannot punish yourself into becoming someone you would be proud of.',
+  'one honest conversation can undo weeks of silence. so much distance is just two people each waiting for the other to reach first. be the one who reaches. it costs less than the silence does.',
+  'you are allowed to outgrow what once saved you. the habits, the people, the versions of yourself that got you here. letting go of them is not betrayal. it is the quiet proof that you have grown.',
 ]
 
 const shuffle = <T,>(input: T[]): T[] => {
@@ -165,7 +165,7 @@ function App() {
         <div className="mx-auto grid w-full max-w-[1400px] flex-1 items-center gap-8 py-12 md:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.68fr)] md:gap-12 md:py-6">
           <aside className="order-2 hidden max-w-[38ch] self-end pb-8 md:block">
             <p className="font-crimson text-xl leading-[1.18] text-stone-400">
-              instructions — each visit opens on a different frame. let it play
+              instructions. each visit opens on a different frame. let it play
               once, then read on.
             </p>
           </aside>
