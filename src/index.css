@@ -24,7 +24,7 @@ a {
 }
 
 .intro-title {
-  animation: title-fade 6.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: title-fade 5.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .intro-title,
