@@ -1,7 +1,7 @@
 export const OUTRO_SRC = '/audio/sparky-deathcap-september.mp3'
 export const MUSIC_AMBIENT = 0.09
 export const MUSIC_FULL = 0.2
-export const MUSIC_NARRATION_DUCK = 0.03
+export const MUSIC_NARRATION_DUCK = 0.055
 export const CROSSFADE_MS = 1800
 export const MUSIC_MUTED_KEY = 'repath:music-muted'
 
@@ -62,4 +62,19 @@ export const startAmbientMusic = (audio: HTMLAudioElement) => {
   audio.loop = true
   audio.volume = 0
   return audio.play().then(() => fadeVolume(audio, MUSIC_AMBIENT, 2600))
+}
+
+export const isMusicAudible = (audio: HTMLMediaElement | null) =>
+  Boolean(audio && !audio.paused && audio.volume > 0.015)
+
+export const duckMusicForSpeech = (
+  audio: HTMLMediaElement | null,
+  musicMuted: boolean,
+) => {
+  if (!audio || musicMuted || !isMusicAudible(audio)) {
+    return Promise.resolve()
+  }
+
+  const target = Math.max(MUSIC_NARRATION_DUCK, audio.volume * 0.58)
+  return fadeVolume(audio, target, 650)
 }

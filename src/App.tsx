@@ -3,14 +3,15 @@ import {
   CROSSFADE_MS,
   MUSIC_AMBIENT,
   MUSIC_FULL,
-  MUSIC_NARRATION_DUCK,
   OUTRO_SRC,
+  duckMusicForSpeech,
 } from './audioConfig'
 import MusicMute from './MusicMute'
+import PresenceWhisper from './PresenceWhisper'
 import { notes, type Note } from './notes'
 import { navigate } from './router'
 import { useMusicMuted } from './useMusicMuted'
-import { getNoteVoiceSrc, voiceLabels } from './voices'
+import { getNoteVoiceSrc } from './voices'
 
 type ActiveNote = {
   note: Note
@@ -426,9 +427,7 @@ function App() {
       }
     }
 
-    if (!musicMutedRef.current) {
-      fadeVolume(outroRef.current, MUSIC_NARRATION_DUCK, 700)
-    }
+    duckMusicForSpeech(outroRef.current, musicMutedRef.current)
     narration.play().catch(() => {
       setIsNarrating(false)
       if (!musicMutedRef.current) {
@@ -604,6 +603,7 @@ function App() {
     <main className="relative min-h-[100dvh] overflow-x-hidden bg-[#050505] text-stone-100">
       <audio ref={outroRef} src={OUTRO_SRC} preload="auto" loop />
       <audio ref={narrationRef} preload="none" />
+      <PresenceWhisper />
       <div className="pointer-events-none fixed inset-0 grain opacity-[0.13]" />
       <div
         className={`pointer-events-none fixed inset-0 z-20 bg-[#050505]/88 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden ${
@@ -637,13 +637,7 @@ function App() {
             </p>
 
             <div className="font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600">
-              {hasEnded
-                ? `the note · ${voiceLabels[activeNote.note.voice]}`
-                : isPausedMidClip
-                  ? 'the note'
-                  : develop > 0
-                    ? 'developing'
-                    : ''}
+              {hasEnded ? 'the note' : isPausedMidClip ? 'the note' : develop > 0 ? 'developing' : ''}
             </div>
 
             <p
@@ -820,6 +814,17 @@ function App() {
             >
               notes
             </a>
+            <span className="text-white/15" aria-hidden="true">|</span>
+            <a
+              href="/letter"
+              onClick={(event) => {
+                event.preventDefault()
+                navigate('/letter')
+              }}
+              className="transition hover:text-stone-100"
+            >
+              letter
+            </a>
           </span>
           <span
             className="justify-self-center tabular-nums tracking-[0.12em] text-stone-400 sm:tracking-[0.22em]"
@@ -849,13 +854,7 @@ function App() {
         className="relative mx-auto w-full max-w-[1400px] px-4 py-16 sm:px-6 md:hidden md:px-10"
       >
         <div className="font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600">
-          {hasEnded
-            ? `the note · ${voiceLabels[activeNote.note.voice]}`
-            : isPausedMidClip
-              ? 'the note'
-              : develop > 0
-                ? 'developing'
-                : ''}
+          {hasEnded ? 'the note' : isPausedMidClip ? 'the note' : develop > 0 ? 'developing' : ''}
         </div>
         <p
           className="mt-4 max-w-[34ch] font-crimson font-normal tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"

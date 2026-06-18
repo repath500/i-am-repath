@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { notes } from '../src/notes.ts'
-import type { VoicePersona } from '../src/notes.ts'
+import { NOTE_VOICE_DIR } from '../src/voices.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
@@ -26,25 +26,19 @@ const loadEnv = async () => {
 await loadEnv()
 
 const apiKey = process.env.ELEVENLABS_API_KEY
-const voiceIds: Record<VoicePersona, string | undefined> = {
-  'all-might': process.env.ELEVENLABS_VOICE_ALL_MIGHT,
-  vegeta: process.env.ELEVENLABS_VOICE_VEGETA,
-  attenborough: process.env.ELEVENLABS_VOICE_ATTENBOROUGH,
-}
+const voiceId = process.env.ELEVENLABS_VOICE_DAVID
 
 if (!apiKey) {
   console.error('Missing ELEVENLABS_API_KEY in .env')
   process.exit(1)
 }
 
-for (const persona of Object.keys(voiceIds) as VoicePersona[]) {
-  if (!voiceIds[persona]) {
-    console.error(`Missing voice id for ${persona} in .env`)
-    process.exit(1)
-  }
+if (!voiceId) {
+  console.error('Missing ELEVENLABS_VOICE_DAVID in .env')
+  process.exit(1)
 }
 
-const generateVoice = async (text: string, voiceId: string) => {
+const generateVoice = async (text: string) => {
   const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
     method: 'POST',
     headers: {
@@ -71,25 +65,22 @@ const generateVoice = async (text: string, voiceId: string) => {
   return Buffer.from(await response.arrayBuffer())
 }
 
-console.log(`Generating ${notes.length} note voice files...`)
+console.log(`Generating ${notes.length} note voice files with david...`)
+
+const dir = path.join(root, 'public/voices', NOTE_VOICE_DIR)
+await mkdir(dir, { recursive: true })
 
 for (let index = 0; index < notes.length; index += 1) {
   const note = notes[index]
   const id = String(index + 1).padStart(2, '0')
-  const dir = path.join(root, 'public/voices', note.voice)
   const filePath = path.join(dir, `${id}.mp3`)
-  const voiceId = voiceIds[note.voice]
 
-  if (!voiceId) continue
-
-  await mkdir(dir, { recursive: true })
-
-  process.stdout.write(`${id} ${note.voice} ... `)
-  const audio = await generateVoice(note.text, voiceId)
+  process.stdout.write(`${id} ... `)
+  const audio = await generateVoice(note.text)
   await writeFile(filePath, audio)
   process.stdout.write('done\n')
 
   await new Promise((resolve) => setTimeout(resolve, 350))
 }
 
-console.log('All note voices saved to public/voices/')
+console.log(`All note voices saved to public/voices/${NOTE_VOICE_DIR}/`)

@@ -1,17 +1,11 @@
 import { notes } from './notes'
-import type { VoicePersona } from './notes'
 
-export const voiceLabels: Record<VoicePersona, string> = {
-  'all-might': 'all might',
-  vegeta: 'vegeta',
-  attenborough: 'attenborough',
-}
+export const NOTE_VOICE_DIR = 'david'
 
 export const getNoteVoiceSrc = (index: number) => {
-  const note = notes[index]
-  if (!note) return null
+  if (!notes[index]) return null
   const id = String(index + 1).padStart(2, '0')
-  return `/voices/${note.voice}/${id}.mp3`
+  return `/voices/${NOTE_VOICE_DIR}/${id}.mp3`
 }
 
 export const findNoteIndex = (text: string) =>

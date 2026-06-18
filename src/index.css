@@ -106,6 +106,17 @@ a {
   }
 }
 
+.notes-feed {
+  scroll-snap-type: y mandatory;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.notes-feed-slide {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
