@@ -43,6 +43,8 @@ const notes: string[] = [
   'being gentle with yourself is not giving up. it is how you stay in the fight long enough to actually win it. you cannot punish yourself into becoming someone you would be proud of.',
   'one honest conversation can undo weeks of silence. so much distance is just two people each waiting for the other to reach first. be the one who reaches. it costs less than the silence does.',
   'you are allowed to outgrow what once saved you. the habits, the people, the versions of yourself that got you here. letting go of them is not betrayal. it is the quiet proof that you have grown.',
+  'fuck partying. fuck clubs. fuck the noise that makes you feel alive for an hour and empty for a week. i just want a slow morning, one person who stays, work that means something, and a life that does not need a crowd to prove it happened.',
+  'some days i am tired of performing happiness. fuck pretending i am fine because the room expects it. i want truth more than i want comfort, even when truth is just admitting i am lonely, angry, or not where i thought i would be by now.',
 ]
 
 const shuffle = <T,>(input: T[]): T[] => {
@@ -81,10 +83,36 @@ function App() {
   const [soundBlocked, setSoundBlocked] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [stillFrame, setStillFrame] = useState<string | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const noteRef = useRef<HTMLElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const isVideoFocused = isPlaying && !hasEnded
+  const develop = hasEnded ? 1 : progress
+
+  const captureStill = () => {
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    if (!video || !canvas) return
+
+    const width = video.videoWidth
+    const height = video.videoHeight
+    if (!width || !height) return
+
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    try {
+      ctx.drawImage(video, 0, 0, width, height)
+      setStillFrame(canvas.toDataURL('image/jpeg', 0.82))
+    } catch {
+      setStillFrame(null)
+    }
+  }
 
   useEffect(() => {
     videoRef.current?.load()
@@ -103,9 +131,18 @@ function App() {
     if (!introDone) return
 
     const timer = window.setTimeout(() => {
-      playWithSound()
+      const video = videoRef.current
+      if (!video) return
+
+      video.muted = false
+      video.volume = 1
+      video
+        .play()
         .then(() => setSoundBlocked(false))
-        .catch(() => setSoundBlocked(true))
+        .catch(() => {
+          video.muted = true
+          video.play().then(() => setSoundBlocked(true)).catch(() => {})
+        })
     }, 260)
 
     return () => window.clearTimeout(timer)
@@ -126,6 +163,8 @@ function App() {
     if (!video) return
 
     setHasEnded(false)
+    setProgress(0)
+    setStillFrame(null)
     video.currentTime = 0
     playWithSound().catch(() => setSoundBlocked(true))
   }
@@ -136,6 +175,8 @@ function App() {
     setIsReady(false)
     setSoundBlocked(false)
     setIntroDone(true)
+    setProgress(0)
+    setStillFrame(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
     setNote((current) => pickNote(current))
     setFrame((current) => {
@@ -150,8 +191,20 @@ function App() {
     playWithSound().then(() => setSoundBlocked(false))
   }
 
+  const togglePlay = () => {
+    const video = videoRef.current
+    if (!video) return
+
+    if (video.paused) {
+      video.play().catch(() => {})
+    } else {
+      video.pause()
+    }
+  }
+
   return (
     <main className="relative min-h-[100dvh] overflow-x-hidden bg-[#050505] text-stone-100">
+      <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
       <div className="pointer-events-none fixed inset-0 grain opacity-[0.13]" />
       <div
         className={`pointer-events-none fixed inset-0 z-20 bg-[#050505]/88 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
@@ -173,9 +226,9 @@ function App() {
 
         <div className="mx-auto grid w-full max-w-[1400px] flex-1 items-center gap-8 py-12 md:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.68fr)] md:gap-12 md:py-6">
           <aside className="order-2 hidden max-w-[38ch] self-end pb-8 md:block">
-            <p className="font-crimson text-xl leading-[1.18] text-stone-400">
-              instructions. each visit opens on a different frame. let it play
-              once, then read on.
+            <p className="font-crimson text-xl italic leading-[1.18] text-stone-400">
+              a quiet record of becoming. some moments i kept, and the small
+              truths they left behind.
             </p>
           </aside>
 
@@ -185,13 +238,9 @@ function App() {
             }`}
           >
             <div
-              className={`video-shell relative aspect-square w-[min(88vw,72dvh,640px)] overflow-hidden border bg-[#090909] transition-[box-shadow,border-color] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              className={`video-shell relative aspect-square w-[min(88vw,72dvh,640px)] overflow-hidden bg-[#090909] transition-[box-shadow] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 introDone ? 'is-revealed' : ''
-              } ${
-                isVideoFocused
-                  ? 'border-white/25 shadow-[0_0_120px_rgba(0,0,0,0.85)]'
-                  : 'border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
-              }`}
+              } ${isVideoFocused ? 'shadow-[0_0_120px_rgba(0,0,0,0.85)]' : ''}`}
             >
               {!isReady && (
                 <div className="absolute inset-0 skeleton" aria-hidden="true" />
@@ -211,8 +260,16 @@ function App() {
                 }}
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
+                onTimeUpdate={() => {
+                  const video = videoRef.current
+                  if (video && video.duration) {
+                    setProgress(Math.min(1, video.currentTime / video.duration))
+                  }
+                }}
                 onEnded={() => {
+                  captureStill()
                   setIsPlaying(false)
+                  setProgress(1)
                   setHasEnded(true)
                 }}
               >
@@ -220,6 +277,26 @@ function App() {
               </video>
 
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#050505]/80 to-transparent" />
+
+              {isReady && !hasEnded && (
+                <button
+                  type="button"
+                  onClick={togglePlay}
+                  aria-label={isPlaying ? 'pause' : 'play'}
+                  className="absolute bottom-4 right-4 z-10 grid h-9 w-9 place-items-center rounded-full bg-[#050505]/35 text-stone-100/75 backdrop-blur-sm transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-[#050505]/55 hover:text-stone-100 active:translate-y-[1px]"
+                >
+                  {isPlaying ? (
+                    <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor" aria-hidden="true">
+                      <rect x="0" width="3" height="12" rx="0.5" />
+                      <rect x="7" width="3" height="12" rx="0.5" />
+                    </svg>
+                  ) : (
+                    <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor" aria-hidden="true">
+                      <path d="M0.8 0.6 L9.4 6 L0.8 11.4 Z" />
+                    </svg>
+                  )}
+                </button>
+              )}
 
               {soundBlocked && (
                 <button
@@ -279,18 +356,44 @@ function App() {
 
       <section
         ref={noteRef}
-        className={`relative mx-auto grid min-h-[72dvh] w-full max-w-[1400px] items-center px-4 py-20 transition duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] sm:px-6 md:grid-cols-[0.74fr_1fr] md:px-10 ${
-          hasEnded ? 'opacity-100 translate-y-0' : 'opacity-35 translate-y-8'
-        }`}
+        className="relative mx-auto grid min-h-[72dvh] w-full max-w-[1400px] items-center overflow-hidden px-4 py-20 sm:px-6 md:grid-cols-[0.74fr_1fr] md:px-10"
       >
-        <div className="hidden font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600 md:block">
-          instructions
+        {stillFrame && (
+          <div
+            className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{ opacity: hasEnded ? 1 : 0 }}
+            aria-hidden="true"
+          >
+            <img
+              src={stillFrame}
+              alt=""
+              className="h-full w-full scale-105 object-cover opacity-[0.18] blur-[2px] grayscale"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-[#050505]/65 to-[#050505]/90" />
+          </div>
+        )}
+
+        <div className="relative z-10 hidden font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600 md:block">
+          {hasEnded ? 'the note' : 'developing'}
         </div>
-        <div>
-          <p className="font-crimson text-[clamp(2.15rem,6vw,5.9rem)] font-normal leading-[0.96] tracking-[0] text-stone-100">
+        <div className="relative z-10">
+          <p
+            className="font-crimson text-[clamp(2.15rem,6vw,5.9rem)] font-normal leading-[0.96] tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{
+              filter: `blur(${(1 - develop) * 10}px)`,
+              opacity: 0.1 + develop * 0.9,
+              transform: `translateY(${(1 - develop) * 24}px)`,
+            }}
+          >
             {note}
           </p>
-          <div className="mt-10 flex flex-wrap gap-3">
+          <div
+            className="mt-10 flex flex-wrap gap-3 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{
+              opacity: hasEnded ? 1 : 0,
+              pointerEvents: hasEnded ? 'auto' : 'none',
+            }}
+          >
             <button
               type="button"
               onClick={replay}
