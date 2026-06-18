@@ -3,7 +3,7 @@ import type { VoicePersona } from './notes'
 
 export const voiceLabels: Record<VoicePersona, string> = {
   'all-might': 'all might',
-  goku: 'goku',
+  vegeta: 'vegeta',
   attenborough: 'attenborough',
 }
 

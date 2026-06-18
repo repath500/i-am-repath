@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  CROSSFADE_MS,
+  MUSIC_AMBIENT,
+  MUSIC_FULL,
+  MUSIC_NARRATION_DUCK,
+  OUTRO_SRC,
+} from './audioConfig'
+import MusicMute from './MusicMute'
 import { notes, type Note } from './notes'
 import { navigate } from './router'
+import { useMusicMuted } from './useMusicMuted'
 import { getNoteVoiceSrc, voiceLabels } from './voices'
 
 type ActiveNote = {
@@ -46,13 +55,8 @@ const makeFrameQueue = (excludeId?: string): Frame[] => {
 }
 
 const FRAME_STORAGE_KEY = 'repath:frames:v1'
-const OUTRO_SRC = '/audio/sparky-deathcap-september.mp3'
 const OUTRO_CROSSFADE_AT = 0.86
-const MUSIC_AMBIENT = 0.16
-const MUSIC_FULL = 0.36
-const MUSIC_NARRATION_DUCK = 0.05
 const NARRATION_AUTO_DELAY_MS = 2800
-const CROSSFADE_MS = 1800
 
 type FrameState = { current: Frame; queue: Frame[] }
 
@@ -186,12 +190,16 @@ function App() {
   const [progress, setProgress] = useState(0)
   const [isNarrating, setIsNarrating] = useState(false)
   const [now, setNow] = useState(() => new Date())
+  const { musicMuted, toggleMusicMuted } = useMusicMuted()
   const videoRef = useRef<HTMLVideoElement>(null)
   const outroRef = useRef<HTMLAudioElement>(null)
   const narrationRef = useRef<HTMLAudioElement>(null)
   const noteRef = useRef<HTMLElement>(null)
   const fadeRafRef = useRef<number | null>(null)
   const narrationAutoTimerRef = useRef<number | null>(null)
+  const musicMutedRef = useRef(musicMuted)
+
+  musicMutedRef.current = musicMuted
 
   const note = activeNote.note.text
   const desktopNoteTypography = useMemo(() => getNoteTypography(note, 'desktop'), [note])
@@ -342,6 +350,10 @@ function App() {
     const audio = outroRef.current
     if (!video || !audio) return Promise.resolve()
 
+    if (musicMutedRef.current) {
+      return Promise.resolve()
+    }
+
     if (fadeRafRef.current) {
       cancelAnimationFrame(fadeRafRef.current)
       fadeRafRef.current = null
@@ -402,18 +414,26 @@ function App() {
 
     narration.onended = () => {
       setIsNarrating(false)
-      fadeVolume(outroRef.current, MUSIC_FULL, 1200)
+      if (!musicMutedRef.current) {
+        fadeVolume(outroRef.current, MUSIC_FULL, 1200)
+      }
     }
 
     narration.onerror = () => {
       setIsNarrating(false)
-      fadeVolume(outroRef.current, MUSIC_FULL, 900)
+      if (!musicMutedRef.current) {
+        fadeVolume(outroRef.current, MUSIC_FULL, 900)
+      }
     }
 
-    fadeVolume(outroRef.current, MUSIC_NARRATION_DUCK, 700)
+    if (!musicMutedRef.current) {
+      fadeVolume(outroRef.current, MUSIC_NARRATION_DUCK, 700)
+    }
     narration.play().catch(() => {
       setIsNarrating(false)
-      fadeVolume(outroRef.current, MUSIC_FULL, 900)
+      if (!musicMutedRef.current) {
+        fadeVolume(outroRef.current, MUSIC_FULL, 900)
+      }
     })
   }
 
@@ -427,6 +447,8 @@ function App() {
     if (!video || !audio) return
 
     video.volume = Math.max(0, 1 - blend)
+
+    if (musicMutedRef.current) return
 
     if (audio.paused && blend > 0) {
       audio.loop = true
@@ -446,7 +468,7 @@ function App() {
       video.volume = 0
     }
 
-    if (!audio) return
+    if (musicMutedRef.current || !audio) return
 
     audio.loop = true
     if (audio.paused) {
@@ -460,6 +482,22 @@ function App() {
 
     fadeVolume(audio, MUSIC_FULL, 900)
   }
+
+  useEffect(() => {
+    const audio = outroRef.current
+    if (!audio) return
+
+    if (musicMuted) {
+      fadeVolume(audio, 0, 700)
+      return
+    }
+
+    if (hasEnded) {
+      fadeVolume(audio, MUSIC_FULL, 1200)
+    } else if (isPausedMidClip) {
+      fadeVolume(audio, MUSIC_AMBIENT, 1200)
+    }
+  }, [musicMuted, hasEnded, isPausedMidClip])
 
   useEffect(() => {
     stopMusic()
@@ -789,16 +827,19 @@ function App() {
           >
             {clock}
           </span>
-          <span className="justify-self-end">
-            ©{' '}
-            <a
-              href="https://www.linkedin.com/in/repathkhan/"
-              target="_blank"
-              rel="noreferrer"
-              className="transition hover:text-stone-100"
-            >
-              repath khan
-            </a>
+          <span className="flex items-center justify-end gap-4 justify-self-end">
+            <MusicMute muted={musicMuted} onToggle={toggleMusicMuted} />
+            <span>
+              ©{' '}
+              <a
+                href="https://www.linkedin.com/in/repathkhan/"
+                target="_blank"
+                rel="noreferrer"
+                className="transition hover:text-stone-100"
+              >
+                repath khan
+              </a>
+            </span>
           </span>
         </footer>
       </section>

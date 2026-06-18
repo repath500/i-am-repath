@@ -1,8 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  fadeVolume,
+  MUSIC_AMBIENT,
+  MUSIC_NARRATION_DUCK,
+  OUTRO_SRC,
+  startAmbientMusic,
+} from './audioConfig'
+import MusicMute from './MusicMute'
 import { notes } from './notes'
 import type { Mood } from './notes'
-import { voiceLabels } from './voices'
 import { navigate } from './router'
+import { useMusicMuted } from './useMusicMuted'
+import { getNoteVoiceSrc, voiceLabels } from './voices'
 
 // Set this to your email to have submissions open the visitor's mail app
 // pre-filled. Leave empty to quietly collect them in the visitor's browser.
@@ -28,6 +37,100 @@ function Notes() {
   const [filter, setFilter] = useState<Filter>('all')
   const [draft, setDraft] = useState('')
   const [sent, setSent] = useState(false)
+  const [soundBlocked, setSoundBlocked] = useState(false)
+  const { musicMuted, toggleMusicMuted } = useMusicMuted()
+  const musicRef = useRef<HTMLAudioElement>(null)
+  const narrationRef = useRef<HTMLAudioElement>(null)
+  const musicMutedRef = useRef(musicMuted)
+  const [narratingIndex, setNarratingIndex] = useState<number | null>(null)
+
+  musicMutedRef.current = musicMuted
+
+  const restoreMusic = () => {
+    if (musicMutedRef.current) return
+    const music = musicRef.current
+    if (music) fadeVolume(music, MUSIC_AMBIENT, 900)
+  }
+
+  const stopNarration = () => {
+    const narration = narrationRef.current
+    if (narration) {
+      narration.pause()
+      narration.currentTime = 0
+      narration.onended = null
+      narration.onerror = null
+    }
+    setNarratingIndex(null)
+    restoreMusic()
+  }
+
+  const listenToNote = (index: number) => {
+    const narration = narrationRef.current
+    const src = getNoteVoiceSrc(index)
+    if (!narration || !src) return
+
+    if (narratingIndex === index) {
+      stopNarration()
+      return
+    }
+
+    narration.pause()
+    narration.currentTime = 0
+    narration.src = src
+    narration.volume = 1
+    setNarratingIndex(index)
+
+    narration.onended = () => {
+      setNarratingIndex(null)
+      restoreMusic()
+    }
+
+    narration.onerror = () => {
+      setNarratingIndex(null)
+      restoreMusic()
+    }
+
+    if (!musicMutedRef.current) {
+      const music = musicRef.current
+      if (music) fadeVolume(music, MUSIC_NARRATION_DUCK, 700)
+    }
+
+    narration.play().catch(() => {
+      setNarratingIndex(null)
+      restoreMusic()
+    })
+  }
+
+  useEffect(() => () => stopNarration(), [])
+
+  useEffect(() => {
+    const audio = musicRef.current
+    if (!audio) return
+
+    if (musicMuted) {
+      fadeVolume(audio, 0, 700)
+      return
+    }
+
+    startAmbientMusic(audio)
+      .then(() => setSoundBlocked(false))
+      .catch(() => setSoundBlocked(true))
+
+    return () => {
+      audio.pause()
+      audio.currentTime = 0
+      audio.volume = 0
+    }
+  }, [musicMuted])
+
+  const enableSound = () => {
+    if (musicMuted) return
+    const audio = musicRef.current
+    if (!audio) return
+    startAmbientMusic(audio)
+      .then(() => setSoundBlocked(false))
+      .catch(() => setSoundBlocked(true))
+  }
 
   const visible = useMemo(
     () =>
@@ -62,7 +165,19 @@ function Notes() {
 
   return (
     <main className="relative h-[100dvh] overflow-y-auto bg-[#050505] text-stone-100">
+      <audio ref={musicRef} src={OUTRO_SRC} preload="auto" loop />
+      <audio ref={narrationRef} preload="none" />
       <div className="pointer-events-none fixed inset-0 grain opacity-[0.13]" />
+
+      {soundBlocked && !musicMuted && (
+        <button
+          type="button"
+          onClick={enableSound}
+          className="fixed bottom-5 right-5 z-20 border border-white/15 bg-stone-100 px-4 py-2 font-stoke text-xs lowercase text-[#050505] transition duration-300 hover:bg-white active:translate-y-[1px]"
+        >
+          tap for sound
+        </button>
+      )}
 
       <div className="relative mx-auto w-full max-w-[760px] px-5 py-12 sm:px-6 md:py-20">
         <a
@@ -118,13 +233,22 @@ function Notes() {
               className="note-row flex flex-col gap-3 py-9 md:flex-row md:gap-10"
               style={{ animationDelay: `${Math.min(position * 45, 540)}ms` }}
             >
-              <div className="flex shrink-0 items-baseline gap-3 md:w-24 md:flex-col md:gap-2">
-                <span className="font-stoke text-[0.7rem] tabular-nums tracking-[0.1em] text-stone-600">
-                  {String(note.index + 1).padStart(2, '0')}
-                </span>
-                <span className="font-stoke text-[0.6rem] lowercase tracking-[0.22em] text-stone-500">
-                  {moodLabel[note.mood]} · {voiceLabels[note.voice]}
-                </span>
+              <div className="flex shrink-0 flex-col gap-3 md:w-24">
+                <div className="flex items-baseline gap-3 md:flex-col md:items-start md:gap-2">
+                  <span className="font-stoke text-[0.7rem] tabular-nums tracking-[0.1em] text-stone-600">
+                    {String(note.index + 1).padStart(2, '0')}
+                  </span>
+                  <span className="font-stoke text-[0.6rem] lowercase tracking-[0.22em] text-stone-500">
+                    {moodLabel[note.mood]} · {voiceLabels[note.voice]}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => listenToNote(note.index)}
+                  className="self-start font-stoke text-[0.58rem] lowercase tracking-[0.16em] text-stone-600 transition duration-300 hover:text-stone-200"
+                >
+                  {narratingIndex === note.index ? 'reading' : 'listen'}
+                </button>
               </div>
               <p className="font-crimson text-[1.4rem] font-normal leading-[1.42] text-stone-200 md:text-[1.6rem]">
                 {note.text}
@@ -191,6 +315,7 @@ function Notes() {
               home
             </a>
           </span>
+          <MusicMute muted={musicMuted} onToggle={toggleMusicMuted} />
           <span>
             ©{' '}
             <a

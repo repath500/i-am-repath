@@ -28,7 +28,7 @@ await loadEnv()
 const apiKey = process.env.ELEVENLABS_API_KEY
 const voiceIds: Record<VoicePersona, string | undefined> = {
   'all-might': process.env.ELEVENLABS_VOICE_ALL_MIGHT,
-  goku: process.env.ELEVENLABS_VOICE_GOKU,
+  vegeta: process.env.ELEVENLABS_VOICE_VEGETA,
   attenborough: process.env.ELEVENLABS_VOICE_ATTENBOROUGH,
 }
 
