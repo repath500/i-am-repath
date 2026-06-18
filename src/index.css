@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #050505;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.font-stoke {
+  font-family: "Stoke", serif;
+}
+
+.font-crimson {
+  font-family: "Crimson Text", serif;
+}
+
+.intro-title {
+  animation: title-fade 3.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.video-shell {
+  animation: film-rise 1.25s 1.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.skeleton {
+  background:
+    linear-gradient(110deg, transparent 28%, rgba(255, 255, 255, 0.08) 44%, transparent 58%),
+    #080808;
+  background-size: 220% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+.grain {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.8) 0.65px, transparent 0.65px);
+  background-size: 3px 3px;
+}
+
+@keyframes title-fade {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  22%,
+  54% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+@keyframes film-rise {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 42px, 0) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -70% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
