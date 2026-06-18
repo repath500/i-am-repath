@@ -17,6 +17,7 @@ const frames: Frame[] = [
   { id: 'nine', src: '/web-videos/9.mp4', title: 'no option' },
   { id: 'ten', src: '/web-videos/10.mp4', title: 'i am' },
   { id: 'eleven', src: '/web-videos/11.mp4', title: 'smile' },
+  { id: 'twelve', src: '/web-videos/12.mp4', title: 'figure it out' },
 ]
 
 const notes: string[] = [
@@ -45,6 +46,7 @@ const notes: string[] = [
   'life is going to be hard. some seasons will beat the shit out of your plans, your confidence, your patience, your sleep. survive them anyway. keep your name intact, keep your heart working, keep moving ugly if you have to, but keep fucking moving.',
   'i am going to win. there is no softer version of it, no backup ending, no quiet excuse waiting for me if it gets hard. i will keep going until the work breaks in my favor because stopping is not an option i respect.',
   "don't forget who you are. not the version shaped by fear, not the one that shrinks to fit other people's limits. remember your name, your nerve, your reason. walk like your life still belongs to you.",
+  "what are we going to do for the rest of our lives. figure it out, i guess. become adults in real time, pay for our mistakes, try to keep our hearts clean, try not to lose the people we love, and somehow build a life that still feels like ours when the noise dies down.",
   'being gentle with yourself is not giving up. it is how you stay in the fight long enough to actually win it. you cannot punish yourself into becoming someone you would be proud of.',
   'one honest conversation can undo weeks of silence. so much distance is just two people each waiting for the other to reach first. be the one who reaches. it costs less than the silence does.',
   'you are allowed to outgrow what once saved you. the habits, the people, the versions of yourself that got you here. letting go of them is not betrayal. it is the quiet proof that you have grown.',
@@ -223,7 +225,13 @@ function App() {
 
         <div className="mx-auto grid w-full max-w-[1400px] flex-1 items-center gap-8 py-12 md:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.68fr)] md:gap-12 md:py-6">
           <aside className="order-2 hidden max-w-[38ch] self-end pb-8 md:block">
-            <p className="font-crimson text-xl italic leading-[1.18] text-stone-400">
+            <p
+              className={`font-crimson text-xl italic leading-[1.18] text-stone-400 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                isPlaying && !hasEnded
+                  ? 'translate-y-2 opacity-0 blur-[2px]'
+                  : 'translate-y-0 opacity-100 blur-0'
+              }`}
+            >
               a quiet record of becoming. some moments i kept, and the small
               truths they left behind.
             </p>
