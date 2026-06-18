@@ -15,6 +15,7 @@ const frames: Frame[] = [
   { id: 'six', src: '/web-videos/6.mp4', title: 'who cares' },
   { id: 'seven', src: '/web-videos/7.mp4', title: 'alone' },
   { id: 'eight', src: '/web-videos/8.mp4', title: 'darkest hours' },
+  { id: 'nine', src: '/web-videos/9.mp4', title: 'no option' },
 ]
 
 const notes: string[] = [
@@ -39,7 +40,7 @@ const notes: string[] = [
   'it is okay if today was only survival. not every day has to be progress. sometimes staying, breathing, and refusing to disappear is the entire achievement, and it is enough.',
   'joy does not have to be loud to count. a warm cup, a message answered, a window of late light across the floor. learn to notice the small good things, because they are most of the good there is.',
   'the hard days are not proof that you are failing. sometimes the world is simply heavy, the timing is wrong, and the weight is real. you can be doing everything right and still be tired. you are still here, and that matters.',
-  'you do not need to have it all figured out to keep moving. clarity usually arrives after the step, not before it. faith is just walking toward a door you cannot yet see open.',
+  'i am going to win. there is no softer version of it, no backup ending, no quiet excuse waiting for me if it gets hard. i will keep going until the work breaks in my favor because stopping is not an option i respect.',
   'being gentle with yourself is not giving up. it is how you stay in the fight long enough to actually win it. you cannot punish yourself into becoming someone you would be proud of.',
   'one honest conversation can undo weeks of silence. so much distance is just two people each waiting for the other to reach first. be the one who reaches. it costs less than the silence does.',
   'you are allowed to outgrow what once saved you. the habits, the people, the versions of yourself that got you here. letting go of them is not betrayal. it is the quiet proof that you have grown.',
