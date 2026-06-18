@@ -49,25 +49,43 @@ const idsToFrames = (ids: string[]): Frame[] =>
     .filter((frame): frame is Frame => Boolean(frame))
 
 const loadFrameState = (): FrameState => {
+  let savedCurrent: string | undefined
+  let savedQueue: string[] = []
+
   if (typeof window !== 'undefined') {
     try {
       const raw = window.localStorage.getItem(FRAME_STORAGE_KEY)
       if (raw) {
         const parsed = JSON.parse(raw) as { current?: string; queue?: string[] }
-        const current = frames.find((frame) => frame.id === parsed.current)
-        const queue = idsToFrames(parsed.queue ?? [])
-        if (current) {
-          return { current, queue }
-        }
+        savedCurrent = parsed.current
+        savedQueue = parsed.queue ?? []
       }
     } catch {
       // ignore malformed storage and fall back to a fresh queue
     }
   }
 
-  const queue = makeFrameQueue()
-  const first = queue.shift() as Frame
-  return { current: first, queue }
+  let queue = idsToFrames(savedQueue)
+
+  if (queue.length === 0) {
+    queue = makeFrameQueue(savedCurrent)
+  }
+
+  // On refresh, advance to the next clip instead of resuming the unfinished one.
+  const next = queue.shift() as Frame
+
+  if (savedCurrent) {
+    const abandoned = frames.find((frame) => frame.id === savedCurrent)
+    if (
+      abandoned &&
+      abandoned.id !== next.id &&
+      !queue.some((frame) => frame.id === abandoned.id)
+    ) {
+      queue.push(abandoned)
+    }
+  }
+
+  return { current: next, queue }
 }
 
 const saveFrameState = (state: FrameState) => {
@@ -99,36 +117,12 @@ function App() {
   const [isReady, setIsReady] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [stillFrame, setStillFrame] = useState<string | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const noteRef = useRef<HTMLElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const frame = frameState.current
   const isVideoFocused = isPlaying && !hasEnded
   const develop = hasEnded ? 1 : progress
-
-  const captureStill = () => {
-    const video = videoRef.current
-    const canvas = canvasRef.current
-    if (!video || !canvas) return
-
-    const width = video.videoWidth
-    const height = video.videoHeight
-    if (!width || !height) return
-
-    canvas.width = width
-    canvas.height = height
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    try {
-      ctx.drawImage(video, 0, 0, width, height)
-      setStillFrame(canvas.toDataURL('image/jpeg', 0.82))
-    } catch {
-      setStillFrame(null)
-    }
-  }
 
   useEffect(() => {
     saveFrameState(frameState)
@@ -161,6 +155,7 @@ function App() {
 
   useEffect(() => {
     if (!hasEnded) return
+    if (window.matchMedia('(min-width: 768px)').matches) return
 
     const timer = window.setTimeout(() => {
       noteRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -175,7 +170,6 @@ function App() {
 
     setHasEnded(false)
     setProgress(0)
-    setStillFrame(null)
     video.currentTime = 0
     playWithSound().catch(() => setSoundBlocked(true))
   }
@@ -187,7 +181,6 @@ function App() {
     setSoundBlocked(false)
     setIntroDone(true)
     setProgress(0)
-    setStillFrame(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
     setNote((current) => pickNote(current))
     setFrameState((current) => {
@@ -217,10 +210,9 @@ function App() {
 
   return (
     <main className="relative min-h-[100dvh] overflow-x-hidden bg-[#050505] text-stone-100">
-      <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
       <div className="pointer-events-none fixed inset-0 grain opacity-[0.13]" />
       <div
-        className={`pointer-events-none fixed inset-0 z-20 bg-[#050505]/88 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`pointer-events-none fixed inset-0 z-20 bg-[#050505]/88 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden ${
           isVideoFocused ? 'opacity-100' : 'pointer-events-none invisible opacity-0'
         }`}
         aria-hidden="true"
@@ -237,19 +229,57 @@ function App() {
           </div>
         )}
 
-        <div className="mx-auto grid w-full max-w-[1400px] flex-1 items-center gap-8 py-12 md:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.68fr)] md:gap-12 md:py-6">
-          <aside className="order-2 hidden max-w-[38ch] self-end pb-8 md:block">
+        <div className="mx-auto grid w-full max-w-[1400px] flex-1 items-center gap-8 py-12 md:grid-cols-[minmax(0,1fr)_minmax(360px,0.68fr)] md:gap-12 md:py-6">
+          <div className="relative z-30 order-2 hidden min-h-0 flex-col justify-center md:order-1 md:flex">
             <p
-              className={`font-crimson text-xl italic leading-[1.18] text-stone-400 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                isPlaying && !hasEnded
-                  ? 'translate-y-2 opacity-0 blur-[2px]'
-                  : 'translate-y-0 opacity-100 blur-0'
+              className={`mb-8 max-w-[38ch] font-crimson text-xl italic leading-[1.18] text-stone-400 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                develop > 0.08
+                  ? 'pointer-events-none max-h-0 overflow-hidden opacity-0'
+                  : 'opacity-100'
               }`}
             >
               a quiet record of becoming. some moments i kept, and the small
               truths they left behind.
             </p>
-          </aside>
+
+            <div className="font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600">
+              {hasEnded ? 'the note' : develop > 0 ? 'developing' : ''}
+            </div>
+
+            <p
+              className="mt-4 font-crimson text-[clamp(1.75rem,2.8vw,3.75rem)] font-normal leading-[1.08] tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+              style={{
+                filter: `blur(${(1 - develop) * 10}px)`,
+                opacity: develop > 0 ? 0.12 + develop * 0.88 : 0,
+                transform: `translateY(${(1 - develop) * 52}px)`,
+              }}
+            >
+              {note}
+            </p>
+
+            <div
+              className="mt-8 flex flex-wrap gap-3 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              style={{
+                opacity: hasEnded ? 1 : 0,
+                pointerEvents: hasEnded ? 'auto' : 'none',
+              }}
+            >
+              <button
+                type="button"
+                onClick={replay}
+                className="border border-white/15 bg-stone-100 px-5 py-3 font-stoke text-xs lowercase tracking-[0.08em] text-[#050505] transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:translate-y-[1px]"
+              >
+                play again
+              </button>
+              <button
+                type="button"
+                onClick={chooseAnother}
+                className="border border-white/15 px-5 py-3 font-stoke text-xs lowercase tracking-[0.08em] text-stone-300 transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/35 hover:text-stone-100 active:translate-y-[1px]"
+              >
+                another frame
+              </button>
+            </div>
+          </div>
 
           <div
             className={`order-1 justify-self-center md:order-2 md:justify-self-end ${
@@ -257,7 +287,7 @@ function App() {
             }`}
           >
             <div
-              className={`video-shell relative aspect-square w-[min(88vw,72dvh,640px)] overflow-hidden bg-[#090909] transition-[box-shadow] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              className={`group video-shell relative aspect-square w-[min(88vw,72dvh,640px)] overflow-hidden bg-[#090909] transition-[box-shadow] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 introDone ? 'is-revealed' : ''
               } ${isVideoFocused ? 'shadow-[0_0_120px_rgba(0,0,0,0.85)]' : ''}`}
             >
@@ -286,7 +316,6 @@ function App() {
                   }
                 }}
                 onEnded={() => {
-                  captureStill()
                   setIsPlaying(false)
                   setProgress(1)
                   setHasEnded(true)
@@ -302,7 +331,11 @@ function App() {
                   type="button"
                   onClick={togglePlay}
                   aria-label={isPlaying ? 'pause' : 'play'}
-                  className="absolute bottom-4 right-4 z-10 grid h-9 w-9 place-items-center rounded-full bg-[#050505]/35 text-stone-100/75 backdrop-blur-sm transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-[#050505]/55 hover:text-stone-100 active:translate-y-[1px]"
+                  className={`absolute bottom-4 right-4 z-10 grid h-9 w-9 place-items-center rounded-full backdrop-blur-sm transition duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] active:translate-y-[1px] ${
+                    isPlaying
+                      ? 'bg-[#050505]/20 text-stone-100/35 opacity-40 md:opacity-0 md:group-hover:opacity-100 md:group-hover:bg-[#050505]/40 md:group-hover:text-stone-100/80'
+                      : 'bg-[#050505]/35 text-stone-100/75 opacity-100 hover:bg-[#050505]/55 hover:text-stone-100'
+                  }`}
                 >
                   {isPlaying ? (
                     <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor" aria-hidden="true">
@@ -388,59 +421,42 @@ function App() {
 
       <section
         ref={noteRef}
-        className="relative mx-auto grid min-h-[72dvh] w-full max-w-[1400px] items-center overflow-hidden px-4 py-20 sm:px-6 md:grid-cols-[0.74fr_1fr] md:px-10"
+        className="relative mx-auto w-full max-w-[1400px] px-4 py-16 sm:px-6 md:hidden md:px-10"
       >
-        {stillFrame && (
-          <div
-            className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
-            style={{ opacity: hasEnded ? 1 : 0 }}
-            aria-hidden="true"
-          >
-            <img
-              src={stillFrame}
-              alt=""
-              className="h-full w-full scale-105 object-cover opacity-[0.18] blur-[2px] grayscale"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-[#050505]/65 to-[#050505]/90" />
-          </div>
-        )}
-
-        <div className="relative z-10 hidden font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600 md:block">
-          {hasEnded ? 'the note' : 'developing'}
+        <div className="font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600">
+          {hasEnded ? 'the note' : develop > 0 ? 'developing' : ''}
         </div>
-        <div className="relative z-10">
-          <p
-            className="font-crimson text-[clamp(1.9rem,6vw,5.9rem)] font-normal leading-[1.04] tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] md:leading-[0.96]"
-            style={{
-              filter: `blur(${(1 - develop) * 10}px)`,
-              opacity: 0.1 + develop * 0.9,
-              transform: `translateY(${(1 - develop) * 24}px)`,
-            }}
+        <p
+          className="mt-4 font-crimson text-[clamp(1.9rem,6vw,3.2rem)] font-normal leading-[1.08] tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+          style={{
+            filter: `blur(${(1 - develop) * 10}px)`,
+            opacity: develop > 0 ? 0.12 + develop * 0.88 : 0,
+            transform: `translateY(${(1 - develop) * 36}px)`,
+          }}
+        >
+          {note}
+        </p>
+        <div
+          className="mt-8 flex flex-wrap gap-3 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          style={{
+            opacity: hasEnded ? 1 : 0,
+            pointerEvents: hasEnded ? 'auto' : 'none',
+          }}
+        >
+          <button
+            type="button"
+            onClick={replay}
+            className="border border-white/15 bg-stone-100 px-5 py-3 font-stoke text-xs lowercase tracking-[0.08em] text-[#050505] transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:translate-y-[1px]"
           >
-            {note}
-          </p>
-          <div
-            className="mt-10 flex flex-wrap gap-3 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
-            style={{
-              opacity: hasEnded ? 1 : 0,
-              pointerEvents: hasEnded ? 'auto' : 'none',
-            }}
+            play again
+          </button>
+          <button
+            type="button"
+            onClick={chooseAnother}
+            className="border border-white/15 px-5 py-3 font-stoke text-xs lowercase tracking-[0.08em] text-stone-300 transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/35 hover:text-stone-100 active:translate-y-[1px]"
           >
-            <button
-              type="button"
-              onClick={replay}
-              className="border border-white/15 bg-stone-100 px-5 py-3 font-stoke text-xs lowercase tracking-[0.08em] text-[#050505] transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:translate-y-[1px]"
-            >
-              play again
-            </button>
-            <button
-              type="button"
-              onClick={chooseAnother}
-              className="border border-white/15 px-5 py-3 font-stoke text-xs lowercase tracking-[0.08em] text-stone-300 transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/35 hover:text-stone-100 active:translate-y-[1px]"
-            >
-              another frame
-            </button>
-          </div>
+            another frame
+          </button>
         </div>
       </section>
     </main>
