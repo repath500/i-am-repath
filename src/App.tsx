@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import { notes } from './notes'
+import { navigate } from './router'
 
 type Frame = {
   id: string
@@ -20,40 +22,6 @@ const frames: Frame[] = [
   { id: 'twelve', src: '/web-videos/12.mp4', title: 'figure it out' },
 ]
 
-const notes: string[] = [
-  'kindness is the sharpest thing i know. not softness, not the wish to be liked, but a steady decision to leave people lighter than i found them, even on the days no one would blame me for being colder.',
-  'who you are when no one is watching slowly becomes the whole shape of your life. the private self is the real one. everything else is just the part of it the world happens to see.',
-  'patience has a sound, and most days it is quiet. it is the breath you take before answering, the word you keep, the small refusal to rush a thing that was never yours to rush. a lot of peace comes from finally understanding that not everything needs your panic just because it needs your time.',
-  'you do not become yourself all at once. you choose it in small rooms, in unanswered messages, in the seconds you could have been crueler and were not. character is the sum of those invisible choices.',
-  'remember the ordinary parts too. the walk home, the light through a window, the laugh after a hard week. most of a life is not the milestones. it is the quiet middle nobody photographs, the small hours that do not look important until years later when you realize they were the whole fucking blessing.',
-  'motivation visits. resolve stays. one is a feeling that comes and goes with the weather, the other is a promise you keep to yourself long after the feeling has left the room. when the mood dies, the standard remains, and that is the part that actually builds a life.',
-  'care is not only what you feel. it is what you protect when it is inconvenient, what you repair when it is easier to replace, what you refuse to make worse just because you could.',
-  'i am still becoming. less noise, more truth. less performance, more presence. i would rather be slowly honest than quickly admired, and i am learning the difference between the two.',
-  'some mornings nothing has changed except you. same room, same weight, same unfinished life, and yet you wake up remembering you are allowed to be glad anyway. that is its own quiet kind of strength.',
-  'the version of you that kept going through the worst of it is not a smaller, broken version. it is the truest one you have. do not be ashamed of who you had to become to survive.',
-  'nobody warns you that healing is boring. it is the same kitchen, the same doubts, the same familiar fears, lived through again and again until one day they are quieter, and you are less afraid without knowing when it happened.',
-  'life moves in seasons that never ask your permission. there are springs you did nothing to earn and winters you did nothing to deserve. you are allowed to be tired in all of them.',
-  'you have already survived every single day you once swore you could not. that is not a small thing. that is a long, unbroken record of a person who kept getting back up when no one was counting.',
-  'there is still time to become the person you needed when you were younger. you cannot go back and rescue that version of you, but you can make sure no one else has to face it as alone as you did.',
-  'some grief does not leave. you do not get over the people and the years you lose. you just slowly learn to carry them in a way that no longer decides where you walk.',
-  'a soft life is not a weak one. rest is not the opposite of ambition, it is the thing that makes ambition survivable. you are allowed to build a life that is gentle on the person living it.',
-  'what you repeat in private becomes what people trust in public. reputation is just the echo of a thousand small moments no one saw. build something honest in the quiet, and the rest takes care of itself.',
-  'you are not behind. there is no schedule you were handed at birth, no race that everyone else secretly understood. you are on your own clock, and against all the noise, it is still ticking forward.',
-  'it is okay if today was only survival. not every day has to be progress. sometimes staying, breathing, and refusing to disappear is the entire achievement, and it is enough.',
-  'some blessings do not arrive loud. they come as peace after chaos, as one honest friend, as a night with no dread in your chest, as a morning where your mind finally shuts the fuck up for a minute. do not overlook the quiet mercies just because they do not look dramatic.',
-  'joy does not have to be loud to count. a warm cup, a message answered, a window of late light across the floor. learn to notice the small good things, because they are most of the good there is.',
-  'the hard days are not proof that you are failing. sometimes the world is simply heavy, the timing is wrong, and the weight is real. you can be doing everything right and still be tired. you are still here, and that matters.',
-  'life is going to be hard. some seasons will beat the shit out of your plans, your confidence, your patience, your sleep. survive them anyway. keep your name intact, keep your heart working, keep moving ugly if you have to, but keep fucking moving.',
-  'i am going to win. there is no softer version of it, no backup ending, no quiet excuse waiting for me if it gets hard. i will keep going until the work breaks in my favor because stopping is not an option i respect.',
-  "don't forget who you are. not the version shaped by fear, not the one that shrinks to fit other people's limits. remember your name, your nerve, your reason. walk like your life still belongs to you.",
-  "what are we going to do for the rest of our lives. figure it out, i guess. become adults in real time, pay for our mistakes, try to keep our hearts clean, try not to lose the people we love, and somehow build a life that still feels like ours when the noise dies down.",
-  'being gentle with yourself is not giving up. it is how you stay in the fight long enough to actually win it. you cannot punish yourself into becoming someone you would be proud of.',
-  'one honest conversation can undo weeks of silence. so much distance is just two people each waiting for the other to reach first. be the one who reaches. it costs less than the silence does.',
-  'you are allowed to outgrow what once saved you. the habits, the people, the versions of yourself that got you here. letting go of them is not betrayal. it is the quiet proof that you have grown.',
-  'fuck partying. fuck clubs. fuck the noise that makes you feel alive for an hour and empty for a week. i just want a slow morning, one person who stays, work that means something, and a life that does not need a crowd to prove it happened.',
-  'some days i am tired of performing happiness. fuck pretending i am fine because the room expects it. i want truth more than i want comfort, even when truth is just admitting i am lonely, angry, or not where i thought i would be by now.',
-]
-
 const shuffle = <T,>(input: T[]): T[] => {
   const arr = [...input]
   for (let i = arr.length - 1; i > 0; i -= 1) {
@@ -71,17 +39,59 @@ const makeFrameQueue = (excludeId?: string): Frame[] => {
   return queue
 }
 
+const FRAME_STORAGE_KEY = 'repath:frames:v1'
+
+type FrameState = { current: Frame; queue: Frame[] }
+
+const idsToFrames = (ids: string[]): Frame[] =>
+  ids
+    .map((id) => frames.find((frame) => frame.id === id))
+    .filter((frame): frame is Frame => Boolean(frame))
+
+const loadFrameState = (): FrameState => {
+  if (typeof window !== 'undefined') {
+    try {
+      const raw = window.localStorage.getItem(FRAME_STORAGE_KEY)
+      if (raw) {
+        const parsed = JSON.parse(raw) as { current?: string; queue?: string[] }
+        const current = frames.find((frame) => frame.id === parsed.current)
+        const queue = idsToFrames(parsed.queue ?? [])
+        if (current) {
+          return { current, queue }
+        }
+      }
+    } catch {
+      // ignore malformed storage and fall back to a fresh queue
+    }
+  }
+
+  const queue = makeFrameQueue()
+  const first = queue.shift() as Frame
+  return { current: first, queue }
+}
+
+const saveFrameState = (state: FrameState) => {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(
+      FRAME_STORAGE_KEY,
+      JSON.stringify({
+        current: state.current.id,
+        queue: state.queue.map((frame) => frame.id),
+      }),
+    )
+  } catch {
+    // storage may be unavailable (private mode, quota) — ignore
+  }
+}
+
 const pickNote = (exclude?: string) => {
-  const pool = exclude ? notes.filter((item) => item !== exclude) : notes
-  return pool[Math.floor(Math.random() * pool.length)]
+  const pool = exclude ? notes.filter((item) => item.text !== exclude) : notes
+  return pool[Math.floor(Math.random() * pool.length)].text
 }
 
 function App() {
-  const [frameState, setFrameState] = useState(() => {
-    const queue = makeFrameQueue()
-    const first = queue.shift() as Frame
-    return { current: first, queue }
-  })
+  const [frameState, setFrameState] = useState<FrameState>(loadFrameState)
   const [note, setNote] = useState(() => pickNote())
   const [hasEnded, setHasEnded] = useState(false)
   const [introDone, setIntroDone] = useState(false)
@@ -119,6 +129,10 @@ function App() {
       setStillFrame(null)
     }
   }
+
+  useEffect(() => {
+    saveFrameState(frameState)
+  }, [frameState])
 
   useEffect(() => {
     videoRef.current?.load()
@@ -343,8 +357,21 @@ function App() {
           </div>
         </div>
 
-        <footer className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-4 border-t border-white/10 pt-4 font-stoke text-[0.68rem] lowercase tracking-[0.14em] text-stone-500">
-          <span>2026</span>
+        <footer className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-4 border-t border-white/10 pt-4 font-stoke text-[0.6rem] lowercase tracking-[0.1em] text-stone-500 sm:text-[0.68rem] sm:tracking-[0.14em]">
+          <span className="flex items-center gap-2">
+            <span>2026</span>
+            <span className="text-white/15" aria-hidden="true">|</span>
+            <a
+              href="/notes"
+              onClick={(event) => {
+                event.preventDefault()
+                navigate('/notes')
+              }}
+              className="transition hover:text-stone-100"
+            >
+              notes
+            </a>
+          </span>
           <span>
             ©{' '}
             <a
@@ -383,7 +410,7 @@ function App() {
         </div>
         <div className="relative z-10">
           <p
-            className="font-crimson text-[clamp(2.15rem,6vw,5.9rem)] font-normal leading-[0.96] tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            className="font-crimson text-[clamp(1.9rem,6vw,5.9rem)] font-normal leading-[1.04] tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] md:leading-[0.96]"
             style={{
               filter: `blur(${(1 - develop) * 10}px)`,
               opacity: 0.1 + develop * 0.9,
