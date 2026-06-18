@@ -27,6 +27,11 @@ a {
   animation: title-fade 6.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+.intro-title,
+.intro-title * {
+  pointer-events: none;
+}
+
 .video-shell {
   animation: film-rise 1.25s 1.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }

@@ -77,6 +77,7 @@ function App() {
   })
   const [note, setNote] = useState(() => pickNote())
   const [hasEnded, setHasEnded] = useState(false)
+  const [introDone, setIntroDone] = useState(false)
   const [soundBlocked, setSoundBlocked] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -132,6 +133,7 @@ function App() {
     setIsPlaying(false)
     setIsReady(false)
     setSoundBlocked(false)
+    setIntroDone(true)
     window.scrollTo({ top: 0, behavior: 'smooth' })
     setNote((current) => pickNote(current))
     setFrame((current) => {
@@ -151,16 +153,21 @@ function App() {
       <div className="pointer-events-none fixed inset-0 grain opacity-[0.13]" />
       <div
         className={`pointer-events-none fixed inset-0 z-20 bg-[#050505]/75 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isVideoFocused ? 'opacity-100' : 'opacity-0'
+          isVideoFocused ? 'opacity-100' : 'pointer-events-none invisible opacity-0'
         }`}
         aria-hidden="true"
       />
       <section className="relative grid min-h-[100dvh] grid-cols-1 content-between px-4 py-5 sm:px-6 md:px-10 md:py-8">
-        <div className="intro-title pointer-events-none fixed inset-0 grid place-items-center">
-          <p className="font-stoke text-[clamp(2.2rem,8vw,7.5rem)] font-light lowercase tracking-[0] text-stone-100">
-            i am repath
-          </p>
-        </div>
+        {!introDone && (
+          <div
+            className="intro-title pointer-events-none fixed inset-0 z-10 grid place-items-center"
+            onAnimationEnd={() => setIntroDone(true)}
+          >
+            <p className="pointer-events-none font-stoke text-[clamp(2.2rem,8vw,7.5rem)] font-light lowercase tracking-[0] text-stone-100">
+              i am repath
+            </p>
+          </div>
+        )}
 
         <div className="mx-auto grid w-full max-w-[1400px] flex-1 items-center gap-8 py-12 md:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.68fr)] md:gap-12 md:py-6">
           <aside className="order-2 hidden max-w-[38ch] self-end pb-8 md:block">
@@ -182,7 +189,7 @@ function App() {
               <video
                 key={frame.id}
                 ref={videoRef}
-                className={`h-full w-full object-cover transition duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                className={`pointer-events-none h-full w-full object-cover transition duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                   isReady ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.015]'
                 }`}
                 playsInline
