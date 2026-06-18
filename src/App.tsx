@@ -14,7 +14,7 @@ const frames: Frame[] = [
   { id: 'five', src: '/web-videos/5.mp4', title: 'peace' },
   { id: 'six', src: '/web-videos/6.mp4', title: 'who cares' },
   { id: 'seven', src: '/web-videos/7.mp4', title: 'alone' },
-  { id: 'eight', src: '/web-videos/8.mp4', title: 'mistakes' },
+  { id: 'eight', src: '/web-videos/8.mp4', title: 'darkest hours' },
 ]
 
 const notes: string[] = [
@@ -70,12 +70,10 @@ const pickNote = (exclude?: string) => {
 }
 
 function App() {
-  const frameQueueRef = useRef<Frame[]>([])
-  const [frame, setFrame] = useState<Frame>(() => {
+  const [frameState, setFrameState] = useState(() => {
     const queue = makeFrameQueue()
     const first = queue.shift() as Frame
-    frameQueueRef.current = queue
-    return first
+    return { current: first, queue }
   })
   const [note, setNote] = useState(() => pickNote())
   const [hasEnded, setHasEnded] = useState(false)
@@ -89,6 +87,7 @@ function App() {
   const noteRef = useRef<HTMLElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
+  const frame = frameState.current
   const isVideoFocused = isPlaying && !hasEnded
   const develop = hasEnded ? 1 : progress
 
@@ -170,11 +169,13 @@ function App() {
     setStillFrame(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
     setNote((current) => pickNote(current))
-    setFrame((current) => {
-      if (frameQueueRef.current.length === 0) {
-        frameQueueRef.current = makeFrameQueue(current.id)
-      }
-      return frameQueueRef.current.shift() as Frame
+    setFrameState((current) => {
+      const queue =
+        current.queue.length === 0
+          ? makeFrameQueue(current.current.id)
+          : [...current.queue]
+      const next = queue.shift() as Frame
+      return { current: next, queue }
     })
   }
 
