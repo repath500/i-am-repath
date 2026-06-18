@@ -40,6 +40,8 @@ const makeFrameQueue = (excludeId?: string): Frame[] => {
 }
 
 const FRAME_STORAGE_KEY = 'repath:frames:v1'
+const OUTRO_SRC = '/audio/sparky-deathcap-september.mp3'
+const OUTRO_CROSSFADE_AT = 0.86
 
 type FrameState = { current: Frame; queue: Frame[] }
 
@@ -171,7 +173,9 @@ function App() {
   const [progress, setProgress] = useState(0)
   const [now, setNow] = useState(() => new Date())
   const videoRef = useRef<HTMLVideoElement>(null)
+  const outroRef = useRef<HTMLAudioElement>(null)
   const noteRef = useRef<HTMLElement>(null)
+  const outroStartedRef = useRef(false)
 
   const frame = frameState.current
   const isVideoFocused = isPlaying && !hasEnded
@@ -199,8 +203,78 @@ function App() {
     saveFrameState(frameState)
   }, [frameState])
 
+  const stopOutroMusic = () => {
+    const audio = outroRef.current
+    if (audio) {
+      audio.pause()
+      audio.currentTime = 0
+      audio.volume = 0
+    }
+    outroStartedRef.current = false
+
+    const video = videoRef.current
+    if (video) {
+      video.volume = 1
+    }
+  }
+
+  const beginOutroCrossfade = (blend: number) => {
+    const video = videoRef.current
+    const audio = outroRef.current
+    if (!video || !audio) return
+
+    video.volume = Math.max(0, 1 - blend)
+
+    if (!outroStartedRef.current) {
+      outroStartedRef.current = true
+      audio.currentTime = 0
+      audio.volume = 0
+      audio.play().catch(() => {})
+    }
+
+    audio.volume = Math.min(1, blend)
+  }
+
+  const finishOutro = () => {
+    const video = videoRef.current
+    const audio = outroRef.current
+
+    if (video) {
+      video.pause()
+      video.volume = 0
+    }
+
+    if (!audio) return
+
+    if (outroStartedRef.current) {
+      audio.volume = 1
+      return
+    }
+
+    outroStartedRef.current = true
+    audio.currentTime = 0
+    audio.volume = 0
+    audio
+      .play()
+      .then(() => {
+        const fadeStart = performance.now()
+        const fade = (now: number) => {
+          const t = Math.min(1, (now - fadeStart) / 2200)
+          const eased = t * t * (3 - 2 * t)
+          audio.volume = eased
+          if (t < 1) window.requestAnimationFrame(fade)
+        }
+        window.requestAnimationFrame(fade)
+      })
+      .catch(() => {})
+  }
+
   useEffect(() => {
+    outroStartedRef.current = false
+    stopOutroMusic()
     videoRef.current?.load()
+
+    return () => stopOutroMusic()
   }, [frame])
 
   const playWithSound = () => {
@@ -239,6 +313,7 @@ function App() {
     const video = videoRef.current
     if (!video) return
 
+    stopOutroMusic()
     setHasEnded(false)
     setProgress(0)
     video.currentTime = 0
@@ -246,6 +321,7 @@ function App() {
   }
 
   const chooseAnother = () => {
+    stopOutroMusic()
     setHasEnded(false)
     setIsPlaying(false)
     setIsReady(false)
@@ -281,6 +357,7 @@ function App() {
 
   return (
     <main className="relative min-h-[100dvh] overflow-x-hidden bg-[#050505] text-stone-100">
+      <audio ref={outroRef} src={OUTRO_SRC} preload="auto" />
       <div className="pointer-events-none fixed inset-0 grain opacity-[0.13]" />
       <div
         className={`pointer-events-none fixed inset-0 z-20 bg-[#050505]/88 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden ${
@@ -384,10 +461,18 @@ function App() {
                 onTimeUpdate={() => {
                   const video = videoRef.current
                   if (video && video.duration) {
-                    setProgress(Math.min(1, video.currentTime / video.duration))
+                    const nextProgress = Math.min(1, video.currentTime / video.duration)
+                    setProgress(nextProgress)
+
+                    if (nextProgress >= OUTRO_CROSSFADE_AT) {
+                      const blend =
+                        (nextProgress - OUTRO_CROSSFADE_AT) / (1 - OUTRO_CROSSFADE_AT)
+                      beginOutroCrossfade(blend)
+                    }
                   }
                 }}
                 onEnded={() => {
+                  finishOutro()
                   setIsPlaying(false)
                   setProgress(1)
                   setHasEnded(true)
@@ -457,7 +542,7 @@ function App() {
 
             <div className="mt-4 flex items-center justify-between gap-4 font-stoke text-[0.68rem] lowercase tracking-[0.18em] text-stone-500">
               <span>{frame.title}</span>
-              <span>{hasEnded ? 'ended' : 'playing once'}</span>
+              <span>{hasEnded ? 'september' : 'playing once'}</span>
             </div>
           </div>
         </div>
