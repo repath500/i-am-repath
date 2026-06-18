@@ -100,14 +100,16 @@ function App() {
   }
 
   useEffect(() => {
+    if (!introDone) return
+
     const timer = window.setTimeout(() => {
       playWithSound()
         .then(() => setSoundBlocked(false))
         .catch(() => setSoundBlocked(true))
-    }, 1900)
+    }, 260)
 
     return () => window.clearTimeout(timer)
-  }, [frame])
+  }, [frame, introDone])
 
   useEffect(() => {
     if (!hasEnded) return
@@ -152,7 +154,7 @@ function App() {
     <main className="relative min-h-[100dvh] overflow-x-hidden bg-[#050505] text-stone-100">
       <div className="pointer-events-none fixed inset-0 grain opacity-[0.13]" />
       <div
-        className={`pointer-events-none fixed inset-0 z-20 bg-[#050505]/75 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`pointer-events-none fixed inset-0 z-20 bg-[#050505]/88 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isVideoFocused ? 'opacity-100' : 'pointer-events-none invisible opacity-0'
         }`}
         aria-hidden="true"
@@ -182,7 +184,15 @@ function App() {
               isVideoFocused ? 'relative z-30' : ''
             }`}
           >
-            <div className="video-shell relative aspect-square w-[min(88vw,72dvh,640px)] overflow-hidden border border-white/10 bg-[#090909] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+            <div
+              className={`video-shell relative aspect-square w-[min(88vw,72dvh,640px)] overflow-hidden border bg-[#090909] transition-[box-shadow,border-color] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                introDone ? 'is-revealed' : ''
+              } ${
+                isVideoFocused
+                  ? 'border-white/25 shadow-[0_0_120px_rgba(0,0,0,0.85)]'
+                  : 'border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
+              }`}
+            >
               {!isReady && (
                 <div className="absolute inset-0 skeleton" aria-hidden="true" />
               )}
@@ -191,7 +201,7 @@ function App() {
                 ref={videoRef}
                 className={`pointer-events-none h-full w-full object-cover transition duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                   isReady ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.015]'
-                }`}
+                } ${isVideoFocused ? 'brightness-110' : 'brightness-[0.82]'}`}
                 playsInline
                 preload="auto"
                 controls={false}
