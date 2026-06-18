@@ -48,10 +48,11 @@ const makeFrameQueue = (excludeId?: string): Frame[] => {
 const FRAME_STORAGE_KEY = 'repath:frames:v1'
 const OUTRO_SRC = '/audio/sparky-deathcap-september.mp3'
 const OUTRO_CROSSFADE_AT = 0.86
-const MUSIC_AMBIENT = 0.34
-const MUSIC_DUCKED = 0.14
-const MUSIC_NARRATION_DUCK = 0.08
-const MUSIC_FULL = 1
+const MUSIC_AMBIENT = 0.16
+const MUSIC_FULL = 0.36
+const MUSIC_NARRATION_DUCK = 0.05
+const NARRATION_AUTO_DELAY_MS = 2800
+const CROSSFADE_MS = 1800
 
 type FrameState = { current: Frame; queue: Frame[] }
 
@@ -183,12 +184,14 @@ function App() {
   const [isReady, setIsReady] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [isNarrating, setIsNarrating] = useState(false)
   const [now, setNow] = useState(() => new Date())
   const videoRef = useRef<HTMLVideoElement>(null)
   const outroRef = useRef<HTMLAudioElement>(null)
   const narrationRef = useRef<HTMLAudioElement>(null)
   const noteRef = useRef<HTMLElement>(null)
   const fadeRafRef = useRef<number | null>(null)
+  const narrationAutoTimerRef = useRef<number | null>(null)
 
   const note = activeNote.note.text
   const desktopNoteTypography = useMemo(() => getNoteTypography(note, 'desktop'), [note])
@@ -218,7 +221,16 @@ function App() {
     saveFrameState(frameState)
   }, [frameState])
 
+  const cancelNarrationAuto = () => {
+    if (narrationAutoTimerRef.current) {
+      window.clearTimeout(narrationAutoTimerRef.current)
+      narrationAutoTimerRef.current = null
+    }
+  }
+
   const stopMusic = () => {
+    cancelNarrationAuto()
+
     if (fadeRafRef.current) {
       cancelAnimationFrame(fadeRafRef.current)
       fadeRafRef.current = null
@@ -231,6 +243,7 @@ function App() {
       narration.onended = null
       narration.onerror = null
     }
+    setIsNarrating(false)
 
     const audio = outroRef.current
     if (audio) {
@@ -245,50 +258,41 @@ function App() {
     }
   }
 
-  const playNoteNarration = (noteIndex: number) => {
-    const narration = narrationRef.current
-    const src = getNoteVoiceSrc(noteIndex)
-    if (!narration || !src) return
+  const smoothstep = (t: number) => t * t * (3 - 2 * t)
 
-    narration.pause()
-    narration.currentTime = 0
-    narration.src = src
-    narration.volume = 1
-
-    narration.onended = () => {
-      fadeAudioVolume(MUSIC_FULL, 900)
-    }
-
-    narration.onerror = () => {
-      fadeAudioVolume(MUSIC_FULL, 600)
-    }
-
-    fadeAudioVolume(MUSIC_NARRATION_DUCK, 500)
-    narration.play().catch(() => {
-      fadeAudioVolume(MUSIC_FULL, 600)
-    })
-  }
-
-  const fadeAudioVolume = (target: number, durationMs = 1200) => {
-    const audio = outroRef.current
-    if (!audio) return Promise.resolve()
+  const fadeVolume = (
+    element: HTMLMediaElement | null,
+    target: number,
+    durationMs = CROSSFADE_MS,
+  ) => {
+    if (!element) return Promise.resolve()
 
     if (fadeRafRef.current) {
       cancelAnimationFrame(fadeRafRef.current)
       fadeRafRef.current = null
     }
 
-    const from = audio.volume
+    if (target > 0 && element.paused) {
+      element.volume = 0
+      element.play().catch(() => {})
+    }
+
+    const from = element.volume
     const start = performance.now()
 
     return new Promise<void>((resolve) => {
       const tick = (now: number) => {
         const t = Math.min(1, (now - start) / durationMs)
-        const eased = t * t * (3 - 2 * t)
-        audio.volume = from + (target - from) * eased
+        const eased = smoothstep(t)
+        element.volume = from + (target - from) * eased
+
         if (t < 1) {
           fadeRafRef.current = requestAnimationFrame(tick)
         } else {
+          element.volume = target
+          if (target === 0) {
+            element.pause()
+          }
           fadeRafRef.current = null
           resolve()
         }
@@ -297,21 +301,124 @@ function App() {
     })
   }
 
-  const startSiteMusic = () => {
+  const crossfadeMusicToVideo = (durationMs = CROSSFADE_MS) => {
+    const video = videoRef.current
     const audio = outroRef.current
-    if (!audio) return Promise.reject()
+    if (!video || !audio) return Promise.resolve()
 
-    audio.loop = true
-
-    if (!audio.paused) {
-      return fadeAudioVolume(MUSIC_AMBIENT, 900)
+    if (fadeRafRef.current) {
+      cancelAnimationFrame(fadeRafRef.current)
+      fadeRafRef.current = null
     }
 
-    audio.volume = 0
-    return audio.play().then(() => fadeAudioVolume(MUSIC_AMBIENT, 2200))
+    const start = performance.now()
+    const videoFrom = video.volume
+    const audioFrom = audio.paused ? 0 : audio.volume
+
+    return new Promise<void>((resolve) => {
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / durationMs)
+        const eased = smoothstep(t)
+        video.volume = videoFrom + (1 - videoFrom) * eased
+        audio.volume = audioFrom * (1 - eased)
+
+        if (t < 1) {
+          fadeRafRef.current = requestAnimationFrame(tick)
+        } else {
+          video.volume = 1
+          audio.volume = 0
+          audio.pause()
+          fadeRafRef.current = null
+          resolve()
+        }
+      }
+      fadeRafRef.current = requestAnimationFrame(tick)
+    })
   }
 
-  const duckSiteMusic = () => fadeAudioVolume(MUSIC_DUCKED, 700)
+  const crossfadeVideoToMusic = (target = MUSIC_FULL, durationMs = CROSSFADE_MS) => {
+    const video = videoRef.current
+    const audio = outroRef.current
+    if (!video || !audio) return Promise.resolve()
+
+    if (fadeRafRef.current) {
+      cancelAnimationFrame(fadeRafRef.current)
+      fadeRafRef.current = null
+    }
+
+    audio.loop = true
+    if (audio.paused) {
+      audio.volume = 0
+      audio.play().catch(() => {})
+    }
+
+    const start = performance.now()
+    const videoFrom = video.volume
+    const audioFrom = audio.volume
+
+    return new Promise<void>((resolve) => {
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / durationMs)
+        const eased = smoothstep(t)
+        video.volume = videoFrom * (1 - eased)
+        audio.volume = audioFrom + (target - audioFrom) * eased
+
+        if (t < 1) {
+          fadeRafRef.current = requestAnimationFrame(tick)
+        } else {
+          video.volume = 0
+          audio.volume = target
+          fadeRafRef.current = null
+          resolve()
+        }
+      }
+      fadeRafRef.current = requestAnimationFrame(tick)
+    })
+  }
+
+  const beginVideoPlayback = async () => {
+    const video = videoRef.current
+    if (!video) throw new Error('no video')
+
+    video.muted = false
+    video.volume = 0
+    await video.play()
+    await crossfadeMusicToVideo()
+  }
+
+  const playNoteNarration = (noteIndex: number) => {
+    cancelNarrationAuto()
+
+    const narration = narrationRef.current
+    const src = getNoteVoiceSrc(noteIndex)
+    if (!narration || !src) return
+
+    narration.pause()
+    narration.currentTime = 0
+    narration.src = src
+    narration.volume = 1
+    setIsNarrating(true)
+
+    narration.onended = () => {
+      setIsNarrating(false)
+      fadeVolume(outroRef.current, MUSIC_FULL, 1200)
+    }
+
+    narration.onerror = () => {
+      setIsNarrating(false)
+      fadeVolume(outroRef.current, MUSIC_FULL, 900)
+    }
+
+    fadeVolume(outroRef.current, MUSIC_NARRATION_DUCK, 700)
+    narration.play().catch(() => {
+      setIsNarrating(false)
+      fadeVolume(outroRef.current, MUSIC_FULL, 900)
+    })
+  }
+
+  const listenToNote = () => {
+    playNoteNarration(activeNote.index)
+  }
 
   const beginOutroCrossfade = (blend: number) => {
     const video = videoRef.current
@@ -320,13 +427,13 @@ function App() {
 
     video.volume = Math.max(0, 1 - blend)
 
-    if (audio.paused) {
+    if (audio.paused && blend > 0) {
       audio.loop = true
       audio.volume = 0
       audio.play().catch(() => {})
     }
 
-    audio.volume = MUSIC_DUCKED + (MUSIC_FULL - MUSIC_DUCKED) * blend
+    audio.volume = MUSIC_FULL * blend
   }
 
   const finishOutro = () => {
@@ -345,12 +452,12 @@ function App() {
       audio.volume = 0
       audio
         .play()
-        .then(() => fadeAudioVolume(MUSIC_FULL, 1200))
+        .then(() => fadeVolume(audio, MUSIC_FULL, 1400))
         .catch(() => {})
       return
     }
 
-    audio.volume = MUSIC_FULL
+    fadeVolume(audio, MUSIC_FULL, 900)
   }
 
   useEffect(() => {
@@ -360,20 +467,11 @@ function App() {
     return () => stopMusic()
   }, [frame])
 
-  const playWithSound = () => {
-    const video = videoRef.current
-    if (!video) return Promise.reject()
-
-    video.muted = false
-    video.volume = 1
-    return video.play()
-  }
-
   useEffect(() => {
     if (!introDone) return
 
     const timer = window.setTimeout(() => {
-      Promise.all([playWithSound(), startSiteMusic()])
+      beginVideoPlayback()
         .then(() => setSoundBlocked(false))
         .catch(() => setSoundBlocked(true))
     }, 260)
@@ -382,19 +480,20 @@ function App() {
   }, [frame, introDone])
 
   useEffect(() => {
-    if (!isPlaying || hasEnded) return
-    duckSiteMusic()
-  }, [isPlaying, hasEnded])
+    if (!hasEnded) {
+      cancelNarrationAuto()
+      setIsNarrating(false)
+      return
+    }
 
-  useEffect(() => {
-    if (!hasEnded) return
+    if (soundBlocked) return
 
-    const timer = window.setTimeout(() => {
+    narrationAutoTimerRef.current = window.setTimeout(() => {
       playNoteNarration(activeNote.index)
-    }, 700)
+    }, NARRATION_AUTO_DELAY_MS)
 
-    return () => window.clearTimeout(timer)
-  }, [hasEnded, activeNote.index])
+    return cancelNarrationAuto
+  }, [hasEnded, activeNote.index, soundBlocked])
 
   useEffect(() => {
     if (!hasEnded) return
@@ -411,13 +510,12 @@ function App() {
     const video = videoRef.current
     if (!video) return
 
+    cancelNarrationAuto()
+    setIsNarrating(false)
     setHasEnded(false)
     setProgress(0)
     video.currentTime = 0
-    video.volume = 1
-    playWithSound()
-      .then(() => duckSiteMusic())
-      .catch(() => setSoundBlocked(true))
+    beginVideoPlayback().catch(() => setSoundBlocked(true))
   }
 
   const chooseAnother = () => {
@@ -441,19 +539,25 @@ function App() {
   }
 
   const enableSound = () => {
-    Promise.all([playWithSound(), startSiteMusic()])
+    beginVideoPlayback()
       .then(() => setSoundBlocked(false))
       .catch(() => setSoundBlocked(true))
   }
 
   const togglePlay = () => {
     const video = videoRef.current
-    if (!video) return
+    if (!video || hasEnded) return
 
     if (video.paused) {
-      video.play().catch(() => {})
+      video.muted = false
+      video.volume = 0
+      video
+        .play()
+        .then(() => crossfadeMusicToVideo())
+        .catch(() => {})
     } else {
       video.pause()
+      crossfadeVideoToMusic(MUSIC_AMBIENT)
     }
   }
 
@@ -520,6 +624,13 @@ function App() {
                 pointerEvents: hasEnded ? 'auto' : 'none',
               }}
             >
+              <button
+                type="button"
+                onClick={listenToNote}
+                className="border border-white/15 px-5 py-3 font-stoke text-xs lowercase tracking-[0.08em] text-stone-300 transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/35 hover:text-stone-100 active:translate-y-[1px]"
+              >
+                {isNarrating ? 'reading' : 'listen'}
+              </button>
               <button
                 type="button"
                 onClick={replay}
@@ -718,6 +829,13 @@ function App() {
             pointerEvents: hasEnded ? 'auto' : 'none',
           }}
         >
+          <button
+            type="button"
+            onClick={listenToNote}
+            className="border border-white/15 px-5 py-3 font-stoke text-xs lowercase tracking-[0.08em] text-stone-300 transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/35 hover:text-stone-100 active:translate-y-[1px]"
+          >
+            {isNarrating ? 'reading' : 'listen'}
+          </button>
           <button
             type="button"
             onClick={replay}
