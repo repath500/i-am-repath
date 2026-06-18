@@ -131,18 +131,9 @@ function App() {
     if (!introDone) return
 
     const timer = window.setTimeout(() => {
-      const video = videoRef.current
-      if (!video) return
-
-      video.muted = false
-      video.volume = 1
-      video
-        .play()
+      playWithSound()
         .then(() => setSoundBlocked(false))
-        .catch(() => {
-          video.muted = true
-          video.play().then(() => setSoundBlocked(true)).catch(() => {})
-        })
+        .catch(() => setSoundBlocked(true))
     }, 260)
 
     return () => window.clearTimeout(timer)
