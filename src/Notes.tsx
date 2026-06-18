@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { notes } from './notes'
 import type { Mood } from './notes'
+import { voiceLabels } from './voices'
 import { navigate } from './router'
 
 // Set this to your email to have submissions open the visitor's mail app
@@ -122,7 +123,7 @@ function Notes() {
                   {String(note.index + 1).padStart(2, '0')}
                 </span>
                 <span className="font-stoke text-[0.6rem] lowercase tracking-[0.22em] text-stone-500">
-                  {moodLabel[note.mood]}
+                  {moodLabel[note.mood]} · {voiceLabels[note.voice]}
                 </span>
               </div>
               <p className="font-crimson text-[1.4rem] font-normal leading-[1.42] text-stone-200 md:text-[1.6rem]">

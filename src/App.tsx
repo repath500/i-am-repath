@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { notes } from './notes'
+import { notes, type Note } from './notes'
 import { navigate } from './router'
+import { getNoteVoiceSrc, voiceLabels } from './voices'
+
+type ActiveNote = {
+  note: Note
+  index: number
+}
 
 type Frame = {
   id: string
@@ -44,6 +50,7 @@ const OUTRO_SRC = '/audio/sparky-deathcap-september.mp3'
 const OUTRO_CROSSFADE_AT = 0.86
 const MUSIC_AMBIENT = 0.34
 const MUSIC_DUCKED = 0.14
+const MUSIC_NARRATION_DUCK = 0.08
 const MUSIC_FULL = 1
 
 type FrameState = { current: Frame; queue: Frame[] }
@@ -108,9 +115,11 @@ const saveFrameState = (state: FrameState) => {
   }
 }
 
-const pickNote = (exclude?: string) => {
-  const pool = exclude ? notes.filter((item) => item.text !== exclude) : notes
-  return pool[Math.floor(Math.random() * pool.length)].text
+const pickNote = (exclude?: string): ActiveNote => {
+  const pool = notes
+    .map((note, index) => ({ note, index }))
+    .filter(({ note }) => !exclude || note.text !== exclude)
+  return pool[Math.floor(Math.random() * pool.length)]
 }
 
 const getNoteTypography = (text: string, variant: 'desktop' | 'mobile') => {
@@ -167,7 +176,7 @@ const getNoteRise = (text: string, variant: 'desktop' | 'mobile') => {
 
 function App() {
   const [frameState, setFrameState] = useState<FrameState>(loadFrameState)
-  const [note, setNote] = useState(() => pickNote())
+  const [activeNote, setActiveNote] = useState<ActiveNote>(() => pickNote())
   const [hasEnded, setHasEnded] = useState(false)
   const [introDone, setIntroDone] = useState(false)
   const [soundBlocked, setSoundBlocked] = useState(false)
@@ -177,16 +186,19 @@ function App() {
   const [now, setNow] = useState(() => new Date())
   const videoRef = useRef<HTMLVideoElement>(null)
   const outroRef = useRef<HTMLAudioElement>(null)
+  const narrationRef = useRef<HTMLAudioElement>(null)
   const noteRef = useRef<HTMLElement>(null)
   const fadeRafRef = useRef<number | null>(null)
 
-  const frame = frameState.current
-  const isVideoFocused = isPlaying && !hasEnded
-  const develop = hasEnded ? 1 : progress
+  const note = activeNote.note.text
   const desktopNoteTypography = useMemo(() => getNoteTypography(note, 'desktop'), [note])
   const mobileNoteTypography = useMemo(() => getNoteTypography(note, 'mobile'), [note])
   const desktopNoteRise = useMemo(() => getNoteRise(note, 'desktop'), [note])
   const mobileNoteRise = useMemo(() => getNoteRise(note, 'mobile'), [note])
+
+  const frame = frameState.current
+  const isVideoFocused = isPlaying && !hasEnded
+  const develop = hasEnded ? 1 : progress
 
   const clock = now
     .toLocaleTimeString([], {
@@ -212,6 +224,14 @@ function App() {
       fadeRafRef.current = null
     }
 
+    const narration = narrationRef.current
+    if (narration) {
+      narration.pause()
+      narration.currentTime = 0
+      narration.onended = null
+      narration.onerror = null
+    }
+
     const audio = outroRef.current
     if (audio) {
       audio.pause()
@@ -223,6 +243,30 @@ function App() {
     if (video) {
       video.volume = 1
     }
+  }
+
+  const playNoteNarration = (noteIndex: number) => {
+    const narration = narrationRef.current
+    const src = getNoteVoiceSrc(noteIndex)
+    if (!narration || !src) return
+
+    narration.pause()
+    narration.currentTime = 0
+    narration.src = src
+    narration.volume = 1
+
+    narration.onended = () => {
+      fadeAudioVolume(MUSIC_FULL, 900)
+    }
+
+    narration.onerror = () => {
+      fadeAudioVolume(MUSIC_FULL, 600)
+    }
+
+    fadeAudioVolume(MUSIC_NARRATION_DUCK, 500)
+    narration.play().catch(() => {
+      fadeAudioVolume(MUSIC_FULL, 600)
+    })
   }
 
   const fadeAudioVolume = (target: number, durationMs = 1200) => {
@@ -344,6 +388,16 @@ function App() {
 
   useEffect(() => {
     if (!hasEnded) return
+
+    const timer = window.setTimeout(() => {
+      playNoteNarration(activeNote.index)
+    }, 700)
+
+    return () => window.clearTimeout(timer)
+  }, [hasEnded, activeNote.index])
+
+  useEffect(() => {
+    if (!hasEnded) return
     if (window.matchMedia('(min-width: 768px)').matches) return
 
     const timer = window.setTimeout(() => {
@@ -375,7 +429,7 @@ function App() {
     setIntroDone(true)
     setProgress(0)
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    setNote((current) => pickNote(current))
+    setActiveNote((current) => pickNote(current.note.text))
     setFrameState((current) => {
       const queue =
         current.queue.length === 0
@@ -406,6 +460,7 @@ function App() {
   return (
     <main className="relative min-h-[100dvh] overflow-x-hidden bg-[#050505] text-stone-100">
       <audio ref={outroRef} src={OUTRO_SRC} preload="auto" loop />
+      <audio ref={narrationRef} preload="none" />
       <div className="pointer-events-none fixed inset-0 grain opacity-[0.13]" />
       <div
         className={`pointer-events-none fixed inset-0 z-20 bg-[#050505]/88 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden ${
@@ -439,7 +494,11 @@ function App() {
             </p>
 
             <div className="font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600">
-              {hasEnded ? 'the note' : develop > 0 ? 'developing' : ''}
+              {hasEnded
+                ? `the note · ${voiceLabels[activeNote.note.voice]}`
+                : develop > 0
+                  ? 'developing'
+                  : ''}
             </div>
 
             <p
@@ -635,7 +694,11 @@ function App() {
         className="relative mx-auto w-full max-w-[1400px] px-4 py-16 sm:px-6 md:hidden md:px-10"
       >
         <div className="font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600">
-          {hasEnded ? 'the note' : develop > 0 ? 'developing' : ''}
+          {hasEnded
+            ? `the note · ${voiceLabels[activeNote.note.voice]}`
+            : develop > 0
+              ? 'developing'
+              : ''}
         </div>
         <p
           className="mt-4 max-w-[34ch] font-crimson font-normal tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
