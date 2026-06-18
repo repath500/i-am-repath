@@ -24,7 +24,7 @@ a {
 }
 
 .intro-title {
-  animation: title-fade 3.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: title-fade 6.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .video-shell {
@@ -49,8 +49,8 @@ a {
     opacity: 0;
     transform: translate3d(0, 10px, 0);
   }
-  22%,
-  54% {
+  12%,
+  72% {
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }
