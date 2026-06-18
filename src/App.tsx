@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { notes } from './notes'
 import { navigate } from './router'
 
@@ -108,6 +108,58 @@ const pickNote = (exclude?: string) => {
   return pool[Math.floor(Math.random() * pool.length)].text
 }
 
+const getNoteTypography = (text: string, variant: 'desktop' | 'mobile') => {
+  const length = text.length
+
+  if (variant === 'desktop') {
+    if (length > 320) {
+      return { fontSize: 'clamp(0.9rem, 1.05vw, 1.2rem)', lineHeight: 1.3 }
+    }
+    if (length > 260) {
+      return { fontSize: 'clamp(0.95rem, 1.15vw, 1.3rem)', lineHeight: 1.26 }
+    }
+    if (length > 200) {
+      return { fontSize: 'clamp(1.05rem, 1.35vw, 1.45rem)', lineHeight: 1.22 }
+    }
+    if (length > 150) {
+      return { fontSize: 'clamp(1.15rem, 1.55vw, 1.65rem)', lineHeight: 1.16 }
+    }
+    if (length > 100) {
+      return { fontSize: 'clamp(1.35rem, 1.85vw, 2rem)', lineHeight: 1.12 }
+    }
+    return { fontSize: 'clamp(1.55rem, 2.2vw, 2.45rem)', lineHeight: 1.08 }
+  }
+
+  if (length > 320) {
+    return { fontSize: 'clamp(1rem, 3.6vw, 1.3rem)', lineHeight: 1.3 }
+  }
+  if (length > 260) {
+    return { fontSize: 'clamp(1.05rem, 3.9vw, 1.4rem)', lineHeight: 1.26 }
+  }
+  if (length > 200) {
+    return { fontSize: 'clamp(1.15rem, 4.2vw, 1.55rem)', lineHeight: 1.22 }
+  }
+  if (length > 150) {
+    return { fontSize: 'clamp(1.3rem, 4.8vw, 1.85rem)', lineHeight: 1.16 }
+  }
+  if (length > 100) {
+    return { fontSize: 'clamp(1.45rem, 5.4vw, 2.15rem)', lineHeight: 1.12 }
+  }
+  return { fontSize: 'clamp(1.65rem, 6vw, 2.5rem)', lineHeight: 1.08 }
+}
+
+const getNoteRise = (text: string, variant: 'desktop' | 'mobile') => {
+  const length = text.length
+  if (variant === 'desktop') {
+    if (length > 260) return 24
+    if (length > 180) return 36
+    return 48
+  }
+  if (length > 260) return 18
+  if (length > 180) return 28
+  return 36
+}
+
 function App() {
   const [frameState, setFrameState] = useState<FrameState>(loadFrameState)
   const [note, setNote] = useState(() => pickNote())
@@ -123,6 +175,10 @@ function App() {
   const frame = frameState.current
   const isVideoFocused = isPlaying && !hasEnded
   const develop = hasEnded ? 1 : progress
+  const desktopNoteTypography = useMemo(() => getNoteTypography(note, 'desktop'), [note])
+  const mobileNoteTypography = useMemo(() => getNoteTypography(note, 'mobile'), [note])
+  const desktopNoteRise = useMemo(() => getNoteRise(note, 'desktop'), [note])
+  const mobileNoteRise = useMemo(() => getNoteRise(note, 'mobile'), [note])
 
   useEffect(() => {
     saveFrameState(frameState)
@@ -230,7 +286,7 @@ function App() {
         )}
 
         <div className="mx-auto grid w-full max-w-[1400px] flex-1 items-center gap-8 py-12 md:grid-cols-[minmax(0,1fr)_minmax(360px,0.68fr)] md:gap-12 md:py-6">
-          <div className="relative z-30 order-2 hidden min-h-0 flex-col justify-center md:order-1 md:flex">
+          <div className="relative z-30 order-2 hidden min-h-0 max-h-[min(64dvh,560px)] flex-col justify-center md:order-1 md:flex">
             <p
               className={`mb-8 max-w-[38ch] font-crimson text-xl italic leading-[1.18] text-stone-400 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 develop > 0.08
@@ -247,11 +303,12 @@ function App() {
             </div>
 
             <p
-              className="mt-4 font-crimson text-[clamp(1.75rem,2.8vw,3.75rem)] font-normal leading-[1.08] tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className="mt-4 max-w-[42ch] font-crimson font-normal tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{
+                ...desktopNoteTypography,
                 filter: `blur(${(1 - develop) * 10}px)`,
                 opacity: develop > 0 ? 0.12 + develop * 0.88 : 0,
-                transform: `translateY(${(1 - develop) * 52}px)`,
+                transform: `translateY(${(1 - develop) * desktopNoteRise}px)`,
               }}
             >
               {note}
@@ -427,11 +484,12 @@ function App() {
           {hasEnded ? 'the note' : develop > 0 ? 'developing' : ''}
         </div>
         <p
-          className="mt-4 font-crimson text-[clamp(1.9rem,6vw,3.2rem)] font-normal leading-[1.08] tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+          className="mt-4 max-w-[34ch] font-crimson font-normal tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
           style={{
+            ...mobileNoteTypography,
             filter: `blur(${(1 - develop) * 10}px)`,
             opacity: develop > 0 ? 0.12 + develop * 0.88 : 0,
-            transform: `translateY(${(1 - develop) * 36}px)`,
+            transform: `translateY(${(1 - develop) * mobileNoteRise}px)`,
           }}
         >
           {note}
