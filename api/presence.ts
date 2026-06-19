@@ -9,6 +9,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type',
 }
 
+const getRedisConfig = () => {
+  const url =
+    process.env.UPSTASH_REDIS_REST_URL ??
+    process.env.UPSTASH_REDIS_REST_KV_REST_API_URL ??
+    process.env.KV_REST_API_URL
+
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN ??
+    process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN ??
+    process.env.KV_REST_API_TOKEN
+
+  return { url, token }
+}
+
 export default async function handler(request: Request) {
   if (request.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -18,8 +32,7 @@ export default async function handler(request: Request) {
     return new Response('Method not allowed', { status: 405, headers: corsHeaders })
   }
 
-  const redisUrl = process.env.UPSTASH_REDIS_REST_URL
-  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN
+  const { url: redisUrl, token: redisToken } = getRedisConfig()
 
   if (!redisUrl || !redisToken) {
     return Response.json(
