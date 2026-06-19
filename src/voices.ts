@@ -8,5 +8,8 @@ export const getNoteVoiceSrc = (index: number) => {
   return `/voices/${NOTE_VOICE_DIR}/${id}.mp3`
 }
 
+export const getRepathPublicLetterVoiceSrc = () =>
+  `/voices/${NOTE_VOICE_DIR}/letter.mp3`
+
 export const findNoteIndex = (text: string) =>
   notes.findIndex((note) => note.text === text)

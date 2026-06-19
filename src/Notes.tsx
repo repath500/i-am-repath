@@ -8,8 +8,14 @@ import {
 } from './audioConfig'
 import MusicMute from './MusicMute'
 import PresenceWhisper from './PresenceWhisper'
+import { hiddenNote } from './hiddenContent'
 import { notes } from './notes'
 import type { Mood } from './notes'
+import {
+  allNotesComplete,
+  markNoteComplete,
+  useProgressListener,
+} from './progress'
 import { getNoteSharePath, navigate } from './router'
 import { resetSiteMeta, shareNote, updateNoteMeta } from './share'
 import { useMusicMuted } from './useMusicMuted'
@@ -17,6 +23,14 @@ import { getNoteVoiceSrc } from './voices'
 
 // Visitor submissions are saved to Upstash via /api/notes
 
+const HIDDEN_INDEX = 31
+
+type DisplayNote = {
+  text: string
+  mood: Mood
+  index: number
+  hidden?: boolean
+}
 type Filter = 'all' | Mood
 type ViewMode = 'list' | 'feed'
 
@@ -74,16 +88,33 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
   const pendingScrollRef = useRef<number | null>(initialNoteIndex ?? null)
   const [narratingIndex, setNarratingIndex] = useState<number | null>(null)
   const [activeScrollIndex, setActiveScrollIndex] = useState<number | null>(null)
+  const [unlockedHidden, setUnlockedHidden] = useState(allNotesComplete)
+
+  const noteNumber = (note: DisplayNote) =>
+    note.hidden ? '32' : String(note.index + 1).padStart(2, '0')
 
   musicMutedRef.current = musicMuted
   viewModeRef.current = viewMode
 
+  useEffect(() => {
+    return useProgressListener(() => setUnlockedHidden(allNotesComplete()))
+  }, [])
+
+  const catalog = useMemo((): DisplayNote[] => {
+    const base: DisplayNote[] = notes.map((note, index) => ({ ...note, index }))
+    if (unlockedHidden) {
+      base.push({ ...hiddenNote, index: HIDDEN_INDEX, hidden: true })
+    }
+    return base
+  }, [unlockedHidden])
+
   const visible = useMemo(
     () =>
-      notes
-        .map((note, index) => ({ ...note, index }))
-        .filter((note) => filter === 'all' || note.mood === filter),
-    [filter],
+      catalog.filter(
+        (note) =>
+          note.hidden || filter === 'all' || note.mood === filter,
+      ),
+    [catalog, filter],
   )
 
   visibleRef.current = visible
@@ -115,8 +146,56 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
     next?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [])
 
+  const playHiddenNote = useCallback(
+    async (autoAdvance = false) => {
+      const narration = narrationRef.current
+      if (!narration) return
+
+      narration.pause()
+      setNarratingIndex(HIDDEN_INDEX)
+      duckMusicForSpeech(musicRef.current, musicMutedRef.current)
+
+      const finish = () => {
+        setNarratingIndex(null)
+        restoreMusic()
+        if (autoAdvance && viewModeRef.current === 'feed') {
+          advanceFeed(HIDDEN_INDEX)
+        }
+      }
+
+      try {
+        const response = await fetch('/api/speak', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: hiddenNote.text }),
+        })
+        if (!response.ok) throw new Error('speak failed')
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
+        narration.src = url
+        narration.onended = () => {
+          URL.revokeObjectURL(url)
+          finish()
+        }
+        narration.onerror = () => {
+          URL.revokeObjectURL(url)
+          finish()
+        }
+        await narration.play()
+      } catch {
+        finish()
+      }
+    },
+    [advanceFeed],
+  )
+
   const playNoteAtIndex = useCallback(
     (index: number, autoAdvance = false) => {
+      if (index === HIDDEN_INDEX) {
+        playHiddenNote(autoAdvance)
+        return
+      }
+
       const narration = narrationRef.current
       const src = getNoteVoiceSrc(index)
       if (!narration || !src) return
@@ -129,6 +208,7 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
 
       narration.onended = () => {
         setNarratingIndex(null)
+        markNoteComplete(index)
         restoreMusic()
         if (autoAdvance && viewModeRef.current === 'feed') {
           advanceFeed(index)
@@ -147,7 +227,7 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
         restoreMusic()
       })
     },
-    [advanceFeed],
+    [advanceFeed, playHiddenNote],
   )
 
   const listenToNote = (index: number) => {
@@ -159,6 +239,7 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
   }
 
   const handleShare = async (index: number) => {
+    if (index === HIDDEN_INDEX) return
     const result = await shareNote(index)
     if (result === 'copied') {
       setCopiedShare(index)
@@ -273,6 +354,9 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
     if (activeScrollIndexRef.current === activeScrollIndex) return
 
     activeScrollIndexRef.current = activeScrollIndex
+    if (activeScrollIndex !== HIDDEN_INDEX) {
+      markNoteComplete(activeScrollIndex)
+    }
     playNoteAtIndex(activeScrollIndex, true)
   }, [viewMode, activeScrollIndex, soundBlocked, playNoteAtIndex])
 
@@ -410,7 +494,7 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
                 >
                   <div className="mb-6 flex items-center gap-3 font-stoke text-[0.62rem] lowercase tracking-[0.22em] text-stone-600">
                     <span className="tabular-nums tracking-[0.1em]">
-                      {String(note.index + 1).padStart(2, '0')}
+                      {noteNumber(note)}
                     </span>
                     <span className="text-white/15" aria-hidden="true">
                       ·
@@ -431,13 +515,15 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
                   >
                     {note.text}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => handleShare(note.index)}
-                    className="mt-6 font-stoke text-[0.58rem] lowercase tracking-[0.16em] text-stone-600 transition duration-300 hover:text-stone-200"
-                  >
-                    {copiedShare === note.index ? 'copied' : 'share'}
-                  </button>
+                  {!note.hidden && (
+                    <button
+                      type="button"
+                      onClick={() => handleShare(note.index)}
+                      className="mt-6 font-stoke text-[0.58rem] lowercase tracking-[0.16em] text-stone-600 transition duration-300 hover:text-stone-200"
+                    >
+                      {copiedShare === note.index ? 'copied' : 'share'}
+                    </button>
+                  )}
                 </div>
               </section>
             )
@@ -510,7 +596,7 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
               <div className="flex shrink-0 flex-col gap-3 md:w-24">
                 <div className="flex items-baseline gap-3 md:flex-col md:items-start md:gap-2">
                   <span className="font-stoke text-[0.7rem] tabular-nums tracking-[0.1em] text-stone-600">
-                    {String(note.index + 1).padStart(2, '0')}
+                    {noteNumber(note)}
                   </span>
                   <span className="font-stoke text-[0.6rem] lowercase tracking-[0.22em] text-stone-500">
                     {moodLabel[note.mood]}
@@ -524,13 +610,15 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
                   >
                     {narratingIndex === note.index ? 'reading' : 'listen'}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => handleShare(note.index)}
-                    className="font-stoke text-[0.58rem] lowercase tracking-[0.16em] text-stone-600 transition duration-300 hover:text-stone-200"
-                  >
-                    {copiedShare === note.index ? 'copied' : 'share'}
-                  </button>
+                  {!note.hidden && (
+                    <button
+                      type="button"
+                      onClick={() => handleShare(note.index)}
+                      className="font-stoke text-[0.58rem] lowercase tracking-[0.16em] text-stone-600 transition duration-300 hover:text-stone-200"
+                    >
+                      {copiedShare === note.index ? 'copied' : 'share'}
+                    </button>
+                  )}
                 </div>
               </div>
               <p className="font-crimson text-[1.4rem] font-normal leading-[1.42] text-stone-200 md:text-[1.6rem]">

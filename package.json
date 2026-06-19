@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate:voices": "npx tsx scripts/generate-note-voices.ts"
+    "generate:voices": "npx tsx scripts/generate-note-voices.ts",
+    "generate:letter-voice": "npx tsx scripts/generate-public-letter-voice.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.1",

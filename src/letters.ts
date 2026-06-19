@@ -4,6 +4,8 @@ export type SavedLetter = {
   deliverAt: string
   createdAt: string
   openedAt?: string
+  replyTo?: string
+  label?: string
 }
 
 export const LETTERS_STORAGE_KEY = 'repath:letters:v1'
@@ -30,12 +32,18 @@ export const saveLetters = (letters: SavedLetter[]) => {
   }
 }
 
-export const addLetter = (text: string, deliverAt: string): SavedLetter => {
+export const addLetter = (
+  text: string,
+  deliverAt: string,
+  options?: { replyTo?: string; label?: string },
+): SavedLetter => {
   const letter: SavedLetter = {
     id: crypto.randomUUID(),
     text: text.trim(),
     deliverAt,
     createdAt: new Date().toISOString(),
+    replyTo: options?.replyTo,
+    label: options?.label?.trim() || undefined,
   }
   const letters = loadLetters()
   letters.push(letter)
@@ -63,6 +71,19 @@ export const getDueLetters = (now = new Date()) =>
 export const getUpcomingLetters = (now = new Date()) =>
   loadLetters().filter((letter) => !isLetterDue(letter, now))
 
+export const getLetterThread = (id: string) => {
+  const letters = loadLetters()
+  const thread: SavedLetter[] = []
+  let current = letters.find((letter) => letter.id === id)
+  while (current) {
+    thread.unshift(current)
+    current = current.replyTo
+      ? letters.find((letter) => letter.id === current?.replyTo)
+      : undefined
+  }
+  return thread
+}
+
 export const formatLetterDate = (value: string) => {
   const date = new Date(`${value}T00:00:00`)
   return date.toLocaleDateString([], {
@@ -72,8 +93,40 @@ export const formatLetterDate = (value: string) => {
   })
 }
 
-export const minDeliveryDate = () => {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  return tomorrow.toISOString().slice(0, 10)
+export const formatWrittenDate = (iso: string) => {
+  const date = new Date(iso)
+  return date.toLocaleDateString([], {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
 }
+
+export const daysSinceWritten = (iso: string, now = new Date()) => {
+  const written = startOfDay(new Date(iso))
+  const today = startOfDay(now)
+  return Math.max(0, Math.floor((today.getTime() - written.getTime()) / 86_400_000))
+}
+
+export const daysSinceLabel = (days: number) => {
+  if (days === 0) return 'today'
+  if (days === 1) return '1 day ago'
+  if (days < 14) return `${days} days ago`
+  if (days < 45) return `${Math.round(days / 7)} weeks ago`
+  if (days < 365) return `${Math.round(days / 30)} months ago`
+  return `${Math.round(days / 365)} years ago`
+}
+
+export const addDaysFromToday = (days: number) => {
+  const date = new Date()
+  date.setDate(date.getDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
+export const minDeliveryDate = () => addDaysFromToday(1)
+
+export const datePresets = [
+  { id: 'week', label: '1 week', days: 7 },
+  { id: 'month', label: '1 month', days: 30 },
+  { id: 'quarter', label: '3 months', days: 90 },
+] as const

@@ -12,6 +12,7 @@ import { notes, type Note } from './notes'
 import { navigate } from './router'
 import { useMusicMuted } from './useMusicMuted'
 import { getNoteVoiceSrc } from './voices'
+import { markNoteComplete, markVideoComplete } from './progress'
 
 type ActiveNote = {
   note: Note
@@ -415,6 +416,7 @@ function App() {
 
     narration.onended = () => {
       setIsNarrating(false)
+      markNoteComplete(noteIndex)
       if (!musicMutedRef.current) {
         fadeVolume(outroRef.current, MUSIC_FULL, 1200)
       }
@@ -461,6 +463,8 @@ function App() {
   const finishOutro = () => {
     const video = videoRef.current
     const audio = outroRef.current
+
+    markVideoComplete(frame.id)
 
     if (video) {
       video.pause()
