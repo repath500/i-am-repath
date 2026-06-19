@@ -1,3 +1,5 @@
+import { getRedisConfig, redisPipeline } from '../lib/upstash'
+
 export const config = { runtime: 'edge' }
 
 const PRESENCE_KEY = 'repath:presence'
@@ -7,20 +9,6 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
-}
-
-const getRedisConfig = () => {
-  const url =
-    process.env.UPSTASH_REDIS_REST_URL ??
-    process.env.UPSTASH_REDIS_REST_KV_REST_API_URL ??
-    process.env.KV_REST_API_URL
-
-  const token =
-    process.env.UPSTASH_REDIS_REST_TOKEN ??
-    process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN ??
-    process.env.KV_REST_API_TOKEN
-
-  return { url, token }
 }
 
 const parseRevRange = (result: unknown) => {
@@ -66,24 +54,19 @@ export default async function handler(request: Request) {
   const now = Date.now()
   const cutoff = now - MAX_WINDOW_MS
 
-  const response = await fetch(redisUrl, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${redisToken}` },
-    body: JSON.stringify([
-      ['ZADD', PRESENCE_KEY, now, visitorId],
-      ['ZREMRANGEBYSCORE', PRESENCE_KEY, 0, cutoff],
-      ['ZREVRANGE', PRESENCE_KEY, 0, 24, 'WITHSCORES'],
-    ]),
-  })
+  const data = await redisPipeline([
+    ['ZADD', PRESENCE_KEY, now, visitorId],
+    ['ZREMRANGEBYSCORE', PRESENCE_KEY, 0, cutoff],
+    ['ZREVRANGE', PRESENCE_KEY, 0, 24, 'WITHSCORES'],
+  ])
 
-  if (!response.ok) {
+  if (!data) {
     return Response.json(
       { minutesAgo: null, enabled: false },
       { headers: corsHeaders },
     )
   }
 
-  const data = (await response.json()) as { result?: unknown[] }
   const entries = parseRevRange(data.result?.[2])
   const lastOther = entries.find((entry) => entry.id !== visitorId)
 

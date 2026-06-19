@@ -297,12 +297,14 @@ function Letter({ deliveryId }: LetterProps) {
                   {upcoming.map((letter) => (
                     <li
                       key={letter.id}
-                      className="border-b border-white/10 pb-4 font-crimson text-[1.05rem] leading-[1.4] text-stone-500"
+                      className="border-b border-white/10 pb-4"
                     >
                       <span className="font-stoke text-[0.58rem] lowercase tracking-[0.16em] text-stone-600">
                         {formatLetterDate(letter.deliverAt)}
                       </span>
-                      <p className="mt-2 line-clamp-2">{letter.text}</p>
+                      <p className="mt-2 font-crimson text-[1.05rem] italic leading-[1.4] text-stone-600">
+                        sealed until then
+                      </p>
                     </li>
                   ))}
                 </ul>
@@ -331,8 +333,8 @@ function Letter({ deliveryId }: LetterProps) {
           </section>
         )}
 
-        <footer className="mt-16 flex items-center justify-between gap-4 border-t border-white/10 pt-6 font-stoke text-[0.68rem] lowercase tracking-[0.14em] text-stone-500">
-          <span className="flex items-center gap-2">
+        <footer className="mt-16 flex flex-col gap-5 border-t border-white/10 pt-6 font-stoke text-[0.68rem] lowercase tracking-[0.14em] text-stone-500 md:flex-row md:items-center md:justify-between md:gap-4">
+          <nav className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
             <a
               href="/notes"
               onClick={(event) => {
@@ -343,7 +345,7 @@ function Letter({ deliveryId }: LetterProps) {
             >
               notes
             </a>
-            <span className="text-white/15" aria-hidden="true">
+            <span className="hidden text-white/15 md:inline" aria-hidden="true">
               |
             </span>
             <a
@@ -356,7 +358,7 @@ function Letter({ deliveryId }: LetterProps) {
             >
               home
             </a>
-          </span>
+          </nav>
           <MusicMute muted={musicMuted} onToggle={toggleMusicMuted} />
         </footer>
       </div>

@@ -15,10 +15,7 @@ import { resetSiteMeta, shareNote, updateNoteMeta } from './share'
 import { useMusicMuted } from './useMusicMuted'
 import { getNoteVoiceSrc } from './voices'
 
-// Set this to your email to have submissions open the visitor's mail app
-// pre-filled. Leave empty to quietly collect them in the visitor's browser.
-const SUBMIT_EMAIL = ''
-const SUBMIT_STORAGE_KEY = 'repath:submissions:v1'
+// Visitor submissions are saved to Upstash via /api/notes
 
 type Filter = 'all' | Mood
 type ViewMode = 'list' | 'feed'
@@ -60,6 +57,8 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
   )
   const [draft, setDraft] = useState('')
   const [sent, setSent] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState(false)
   const [soundBlocked, setSoundBlocked] = useState(false)
   const [copiedShare, setCopiedShare] = useState<number | null>(null)
   const { musicMuted, toggleMusicMuted } = useMusicMuted()
@@ -286,27 +285,29 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
       .catch(() => setSoundBlocked(true))
   }
 
-  const submit = () => {
+  const submit = async () => {
     const text = draft.trim()
-    if (!text) return
+    if (!text || submitting) return
 
-    if (SUBMIT_EMAIL) {
-      const subject = encodeURIComponent('a note')
-      const body = encodeURIComponent(text)
-      window.location.href = `mailto:${SUBMIT_EMAIL}?subject=${subject}&body=${body}`
-    } else {
-      try {
-        const raw = window.localStorage.getItem(SUBMIT_STORAGE_KEY)
-        const list = raw ? (JSON.parse(raw) as string[]) : []
-        list.push(text)
-        window.localStorage.setItem(SUBMIT_STORAGE_KEY, JSON.stringify(list))
-      } catch {
-        // storage unavailable — still acknowledge the gesture
-      }
+    setSubmitting(true)
+    setSubmitError(false)
+
+    try {
+      const response = await fetch('/api/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      })
+
+      if (!response.ok) throw new Error('save failed')
+
+      setDraft('')
+      setSent(true)
+    } catch {
+      setSubmitError(true)
+    } finally {
+      setSubmitting(false)
     }
-
-    setDraft('')
-    setSent(true)
   }
 
   const activeFeedPosition =
@@ -550,7 +551,10 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
               </p>
               <button
                 type="button"
-                onClick={() => setSent(false)}
+                onClick={() => {
+                  setSent(false)
+                  setSubmitError(false)
+                }}
                 className="mt-5 font-stoke text-[0.7rem] lowercase tracking-[0.14em] text-stone-500 transition duration-300 hover:text-stone-100"
               >
                 write another
@@ -567,25 +571,25 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
               />
               <div className="mt-5 flex items-center justify-between gap-4">
                 <span className="font-stoke text-[0.6rem] lowercase tracking-[0.18em] text-stone-600">
-                  unsigned, unedited
+                  {submitError ? 'could not save — try again' : 'unsigned, unedited'}
                 </span>
                 <button
                   type="button"
                   onClick={submit}
-                  disabled={draft.trim().length === 0}
+                  disabled={draft.trim().length === 0 || submitting}
                   className="border border-white/15 bg-stone-100 px-6 py-3 font-stoke text-[0.72rem] lowercase tracking-[0.12em] text-[#050505] transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  send
+                  {submitting ? 'sending' : 'send'}
                 </button>
               </div>
             </div>
           )}
         </section>
 
-        <footer className="flex items-center justify-between gap-4 border-t border-white/10 pt-6 font-stoke text-[0.68rem] lowercase tracking-[0.14em] text-stone-500">
-          <span className="flex items-center gap-2">
-            <span>2026</span>
-            <span className="text-white/15" aria-hidden="true">
+        <footer className="mt-16 flex flex-col gap-5 border-t border-white/10 pt-6 font-stoke text-[0.68rem] lowercase tracking-[0.14em] text-stone-500 md:flex-row md:items-center md:justify-between md:gap-4">
+          <nav className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
+            <span className="text-stone-600">2026</span>
+            <span className="hidden text-white/15 md:inline" aria-hidden="true">
               |
             </span>
             <a
@@ -598,7 +602,7 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
             >
               home
             </a>
-            <span className="text-white/15" aria-hidden="true">
+            <span className="hidden text-white/15 md:inline" aria-hidden="true">
               |
             </span>
             <a
@@ -611,19 +615,21 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
             >
               letter
             </a>
-          </span>
-          <MusicMute muted={musicMuted} onToggle={toggleMusicMuted} />
-          <span>
-            ©{' '}
-            <a
-              href="https://www.linkedin.com/in/repathkhan/"
-              target="_blank"
-              rel="noreferrer"
-              className="transition hover:text-stone-100"
-            >
-              repath khan
-            </a>
-          </span>
+          </nav>
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+            <MusicMute muted={musicMuted} onToggle={toggleMusicMuted} />
+            <span>
+              ©{' '}
+              <a
+                href="https://www.linkedin.com/in/repathkhan/"
+                target="_blank"
+                rel="noreferrer"
+                className="transition hover:text-stone-100"
+              >
+                repath khan
+              </a>
+            </span>
+          </div>
         </footer>
       </div>
     </main>
