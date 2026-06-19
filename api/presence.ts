@@ -1,7 +1,7 @@
 export const config = { runtime: 'edge' }
 
 const PRESENCE_KEY = 'repath:presence'
-const WINDOW_MS = 30_000
+const MAX_WINDOW_MS = 2 * 60 * 60 * 1000
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,6 +23,20 @@ const getRedisConfig = () => {
   return { url, token }
 }
 
+const parseRevRange = (result: unknown) => {
+  if (!Array.isArray(result)) return []
+
+  const entries: { id: string; seenAt: number }[] = []
+  for (let i = 0; i < result.length; i += 2) {
+    const id = result[i]
+    const seenAt = Number(result[i + 1])
+    if (typeof id === 'string' && Number.isFinite(seenAt)) {
+      entries.push({ id, seenAt })
+    }
+  }
+  return entries
+}
+
 export default async function handler(request: Request) {
   if (request.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -36,7 +50,7 @@ export default async function handler(request: Request) {
 
   if (!redisUrl || !redisToken) {
     return Response.json(
-      { others: 0, enabled: false },
+      { minutesAgo: null, enabled: false },
       { headers: corsHeaders },
     )
   }
@@ -50,7 +64,7 @@ export default async function handler(request: Request) {
 
   const visitorId = body.id || crypto.randomUUID()
   const now = Date.now()
-  const cutoff = now - WINDOW_MS
+  const cutoff = now - MAX_WINDOW_MS
 
   const response = await fetch(redisUrl, {
     method: 'POST',
@@ -58,23 +72,30 @@ export default async function handler(request: Request) {
     body: JSON.stringify([
       ['ZADD', PRESENCE_KEY, now, visitorId],
       ['ZREMRANGEBYSCORE', PRESENCE_KEY, 0, cutoff],
-      ['ZCARD', PRESENCE_KEY],
+      ['ZREVRANGE', PRESENCE_KEY, 0, 24, 'WITHSCORES'],
     ]),
   })
 
   if (!response.ok) {
     return Response.json(
-      { others: 0, enabled: false },
+      { minutesAgo: null, enabled: false },
       { headers: corsHeaders },
     )
   }
 
   const data = (await response.json()) as { result?: unknown[] }
-  const count = Number(data.result?.[2] ?? 0)
-  const others = Math.max(0, count - 1)
+  const entries = parseRevRange(data.result?.[2])
+  const lastOther = entries.find((entry) => entry.id !== visitorId)
+
+  let minutesAgo: number | null = null
+  if (lastOther) {
+    const elapsed = Math.max(0, now - lastOther.seenAt)
+    minutesAgo = Math.floor(elapsed / 60_000)
+    if (minutesAgo > 120) minutesAgo = null
+  }
 
   return Response.json(
-    { others, enabled: true, id: visitorId },
+    { minutesAgo, enabled: true, id: visitorId },
     { headers: corsHeaders },
   )
 }
