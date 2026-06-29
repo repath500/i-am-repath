@@ -1,3 +1,4 @@
+import { identity } from './ecosystem'
 import MusicMute from './MusicMute'
 import { navigate } from './router'
 
@@ -104,7 +105,13 @@ function SiteFooter({
         )}
         <div className="flex items-center justify-end gap-4 justify-self-end">
           <MusicMute muted={musicMuted} onToggle={onToggleMusic} />
-          <span className="text-stone-600">© repath khan</span>
+          <span className="text-stone-600">
+            © repath khan
+            <span className="text-white/15 px-1.5" aria-hidden="true">
+              ·
+            </span>
+            {identity.location}
+          </span>
         </div>
       </footer>
     )
@@ -138,7 +145,13 @@ function SiteFooter({
           </span>
         ) : null}
         <MusicMute muted={musicMuted} onToggle={onToggleMusic} />
-        <span className="text-stone-600">© repath khan</span>
+        <span className="text-stone-600">
+          © repath khan
+          <span className="hidden text-white/15 px-1.5 md:inline" aria-hidden="true">
+            ·
+          </span>
+          <span className="hidden md:inline">{identity.location}</span>
+        </span>
       </div>
     </footer>
   )

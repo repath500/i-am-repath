@@ -7,6 +7,7 @@ import {
   startAmbientMusic,
 } from './audioConfig'
 import MusicMute from './MusicMute'
+import ShipTieLink from './ShipTieLink'
 import SiteFooter from './SiteFooter'
 import PresenceWhisper from './PresenceWhisper'
 import { hiddenNote } from './hiddenContent'
@@ -31,6 +32,7 @@ type DisplayNote = {
   mood: Mood
   index: number
   hidden?: boolean
+  shipTie?: boolean
 }
 type Filter = 'all' | Mood
 type ViewMode = 'list' | 'feed'
@@ -516,6 +518,7 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
                   >
                     {note.text}
                   </p>
+                  {note.shipTie ? <ShipTieLink className="mt-5" /> : null}
                   {!note.hidden && (
                     <button
                       type="button"
@@ -625,6 +628,7 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
               <p className="font-crimson text-[1.4rem] font-normal leading-[1.42] text-stone-200 md:text-[1.6rem]">
                 {note.text}
               </p>
+              {note.shipTie ? <ShipTieLink className="mt-5" /> : null}
             </li>
           ))}
         </ol>

@@ -7,8 +7,10 @@ import {
   duckMusicForSpeech,
 } from './audioConfig'
 import BuildingPreview from './BuildingPreview'
+import IdentityWhisper from './IdentityWhisper'
 import SiteFooter from './SiteFooter'
 import PresenceWhisper from './PresenceWhisper'
+import { letterFrameLines } from './hiddenContent'
 import { notes, type Note } from './notes'
 import { useMusicMuted } from './useMusicMuted'
 import { getNoteVoiceSrc } from './voices'
@@ -18,6 +20,10 @@ type ActiveNote = {
   note: Note
   index: number
 }
+
+type PostFrameMoment =
+  | { kind: 'note'; note: Note; index: number }
+  | { kind: 'letter'; line: string }
 
 type Frame = {
   id: string
@@ -129,6 +135,28 @@ const pickNote = (exclude?: string): ActiveNote => {
   return pool[Math.floor(Math.random() * pool.length)]
 }
 
+const pickPostFrameMoment = (exclude?: string): PostFrameMoment => {
+  const useLetter = Math.random() < 0.32
+  if (useLetter) {
+    const pool = letterFrameLines.filter((line) => line !== exclude)
+    const line = pool[Math.floor(Math.random() * pool.length)] ?? letterFrameLines[0]
+    return { kind: 'letter', line }
+  }
+
+  const picked = pickNote(exclude)
+  return { kind: 'note', note: picked.note, index: picked.index }
+}
+
+const momentText = (moment: PostFrameMoment) =>
+  moment.kind === 'letter' ? moment.line : moment.note.text
+
+const momentLabel = (moment: PostFrameMoment, hasEnded: boolean, isPausedMidClip: boolean, develop: number) => {
+  if (hasEnded || isPausedMidClip) {
+    return moment.kind === 'letter' ? 'from the letter' : 'the note'
+  }
+  return develop > 0 ? 'developing' : ''
+}
+
 const getNoteTypography = (text: string, variant: 'desktop' | 'mobile') => {
   const length = text.length
 
@@ -183,7 +211,7 @@ const getNoteRise = (text: string, variant: 'desktop' | 'mobile') => {
 
 function App() {
   const [frameState, setFrameState] = useState<FrameState>(loadFrameState)
-  const [activeNote, setActiveNote] = useState<ActiveNote>(() => pickNote())
+  const [activeMoment, setActiveMoment] = useState<PostFrameMoment>(() => pickPostFrameMoment())
   const [hasEnded, setHasEnded] = useState(false)
   const [introDone, setIntroDone] = useState(false)
   const [soundBlocked, setSoundBlocked] = useState(false)
@@ -203,16 +231,17 @@ function App() {
 
   musicMutedRef.current = musicMuted
 
-  const note = activeNote.note.text
-  const desktopNoteTypography = useMemo(() => getNoteTypography(note, 'desktop'), [note])
-  const mobileNoteTypography = useMemo(() => getNoteTypography(note, 'mobile'), [note])
-  const desktopNoteRise = useMemo(() => getNoteRise(note, 'desktop'), [note])
-  const mobileNoteRise = useMemo(() => getNoteRise(note, 'mobile'), [note])
-
+  const displayText = momentText(activeMoment)
+  const isLetterMoment = activeMoment.kind === 'letter'
   const frame = frameState.current
   const isVideoFocused = isPlaying && !hasEnded
   const isPausedMidClip = !isPlaying && progress > 0 && !hasEnded
   const develop = hasEnded || isPausedMidClip ? 1 : progress
+  const frameLabel = momentLabel(activeMoment, hasEnded, isPausedMidClip, develop)
+  const desktopNoteTypography = useMemo(() => getNoteTypography(displayText, 'desktop'), [displayText])
+  const mobileNoteTypography = useMemo(() => getNoteTypography(displayText, 'mobile'), [displayText])
+  const desktopNoteRise = useMemo(() => getNoteRise(displayText, 'desktop'), [displayText])
+  const mobileNoteRise = useMemo(() => getNoteRise(displayText, 'mobile'), [displayText])
 
   const clock = now
     .toLocaleTimeString([], {
@@ -439,7 +468,8 @@ function App() {
   }
 
   const listenToNote = () => {
-    playNoteNarration(activeNote.index)
+    if (activeMoment.kind !== 'note') return
+    playNoteNarration(activeMoment.index)
   }
 
   const beginOutroCrossfade = (blend: number) => {
@@ -529,13 +559,14 @@ function App() {
     }
 
     if (soundBlocked) return
+    if (activeMoment.kind !== 'note') return
 
     narrationAutoTimerRef.current = window.setTimeout(() => {
-      playNoteNarration(activeNote.index)
+      playNoteNarration(activeMoment.index)
     }, NARRATION_AUTO_DELAY_MS)
 
     return cancelNarrationAuto
-  }, [hasEnded, activeNote.index, soundBlocked])
+  }, [hasEnded, activeMoment, soundBlocked])
 
   useEffect(() => {
     if (!hasEnded) return
@@ -569,7 +600,10 @@ function App() {
     setIntroDone(true)
     setProgress(0)
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    setActiveNote((current) => pickNote(current.note.text))
+    setActiveMoment((current) => {
+      const exclude = current.kind === 'note' ? current.note.text : current.line
+      return pickPostFrameMoment(exclude)
+    })
     setFrameState((current) => {
       const queue =
         current.queue.length === 0
@@ -608,6 +642,7 @@ function App() {
       <audio ref={outroRef} src={OUTRO_SRC} preload="auto" loop />
       <audio ref={narrationRef} preload="none" />
       <PresenceWhisper />
+      <IdentityWhisper />
       <div className="pointer-events-none fixed inset-0 grain opacity-[0.13]" />
       <div
         className={`pointer-events-none fixed inset-0 z-20 bg-[#050505]/88 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden ${
@@ -650,11 +685,13 @@ function App() {
             </p>
 
             <div className="font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600">
-              {hasEnded ? 'the note' : isPausedMidClip ? 'the note' : develop > 0 ? 'developing' : ''}
+              {frameLabel}
             </div>
 
             <p
-              className="mt-4 max-w-[42ch] font-crimson font-normal tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className={`mt-4 max-w-[42ch] font-crimson font-normal tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                isLetterMoment && (hasEnded || isPausedMidClip) ? 'italic' : ''
+              }`}
               style={{
                 ...desktopNoteTypography,
                 filter: `blur(${(1 - develop) * 10}px)`,
@@ -662,7 +699,7 @@ function App() {
                 transform: `translateY(${(1 - develop) * desktopNoteRise}px)`,
               }}
             >
-              {note}
+              {displayText}
             </p>
 
             <div
@@ -672,13 +709,15 @@ function App() {
                 pointerEvents: hasEnded ? 'auto' : 'none',
               }}
             >
-              <button
-                type="button"
-                onClick={listenToNote}
-                className="border border-white/15 px-5 py-3 font-stoke text-xs lowercase tracking-[0.08em] text-stone-300 transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/35 hover:text-stone-100 active:translate-y-[1px]"
-              >
-                {isNarrating ? 'reading' : 'listen'}
-              </button>
+              {!isLetterMoment ? (
+                <button
+                  type="button"
+                  onClick={listenToNote}
+                  className="border border-white/15 px-5 py-3 font-stoke text-xs lowercase tracking-[0.08em] text-stone-300 transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/35 hover:text-stone-100 active:translate-y-[1px]"
+                >
+                  {isNarrating ? 'reading' : 'listen'}
+                </button>
+              ) : null}
               <button
                 type="button"
                 onClick={replay}
@@ -828,10 +867,12 @@ function App() {
         className="relative mx-auto w-full max-w-[1400px] px-4 py-16 sm:px-6 md:hidden md:px-10"
       >
         <div className="font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600">
-          {hasEnded ? 'the note' : isPausedMidClip ? 'the note' : develop > 0 ? 'developing' : ''}
+          {frameLabel}
         </div>
         <p
-          className="mt-4 max-w-[34ch] font-crimson font-normal tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+          className={`mt-4 max-w-[34ch] font-crimson font-normal tracking-[0] text-stone-100 transition-[filter,opacity,transform] duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isLetterMoment && (hasEnded || isPausedMidClip) ? 'italic' : ''
+          }`}
           style={{
             ...mobileNoteTypography,
             filter: `blur(${(1 - develop) * 10}px)`,
@@ -839,7 +880,7 @@ function App() {
             transform: `translateY(${(1 - develop) * mobileNoteRise}px)`,
           }}
         >
-          {note}
+          {displayText}
         </p>
         <div
           className="mt-8 flex flex-wrap gap-3 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
@@ -848,13 +889,15 @@ function App() {
             pointerEvents: hasEnded ? 'auto' : 'none',
           }}
         >
-          <button
-            type="button"
-            onClick={listenToNote}
-            className="border border-white/15 px-5 py-3 font-stoke text-xs lowercase tracking-[0.08em] text-stone-300 transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/35 hover:text-stone-100 active:translate-y-[1px]"
-          >
-            {isNarrating ? 'reading' : 'listen'}
-          </button>
+          {!isLetterMoment ? (
+            <button
+              type="button"
+              onClick={listenToNote}
+              className="border border-white/15 px-5 py-3 font-stoke text-xs lowercase tracking-[0.08em] text-stone-300 transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-white/35 hover:text-stone-100 active:translate-y-[1px]"
+            >
+              {isNarrating ? 'reading' : 'listen'}
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={replay}

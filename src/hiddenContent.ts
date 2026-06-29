@@ -31,3 +31,13 @@ export const repathPublicLetterText = repathPublicLetterParagraphs.join('\n\n')
 export const repathPublicLetterSignOff = '— repath'
 
 export const repathPublicLetterSpeakText = `${repathPublicLetterText}\n\nrepath`
+
+export const letterFrameLines = [
+  "but i'm still here.",
+  'still trying. still building. still becoming someone.',
+  "and even with everything life throws, i still believe i'm going to win. not because it's easy. not because i've had it all figured out. but because something in me refuses to let the hard parts be the whole story.",
+  "i'm not done.",
+  'not even close.',
+  "it's strange looking back, because you don't always realise you're living through the days you'll miss later.",
+  "i'm writing this because one day, even this moment will feel far away. and maybe when i look back, i'll remember that even when life felt heavy, i still believed there was more ahead.",
+] as const

@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react'
 import { GitHubCalendar } from 'react-github-calendar'
 import 'react-activity-calendar/tooltips.css'
+import { fetchContributionRhythm } from './contributionsRhythm'
 
 const calendarTheme = {
   dark: [
@@ -12,6 +14,12 @@ const calendarTheme = {
 }
 
 export default function ProofOfWork() {
+  const [rhythm, setRhythm] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchContributionRhythm().then(setRhythm)
+  }, [])
+
   return (
     <section className="note-row mt-16 border-t border-white/10 pt-12 md:mt-20 md:pt-16">
       <p className="font-stoke text-[0.65rem] lowercase tracking-[0.24em] text-stone-500">
@@ -43,6 +51,15 @@ export default function ProofOfWork() {
           }}
         />
       </div>
+
+      {rhythm ? (
+        <p className="mt-4 font-stoke text-[0.62rem] lowercase tracking-[0.16em] text-stone-600">
+          last seven days:{' '}
+          <span className="font-crimson text-[0.95rem] tracking-normal text-stone-400">
+            {rhythm}
+          </span>
+        </p>
+      ) : null}
 
       <p className="mt-6 max-w-[58ch] font-crimson text-[1.05rem] leading-[1.65] text-stone-400 md:text-[1.1rem]">
         some commits become products. some become infrastructure. some become

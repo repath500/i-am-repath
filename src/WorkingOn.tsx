@@ -6,10 +6,13 @@ import {
   moreFromLab,
   openToWork,
   pageIntro,
+  testingLane,
   type Work,
 } from './ecosystem'
 import LetterTeaser from './LetterTeaser'
+import NowLine from './NowLine'
 import ProofOfWork from './ProofOfWork'
+import ShipLog from './ShipLog'
 import SiteFooter from './SiteFooter'
 import PresenceWhisper from './PresenceWhisper'
 import { navigate } from './router'
@@ -46,7 +49,7 @@ function WorkLink({ work }: { work: Work }) {
 function WorkBlock({ work, prominent }: { work: Work; prominent?: boolean }) {
   return (
     <article
-      className={`note-row border-t border-white/10 pt-12 md:pt-14 ${
+      className={`group note-row border-t border-white/10 pt-12 md:pt-14 ${
         prominent ? 'first:border-t-0 first:pt-0' : ''
       }`}
     >
@@ -61,6 +64,9 @@ function WorkBlock({ work, prominent }: { work: Work; prominent?: boolean }) {
       </h2>
       <p className="mt-3 font-stoke text-[0.68rem] lowercase tracking-[0.14em] text-stone-500">
         {work.role}
+      </p>
+      <p className="mt-2 max-w-[58ch] font-crimson text-[1rem] italic leading-[1.5] text-stone-600 opacity-80 transition duration-300 group-hover:text-stone-500 md:opacity-60 md:group-hover:opacity-100">
+        {work.origin}
       </p>
       <div className="mt-6 space-y-4">
         {work.paragraphs.map((paragraph) => (
@@ -132,6 +138,7 @@ function WorkingOn() {
           <p className="mt-8 max-w-[50ch] font-crimson text-[1.22rem] leading-[1.65] text-stone-200 md:text-[1.42rem] md:leading-[1.68]">
             {pageIntro.lede}
           </p>
+          <NowLine className="mt-6" />
           <div className="mt-8 space-y-6">
             {pageIntro.paragraphs.map((paragraph) => (
               <p key={paragraph.slice(0, 32)} className={`max-w-[58ch] ${bodyText}`}>
@@ -140,6 +147,15 @@ function WorkingOn() {
             ))}
           </div>
         </header>
+
+        <section className="mt-12 border-t border-white/10 pt-10 md:mt-16 md:pt-12">
+          <p className="font-stoke text-[0.65rem] lowercase tracking-[0.24em] text-stone-500">
+            {testingLane.label}
+          </p>
+          <p className={`mt-4 max-w-[58ch] ${bodyText} text-stone-400`}>
+            {testingLane.line}
+          </p>
+        </section>
 
         <section className="mt-16 border-t border-white/10 pt-12 md:mt-20 md:pt-16">
           <p className="font-stoke text-[0.65rem] lowercase tracking-[0.24em] text-stone-500">
@@ -185,6 +201,8 @@ function WorkingOn() {
             ))}
           </div>
         </section>
+
+        <ShipLog />
 
         <section className="mt-16 border-t border-white/10 pt-12 md:mt-20 md:pt-16">
           <p className="font-stoke text-[0.65rem] lowercase tracking-[0.24em] text-stone-500">
