@@ -76,8 +76,8 @@ function SiteFooter({
 }: SiteFooterProps) {
   if (layout === 'home') {
     return (
-      <footer className="mx-auto grid w-full max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center gap-4 border-t border-white/10 pt-4 font-stoke text-[0.62rem] lowercase tracking-[0.12em] text-stone-500 sm:text-[0.68rem] sm:tracking-[0.14em]">
-        <div className="flex flex-wrap items-center gap-2 justify-self-start">
+      <footer className="mx-auto w-full max-w-[1400px] border-t border-white/10 pt-5 font-stoke text-[0.64rem] lowercase tracking-[0.14em] text-stone-500 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4 sm:pt-4 sm:text-[0.68rem]">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 sm:justify-self-start">
           <a
             href="/"
             onClick={(event) => {
@@ -95,15 +95,15 @@ function SiteFooter({
         </div>
         {clock ? (
           <span
-            className="justify-self-center tabular-nums tracking-[0.18em] text-stone-400"
+            className="mt-4 block tabular-nums tracking-[0.18em] text-stone-400 sm:mt-0 sm:justify-self-center"
             aria-label="local time"
           >
             {clock}
           </span>
         ) : (
-          <span aria-hidden="true" />
+          <span aria-hidden="true" className="hidden sm:block" />
         )}
-        <div className="flex items-center justify-end gap-4 justify-self-end">
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 sm:mt-0 sm:justify-end sm:justify-self-end">
           <MusicMute muted={musicMuted} onToggle={onToggleMusic} />
           <span className="text-stone-600">
             © repath khan
