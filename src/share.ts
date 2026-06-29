@@ -33,7 +33,7 @@ export const updateWorkingOnMeta = () => {
 
   const title = 'what i\'m working on — repath.life'
   const description =
-    'systems map of critique v6.6, leemer labs, daildex, and experimental playgrounds — the actual pipeline repath khan is shipping.'
+    'what repath khan is building and why — critique, leemerchat, leemerlabs, and the rest of the stack.'
 
   document.title = title
 
