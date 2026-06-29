@@ -9,6 +9,7 @@ import {
   type Work,
 } from './ecosystem'
 import MusicMute from './MusicMute'
+import ProofOfWork from './ProofOfWork'
 import PresenceWhisper from './PresenceWhisper'
 import { navigate } from './router'
 import { updateWorkingOnMeta } from './share'
@@ -157,6 +158,8 @@ function WorkingOn() {
             ))}
           </ul>
         </section>
+
+        <ProofOfWork />
 
         <section className="mt-16 border-t border-white/10 pt-12 md:mt-20 md:pt-16">
           <p className="font-stoke text-[0.65rem] lowercase tracking-[0.24em] text-stone-500">
