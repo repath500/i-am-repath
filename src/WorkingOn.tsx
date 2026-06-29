@@ -17,38 +17,24 @@ import { useMusicMuted } from './useMusicMuted'
 const bodyText =
   'font-crimson text-[1.13rem] leading-[1.65] text-stone-300 md:text-[1.2rem] md:leading-[1.68]'
 
-function WorkLink({
-  work,
-  prominent,
-}: {
-  work: Work
-  prominent?: boolean
-}) {
+function WorkLink({ work }: { work: Work }) {
   return (
     <a
       href={work.href}
       target="_blank"
       rel="noreferrer"
-      className={`group mt-4 inline-flex max-w-full items-center gap-2.5 border-b border-white/25 pb-1 transition duration-300 hover:border-white/55 ${
-        prominent ? 'md:gap-3' : ''
-      }`}
+      className="group mt-8 inline-flex max-w-full items-center gap-2.5 border-b border-white/25 pb-1 transition duration-300 hover:border-white/55"
     >
       <img
         src={work.icon}
         alt=""
-        width={prominent ? 24 : 20}
-        height={prominent ? 24 : 20}
+        width={18}
+        height={18}
         className="shrink-0 rounded-[3px] opacity-90 transition group-hover:opacity-100"
         loading="lazy"
         decoding="async"
       />
-      <span
-        className={`font-stoke lowercase tracking-[-0.01em] text-stone-100 transition group-hover:text-white ${
-          prominent
-            ? 'text-[clamp(1.45rem,4.8vw,2.15rem)] font-light'
-            : 'text-[clamp(1.2rem,3.8vw,1.55rem)] font-light'
-        }`}
-      >
+      <span className="font-stoke text-[clamp(1.05rem,3.2vw,1.25rem)] font-light lowercase tracking-[-0.01em] text-stone-200 transition group-hover:text-white">
         {work.linkLabel}
       </span>
     </a>
@@ -62,11 +48,18 @@ function WorkBlock({ work, prominent }: { work: Work; prominent?: boolean }) {
         prominent ? 'first:border-t-0 first:pt-0' : ''
       }`}
     >
-      <p className="font-stoke text-[0.65rem] lowercase tracking-[0.2em] text-stone-500">
+      <h2
+        className={`font-stoke lowercase leading-none tracking-[-0.01em] text-stone-100 ${
+          prominent
+            ? 'text-[clamp(1.8rem,5.5vw,2.6rem)] font-light'
+            : 'text-[clamp(1.5rem,4.5vw,2rem)] font-light'
+        }`}
+      >
+        {work.name}
+      </h2>
+      <p className="mt-3 font-stoke text-[0.68rem] lowercase tracking-[0.14em] text-stone-500">
         {work.role}
       </p>
-      <h2 className="sr-only">{work.name}</h2>
-      <WorkLink work={work} prominent={prominent} />
       <div className="mt-6 space-y-4">
         {work.paragraphs.map((paragraph) => (
           <p key={paragraph.slice(0, 40)} className={`max-w-[58ch] ${bodyText}`}>
@@ -74,6 +67,7 @@ function WorkBlock({ work, prominent }: { work: Work; prominent?: boolean }) {
           </p>
         ))}
       </div>
+      <WorkLink work={work} />
     </article>
   )
 }

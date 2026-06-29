@@ -592,7 +592,7 @@ function Letter({ deliveryId }: LetterProps) {
               }}
               className="transition hover:text-stone-100"
             >
-              build
+              working on
             </a>
           </nav>
           <MusicMute muted={musicMuted} onToggle={toggleMusicMuted} />

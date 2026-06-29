@@ -685,6 +685,20 @@ function App() {
                 another frame
               </button>
             </div>
+            <a
+              href="/working-on"
+              onClick={(event) => {
+                event.preventDefault()
+                navigate('/working-on')
+              }}
+              className="mt-6 inline-block font-stoke text-xs lowercase tracking-[0.12em] text-stone-500 transition duration-300 hover:text-stone-200"
+              style={{
+                opacity: hasEnded ? 1 : 0,
+                pointerEvents: hasEnded ? 'auto' : 'none',
+              }}
+            >
+              what i&apos;m working on
+            </a>
           </div>
 
           <div
@@ -838,7 +852,7 @@ function App() {
               }}
               className="transition hover:text-stone-100"
             >
-              build
+              working on
             </a>
           </span>
           <span
@@ -911,6 +925,20 @@ function App() {
             another frame
           </button>
         </div>
+        <a
+          href="/working-on"
+          onClick={(event) => {
+            event.preventDefault()
+            navigate('/working-on')
+          }}
+          className="mt-6 inline-block font-stoke text-xs lowercase tracking-[0.12em] text-stone-500 transition duration-300 hover:text-stone-200"
+          style={{
+            opacity: hasEnded ? 1 : 0,
+            pointerEvents: hasEnded ? 'auto' : 'none',
+          }}
+        >
+          what i&apos;m working on
+        </a>
       </section>
     </main>
   )
