@@ -5,8 +5,10 @@ export type AppRoute =
   | { page: 'home' }
   | { page: 'notes'; noteIndex?: number }
   | { page: 'letter'; deliveryId?: string }
+  | { page: 'working-on' }
 
 export const parseRoute = (path: string): AppRoute => {
+  if (path === '/working-on') return { page: 'working-on' }
   if (path === '/letter') return { page: 'letter' }
 
   const deliveryMatch = path.match(/^\/letter\/([a-z0-9-]+)$/i)

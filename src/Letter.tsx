@@ -581,6 +581,19 @@ function Letter({ deliveryId }: LetterProps) {
             >
               home
             </a>
+            <span className="hidden text-white/15 md:inline" aria-hidden="true">
+              |
+            </span>
+            <a
+              href="/working-on"
+              onClick={(event) => {
+                event.preventDefault()
+                navigate('/working-on')
+              }}
+              className="transition hover:text-stone-100"
+            >
+              build
+            </a>
           </nav>
           <MusicMute muted={musicMuted} onToggle={toggleMusicMuted} />
         </footer>

@@ -6,6 +6,7 @@ import GrainNames from './GrainNames.tsx'
 import Letter from './Letter.tsx'
 import Notes from './Notes.tsx'
 import RespectWhisper from './RespectWhisper.tsx'
+import WorkingOn from './WorkingOn.tsx'
 import { useRoute } from './router'
 
 function Root() {
@@ -19,6 +20,8 @@ function Root() {
         <Letter deliveryId={route.deliveryId} />
       ) : route.page === 'notes' ? (
         <Notes initialNoteIndex={route.noteIndex} />
+      ) : route.page === 'working-on' ? (
+        <WorkingOn />
       ) : (
         <App />
       )}

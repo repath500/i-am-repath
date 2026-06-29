@@ -28,6 +28,28 @@ export const updateNoteMeta = (noteIndex: number) => {
   setMeta('meta[name="twitter:description"]', 'a note from repath.life')
 }
 
+export const updateWorkingOnMeta = () => {
+  if (typeof document === 'undefined') return
+
+  const title = 'what i\'m working on — repath.life'
+  const description =
+    'systems map of critique v6.6, leemer labs, daildex, and experimental playgrounds — the actual pipeline repath khan is shipping.'
+
+  document.title = title
+
+  const setMeta = (selector: string, content: string) => {
+    const element = document.querySelector(selector)
+    if (element) element.setAttribute('content', content)
+  }
+
+  setMeta('meta[name="description"]', description)
+  setMeta('meta[property="og:title"]', title)
+  setMeta('meta[property="og:description"]', description)
+  setMeta('meta[property="og:url"]', 'https://repath.life/working-on')
+  setMeta('meta[name="twitter:title"]', title)
+  setMeta('meta[name="twitter:description"]', description)
+}
+
 export const resetSiteMeta = () => {
   if (typeof document === 'undefined') return
 
