@@ -8,8 +8,9 @@ import {
   pageIntro,
   type Work,
 } from './ecosystem'
-import MusicMute from './MusicMute'
+import LetterTeaser from './LetterTeaser'
 import ProofOfWork from './ProofOfWork'
+import SiteFooter from './SiteFooter'
 import PresenceWhisper from './PresenceWhisper'
 import { navigate } from './router'
 import { updateWorkingOnMeta } from './share'
@@ -159,6 +160,8 @@ function WorkingOn() {
           </ul>
         </section>
 
+        <LetterTeaser />
+
         <ProofOfWork />
 
         <section className="mt-16 border-t border-white/10 pt-12 md:mt-20 md:pt-16">
@@ -206,61 +209,11 @@ function WorkingOn() {
           {closingNote}
         </p>
 
-        <footer className="mt-16 flex flex-col gap-5 border-t border-white/10 pt-6 font-stoke text-[0.68rem] lowercase tracking-[0.14em] text-stone-500 md:flex-row md:items-center md:justify-between">
-          <nav className="flex flex-wrap items-center gap-2">
-            <a
-              href="/"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/')
-              }}
-              className="transition hover:text-stone-100"
-            >
-              home
-            </a>
-            <span className="text-white/15" aria-hidden="true">
-              |
-            </span>
-            <a
-              href="/notes"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/notes')
-              }}
-              className="transition hover:text-stone-100"
-            >
-              notes
-            </a>
-            <span className="text-white/15" aria-hidden="true">
-              |
-            </span>
-            <a
-              href="/letter"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/letter')
-              }}
-              className="transition hover:text-stone-100"
-            >
-              letter
-            </a>
-            <span className="text-white/15" aria-hidden="true">
-              |
-            </span>
-            <a
-              href="https://www.linkedin.com/in/repathkhan/"
-              target="_blank"
-              rel="noreferrer"
-              className="transition hover:text-stone-100"
-            >
-              linkedin
-            </a>
-          </nav>
-          <div className="flex items-center gap-4">
-            <MusicMute muted={musicMuted} onToggle={toggleMusicMuted} />
-            <span>© {pageIntro.label}</span>
-          </div>
-        </footer>
+        <SiteFooter
+          musicMuted={musicMuted}
+          onToggleMusic={toggleMusicMuted}
+          clock={clock}
+        />
       </div>
     </main>
   )

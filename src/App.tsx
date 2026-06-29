@@ -6,10 +6,10 @@ import {
   OUTRO_SRC,
   duckMusicForSpeech,
 } from './audioConfig'
-import MusicMute from './MusicMute'
+import BuildingPreview from './BuildingPreview'
+import SiteFooter from './SiteFooter'
 import PresenceWhisper from './PresenceWhisper'
 import { notes, type Note } from './notes'
-import { navigate } from './router'
 import { useMusicMuted } from './useMusicMuted'
 import { getNoteVoiceSrc } from './voices'
 import { markNoteComplete, markVideoComplete } from './progress'
@@ -630,7 +630,7 @@ function App() {
         <div className="mx-auto grid w-full max-w-[1400px] flex-1 items-center gap-8 py-12 md:grid-cols-[minmax(0,1fr)_minmax(360px,0.68fr)] md:gap-12 md:py-6">
           <div className="relative z-30 order-2 hidden min-h-0 max-h-[min(72dvh,640px)] flex-col justify-center py-6 md:order-1 md:flex md:py-8">
             <p
-              className={`mb-8 max-w-[38ch] font-crimson text-xl italic leading-[1.18] text-stone-400 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              className={`mb-2 max-w-[38ch] font-crimson text-xl italic leading-[1.18] text-stone-400 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 develop > 0.08
                   ? 'pointer-events-none max-h-0 overflow-hidden opacity-0'
                   : 'opacity-100'
@@ -638,6 +638,15 @@ function App() {
             >
               a quiet record of becoming. some moments i kept, and the small
               truths they left behind.
+            </p>
+            <p
+              className={`mb-8 font-stoke text-[0.62rem] lowercase tracking-[0.2em] text-stone-600 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                develop > 0.08
+                  ? 'pointer-events-none max-h-0 overflow-hidden opacity-0'
+                  : 'opacity-100'
+              }`}
+            >
+              repath khan · builder · ireland
             </p>
 
             <div className="font-stoke text-[0.68rem] lowercase tracking-[0.2em] text-stone-600">
@@ -685,20 +694,6 @@ function App() {
                 another frame
               </button>
             </div>
-            <a
-              href="/working-on"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/working-on')
-              }}
-              className="mt-6 inline-block font-stoke text-xs lowercase tracking-[0.12em] text-stone-500 transition duration-300 hover:text-stone-200"
-              style={{
-                opacity: hasEnded ? 1 : 0,
-                pointerEvents: hasEnded ? 'auto' : 'none',
-              }}
-            >
-              what i&apos;m working on
-            </a>
           </div>
 
           <div
@@ -818,64 +813,14 @@ function App() {
           </div>
         </div>
 
-        <footer className="mx-auto grid w-full max-w-[1400px] grid-cols-[1fr_auto_1fr] items-center gap-4 border-t border-white/10 pt-4 font-stoke text-[0.6rem] lowercase tracking-[0.1em] text-stone-500 sm:text-[0.68rem] sm:tracking-[0.14em]">
-          <span className="flex items-center gap-2 justify-self-start">
-            <span>2026</span>
-            <span className="text-white/15" aria-hidden="true">|</span>
-            <a
-              href="/notes"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/notes')
-              }}
-              className="transition hover:text-stone-100"
-            >
-              notes
-            </a>
-            <span className="text-white/15" aria-hidden="true">|</span>
-            <a
-              href="/letter"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/letter')
-              }}
-              className="transition hover:text-stone-100"
-            >
-              letter
-            </a>
-            <span className="text-white/15" aria-hidden="true">|</span>
-            <a
-              href="/working-on"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/working-on')
-              }}
-              className="transition hover:text-stone-100"
-            >
-              working on
-            </a>
-          </span>
-          <span
-            className="justify-self-center tabular-nums tracking-[0.12em] text-stone-400 sm:tracking-[0.22em]"
-            aria-label="local time"
-          >
-            {clock}
-          </span>
-          <span className="flex items-center justify-end gap-4 justify-self-end">
-            <MusicMute muted={musicMuted} onToggle={toggleMusicMuted} />
-            <span>
-              ©{' '}
-              <a
-                href="https://www.linkedin.com/in/repathkhan/"
-                target="_blank"
-                rel="noreferrer"
-                className="transition hover:text-stone-100"
-              >
-                repath khan
-              </a>
-            </span>
-          </span>
-        </footer>
+        <BuildingPreview />
+
+        <SiteFooter
+          layout="home"
+          clock={clock}
+          musicMuted={musicMuted}
+          onToggleMusic={toggleMusicMuted}
+        />
       </section>
 
       <section
@@ -925,20 +870,6 @@ function App() {
             another frame
           </button>
         </div>
-        <a
-          href="/working-on"
-          onClick={(event) => {
-            event.preventDefault()
-            navigate('/working-on')
-          }}
-          className="mt-6 inline-block font-stoke text-xs lowercase tracking-[0.12em] text-stone-500 transition duration-300 hover:text-stone-200"
-          style={{
-            opacity: hasEnded ? 1 : 0,
-            pointerEvents: hasEnded ? 'auto' : 'none',
-          }}
-        >
-          what i&apos;m working on
-        </a>
       </section>
     </main>
   )

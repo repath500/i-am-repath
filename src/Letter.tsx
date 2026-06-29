@@ -26,12 +26,11 @@ import {
   minDeliveryDate,
   type SavedLetter,
 } from './letters'
-import MusicMute from './MusicMute'
+import SiteFooter from './SiteFooter'
 import {
   hasSeenLetterRule,
   markLetterRuleSeen,
 } from './progress'
-import { navigate } from './router'
 import { useMusicMuted } from './useMusicMuted'
 
 type LetterProps = {
@@ -556,47 +555,10 @@ function Letter({ deliveryId }: LetterProps) {
           </section>
         )}
 
-        <footer className="mt-16 flex flex-col gap-5 border-t border-white/10 pt-6 font-stoke text-[0.68rem] lowercase tracking-[0.14em] text-stone-500 md:flex-row md:items-center md:justify-between md:gap-4">
-          <nav className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
-            <a
-              href="/notes"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/notes')
-              }}
-              className="transition hover:text-stone-100"
-            >
-              notes
-            </a>
-            <span className="hidden text-white/15 md:inline" aria-hidden="true">
-              |
-            </span>
-            <a
-              href="/"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/')
-              }}
-              className="transition hover:text-stone-100"
-            >
-              home
-            </a>
-            <span className="hidden text-white/15 md:inline" aria-hidden="true">
-              |
-            </span>
-            <a
-              href="/working-on"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/working-on')
-              }}
-              className="transition hover:text-stone-100"
-            >
-              working on
-            </a>
-          </nav>
-          <MusicMute muted={musicMuted} onToggle={toggleMusicMuted} />
-        </footer>
+        <SiteFooter
+          musicMuted={musicMuted}
+          onToggleMusic={toggleMusicMuted}
+        />
       </div>
     </main>
   )

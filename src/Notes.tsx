@@ -7,6 +7,7 @@ import {
   startAmbientMusic,
 } from './audioConfig'
 import MusicMute from './MusicMute'
+import SiteFooter from './SiteFooter'
 import PresenceWhisper from './PresenceWhisper'
 import { hiddenNote } from './hiddenContent'
 import { notes } from './notes'
@@ -674,64 +675,10 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
           )}
         </section>
 
-        <footer className="mt-16 flex flex-col gap-5 border-t border-white/10 pt-6 font-stoke text-[0.68rem] lowercase tracking-[0.14em] text-stone-500 md:flex-row md:items-center md:justify-between md:gap-4">
-          <nav className="flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
-            <span className="text-stone-600">2026</span>
-            <span className="hidden text-white/15 md:inline" aria-hidden="true">
-              |
-            </span>
-            <a
-              href="/"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/')
-              }}
-              className="transition hover:text-stone-100"
-            >
-              home
-            </a>
-            <span className="hidden text-white/15 md:inline" aria-hidden="true">
-              |
-            </span>
-            <a
-              href="/letter"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/letter')
-              }}
-              className="transition hover:text-stone-100"
-            >
-              letter
-            </a>
-            <span className="hidden text-white/15 md:inline" aria-hidden="true">
-              |
-            </span>
-            <a
-              href="/working-on"
-              onClick={(event) => {
-                event.preventDefault()
-                navigate('/working-on')
-              }}
-              className="transition hover:text-stone-100"
-            >
-              working on
-            </a>
-          </nav>
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
-            <MusicMute muted={musicMuted} onToggle={toggleMusicMuted} />
-            <span>
-              ©{' '}
-              <a
-                href="https://www.linkedin.com/in/repathkhan/"
-                target="_blank"
-                rel="noreferrer"
-                className="transition hover:text-stone-100"
-              >
-                repath khan
-              </a>
-            </span>
-          </div>
-        </footer>
+        <SiteFooter
+          musicMuted={musicMuted}
+          onToggleMusic={toggleMusicMuted}
+        />
       </div>
     </main>
   )
