@@ -43,6 +43,202 @@ export const statusLabel: Record<PipelineStatus, string> = {
   private: 'private',
 }
 
+export type CritiqueShipRelease = {
+  version: string
+  title: string
+  date: string
+  current?: boolean
+  highlights: string[]
+  essay?: { label: string; href: string }
+}
+
+export type CritiqueBlogPost = {
+  slug: string
+  title: string
+  date: string
+  category: 'product' | 'model updates' | 'essays'
+  author?: string
+  summary: string
+  href: string
+}
+
+export const critiqueCurrentVersion = 'v6.6'
+
+export const critiqueShipLog: CritiqueShipRelease[] = [
+  {
+    version: 'v6.6',
+    title: 'current ship line — change-control spine at full v6 maturity',
+    date: '2026-06-29',
+    current: true,
+    highlights: [
+      'live artifact on critique.sh — v6 line now spans Merge Gate API, Critique Intake, Agent Workspace, and OpenCode sandbox review as one writer → judge → merge loop',
+      'community edition open-source path public — self-hosted PR review split into repath500/critique-community (see June 23 OSS essay)',
+      'Coding Agent API lifecycle contract — title, tags, metadata, lifecycle, nextActions, and OpenAPI coverage for CI repair, support-to-fix, and supervisor workflows',
+      'OpenCode review runtime from v6.5 rolled forward — 30-minute worker budget, background E2B command handles, @critique-bot PR chat, pr_comment_thread storage',
+      'Agent Workspace shell from v6.3–v6.4 — tabbed session rail, floating ops inspector, calmer composer dock at /workspace',
+    ],
+    essay: {
+      label: 'ship log',
+      href: 'https://www.critique.sh/version',
+    },
+  },
+  {
+    version: 'v6.5',
+    title: 'OpenCode review runtime hardening and PR chat readiness',
+    date: '2026-06-26',
+    highlights: [
+      'QStash review worker extended to 30-minute serverless budget for full OpenCode sandbox passes',
+      'OpenCode /session/:id/message runs through E2B background command handles — heartbeats and stall abort without monopolizing the sandbox',
+      'duplicate review claims wait for real sandbox budgets instead of reclaiming after 10 minutes',
+      '@critique-bot production default for hosted PR chat (legacy @critique alias kept)',
+      'pr_comment_thread migration — trigger comments, prompts, replies, and errors stored for GitHub PR chat runs',
+    ],
+    essay: {
+      label: 'ship log',
+      href: 'https://www.critique.sh/version',
+    },
+  },
+  {
+    version: 'v6.4',
+    title: 'Agent Workspace usability, operator boundaries, and layout polish',
+    date: '2026-06-26',
+    highlights: [
+      'slimmer session header — toggle controls and single status line instead of duplicate runtime chrome',
+      'left rail tabbed into Lanes, Repos, Sources, Projects; mobile sheet matches',
+      'sticky composer dock reduced to input bar — preflight detail on demand, provider keys in settings sheet',
+      'operations inspector floats by default on desktop; pin to dock when needed',
+    ],
+  },
+  {
+    version: 'v6.3',
+    title: 'Agent Workspace layout aligned to a calmer T3-style shell',
+    date: '2026-06-23',
+    highlights: [
+      'fixed three-region shell at /workspace — session rail, transcript, optional ops inspector',
+      'empty state is sparse centered prompt + composer; active lanes own the center column',
+      'prompt queue management moved to inspector Agents tab',
+    ],
+  },
+  {
+    version: 'v6.2',
+    title: 'Critique Intake and sharper sandbox review recovery',
+    date: '2026-06-23',
+    highlights: [
+      'Critique Intake ships — embeddable widget, browser context capture, deterministic triage, agent-ready handoff',
+      'install via /intake/widget.js → POST /api/intake/report; Dashboard → Intake inbox',
+      'OpenCode owns end-to-end sandbox review — hard wall-clock abort on stalled turns',
+    ],
+    essay: {
+      label: 'intake essay',
+      href: 'https://www.critique.sh/blog/critique-intake-agentic-bug-intake',
+    },
+  },
+  {
+    version: 'v6.1.1',
+    title: 'agent stack integrations — upstreamSignals on the merge gate',
+    date: '2026-06-17',
+    highlights: [
+      'upstreamSignals on POST /api/v1/reviews — RWX, Swytchcode, Iron Book cookbooks on /merge-gate-api',
+      'partner attestation rides the same Change Passport as PASS / WARN / FAIL verdicts',
+    ],
+    essay: {
+      label: 'v6.1.1 essay',
+      href: 'https://www.critique.sh/blog/critique-v611-agent-stack-integrations',
+    },
+  },
+  {
+    version: 'v6.1',
+    title: 'Platform API v1, Merge Gate packaging, lifecycle webhooks',
+    date: '2026-06-17',
+    highlights: [
+      'POST /api/v1/reviews live — queue PR review over HTTP with crt_ keys',
+      'Merge Gate API names the judge role — writer vs judge vs fixer, structured findings[], webhooks',
+      'GLM-5.2 catalog rollover at same 3-credit floor; calmer default light-mode chrome',
+    ],
+    essay: {
+      label: 'merge gate essay',
+      href: 'https://www.critique.sh/blog/critique-merge-gate-api-v61',
+    },
+  },
+]
+
+export const critiqueBlogPosts: CritiqueBlogPost[] = [
+  {
+    slug: 'senior-developer-shortage',
+    title: 'The senior developer shortage is coming. We\'re engineering it ourselves.',
+    date: '2026-06-27',
+    category: 'essays',
+    summary:
+      'entry-level hiring collapsed while AI productivity soared — the five-to-seven year mentorship lag means a senior drought around 2029–2031, and every team that ran the spreadsheet will compete for a pool they drained.',
+    href: 'https://www.critique.sh/blog/senior-developer-shortage',
+  },
+  {
+    slug: 'coding-agent-api-cloud-workflows',
+    title: 'Critique Coding Agent API: How Teams Are Actually Using Cloud Agents Over HTTP',
+    date: '2026-06-24',
+    category: 'product',
+    author: 'repath khan',
+    summary:
+      'lifecycle fields, tags, metadata, intent classification, SSE status, and OpenAPI — shaped for CI repair, support-to-fix, internal fix bots, and writer→judge supervisor loops.',
+    href: 'https://www.critique.sh/blog/critique-coding-agent-api-cloud-workflows',
+  },
+  {
+    slug: 'critique-intake',
+    title: 'Critique Intake: Feedback That Arrives Already Debugged',
+    date: '2026-06-23',
+    category: 'product',
+    summary:
+      'embeddable bug widget, one focused follow-up, browser context capture, deterministic triage, and agent-ready handoff into Builder, Review runs, and Change Passports.',
+    href: 'https://www.critique.sh/blog/critique-intake-agentic-bug-intake',
+  },
+  {
+    slug: 'critique-going-open-source',
+    title: 'Critique Is Going Open Source',
+    date: '2026-06-23',
+    category: 'essays',
+    summary:
+      'public community edition for self-hosted GitHub PR review — what opens first, what stays out of scope, and why the split lives in a separate public repo (critique-community).',
+    href: 'https://www.critique.sh/blog/critique-going-open-source',
+  },
+  {
+    slug: 'critique-v611',
+    title: 'Critique v6.1.1: Agent Stack Integrations — RWX, Swytchcode, and Iron Book',
+    date: '2026-06-17',
+    category: 'product',
+    author: 'repath khan',
+    summary:
+      'upstreamSignals on the Merge Gate API — build validation, API execution, and runtime agent IAM on the same Change Passport without Critique pretending to be CI or enterprise IAM.',
+    href: 'https://www.critique.sh/blog/critique-v611-agent-stack-integrations',
+  },
+  {
+    slug: 'glm-52-critique',
+    title: 'GLM-5.2 Lands in Critique: 1M Context, Design Arena #1, Same 3-Credit GLM-5.1 Shelf',
+    date: '2026-06-17',
+    category: 'model updates',
+    summary:
+      'GLM-5.2 replaces GLM-5.1 and GLM-5V-Turbo at the same 3-credit review floor — Z.ai benchmarks vs GPT-5.5 and Claude Opus 4.8, Design Arena Elo 1360.',
+    href: 'https://www.critique.sh/blog/glm-5-2-long-horizon-critique-review-remedy',
+  },
+  {
+    slug: 'kimi-k27-code',
+    title: 'Kimi K2.7 Code Lands in Critique: Open-Source Coding at 4.5 Credits',
+    date: '2026-06-13',
+    category: 'model updates',
+    summary:
+      'Kimi K2.7 Code joins the Moonshot lane at 4.5 credits per PR review run — vendor coding benchmarks vs GPT-5.5 and Opus 4.8, reasoning-efficiency gains over K2.6.',
+    href: 'https://www.critique.sh/blog/kimi-k2-7-code-critique-pr-review-remedy',
+  },
+  {
+    slug: 'you-merged-that-why',
+    title: 'You Merged That. Why.',
+    date: '2026-06-15',
+    category: 'essays',
+    summary:
+      'AI velocity outpaced review — what actually happens to PRs when teams merge anyway, and how sandbox verification plus merge policy closes the gap.',
+    href: 'https://www.critique.sh/blog/you-merged-that-why',
+  },
+]
+
 export const ecosystemLayers: EcosystemLayer[] = [
   {
     id: 'critique',
@@ -54,29 +250,33 @@ export const ecosystemLayers: EcosystemLayer[] = [
       {
         id: 'critique-core',
         name: 'critique',
-        tagline: 'flagship monorepo — GitHub-native review with ephemeral sandboxes on every push',
+        tagline: 'flagship monorepo at v6.6 — AI change control at the GitHub merge boundary',
         architecture:
-          'git diff lands in E2B sandboxes on push. specialist reviewers inspect the working tree, emit a durable JSON artifact, and publish native GitHub reviews before production-breaking merges, buglocks, leaks, or circular imports land.',
+          'writer → judge → merge loop: Coding Agent API and Builder write patches; Checkpoint gates slop; OpenCode sandboxes run specialist review and emit /tmp/critique-review-output.json; Merge Gate API returns PASS / WARN / FAIL on Change Passports; Remedy fixes with proof. Critique Intake feeds the loop from production bug reports.',
         status: 'shipping',
         repo: {
           label: 'repath500/critique',
           href: 'https://github.com/repath500',
           visibility: 'private',
         },
-        live: { label: 'critique.sh', href: 'https://critique.sh' },
-        stack: ['typescript', 'next.js', 'prisma', 'inngest', 'e2b'],
+        live: { label: 'critique.sh · v6.6', href: 'https://critique.sh' },
+        stack: ['typescript', 'next.js', 'prisma', 'inngest', 'e2b', 'opencode'],
       },
       {
         id: 'critique-community',
         name: 'critique-community',
         tagline: 'self-hosted community edition for automated GitHub PR reviews',
         architecture:
-          'community deploy path for teams that want Critique mechanics without the hosted control plane — same sandbox-first review loop, self-managed infra.',
-        status: 'active',
+          'community deploy path aligned with the June 2026 OSS launch — self-hosted GitHub PR review without the hosted control plane. same sandbox-first review loop, separate public repo from the private monorepo.',
+        status: 'live',
         repo: {
           label: 'repath500/critique-community',
           href: 'https://github.com/repath500/critique-community',
           visibility: 'public',
+        },
+        live: {
+          label: 'OSS essay',
+          href: 'https://www.critique.sh/blog/critique-going-open-source',
         },
       },
       {
@@ -225,26 +425,50 @@ export const ecosystemLayers: EcosystemLayer[] = [
 
 export const pipelineLog: PipelineLogEntry[] = [
   {
-    id: 'critique-sandbox-artifact',
+    id: 'critique-v66-current',
     layerId: 'critique',
     projectId: 'critique-core',
-    at: '2026-03',
+    at: '2026-06-29',
     status: 'shipping',
-    note: 'sandbox writes /tmp/critique-review-output.json; app layer persists and publishes to GitHub without reading source directly',
+    note: 'v6.6 live — Merge Gate + Intake + Agent Workspace + OpenCode review as one change-control spine on critique.sh',
   },
   {
-    id: 'critique-community-ce',
+    id: 'critique-coding-agent-api',
+    layerId: 'critique',
+    projectId: 'critique-core',
+    at: '2026-06-24',
+    status: 'shipping',
+    note: 'Coding Agent API lifecycle contract — tags, metadata, nextActions, OpenAPI for CI repair and supervisor loops (Repath essay)',
+  },
+  {
+    id: 'critique-intake-ship',
+    layerId: 'critique',
+    projectId: 'critique-core',
+    at: '2026-06-23',
+    status: 'live',
+    note: 'Critique Intake v6.2 — embeddable widget, deterministic triage, handoff into Review runs and Change Passports',
+  },
+  {
+    id: 'critique-oss-community',
     layerId: 'critique',
     projectId: 'critique-community',
-    at: '2026-06',
-    status: 'active',
-    note: 'community edition repo public — self-hosted PR review path for teams outside hosted Critique',
+    at: '2026-06-23',
+    status: 'live',
+    note: 'community edition going open source — self-hosted PR review in repath500/critique-community',
+  },
+  {
+    id: 'critique-v611-merge-gate',
+    layerId: 'critique',
+    projectId: 'critique-core',
+    at: '2026-06-17',
+    status: 'live',
+    note: 'v6.1.1 upstreamSignals — RWX, Swytchcode, Iron Book attestation on Merge Gate API',
   },
   {
     id: 'critique-review-skill',
     layerId: 'critique',
     projectId: 'critique-review',
-    at: '2026-06',
+    at: '2026-06-02',
     status: 'live',
     note: 'OSS agent skill shipped — npx skills add repath500/critique-review for Cursor, Codex, Claude',
   },
