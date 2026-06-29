@@ -829,6 +829,17 @@ function App() {
             >
               letter
             </a>
+            <span className="text-white/15" aria-hidden="true">|</span>
+            <a
+              href="/working-on"
+              onClick={(event) => {
+                event.preventDefault()
+                navigate('/working-on')
+              }}
+              className="transition hover:text-stone-100"
+            >
+              build
+            </a>
           </span>
           <span
             className="justify-self-center tabular-nums tracking-[0.12em] text-stone-400 sm:tracking-[0.22em]"

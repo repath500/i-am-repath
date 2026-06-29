@@ -703,6 +703,19 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
             >
               letter
             </a>
+            <span className="hidden text-white/15 md:inline" aria-hidden="true">
+              |
+            </span>
+            <a
+              href="/working-on"
+              onClick={(event) => {
+                event.preventDefault()
+                navigate('/working-on')
+              }}
+              className="transition hover:text-stone-100"
+            >
+              build
+            </a>
           </nav>
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
             <MusicMute muted={musicMuted} onToggle={toggleMusicMuted} />
