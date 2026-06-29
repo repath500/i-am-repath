@@ -12,6 +12,44 @@ import { navigate } from './router'
 import { updateWorkingOnMeta } from './share'
 import { useMusicMuted } from './useMusicMuted'
 
+function WorkLink({
+  work,
+  prominent,
+}: {
+  work: Work
+  prominent?: boolean
+}) {
+  return (
+    <a
+      href={work.href}
+      target="_blank"
+      rel="noreferrer"
+      className={`group mt-3 inline-flex max-w-full items-center gap-2.5 border-b border-white/15 pb-1 transition duration-300 hover:border-white/40 ${
+        prominent ? 'md:gap-3' : ''
+      }`}
+    >
+      <img
+        src={work.icon}
+        alt=""
+        width={prominent ? 22 : 18}
+        height={prominent ? 22 : 18}
+        className="shrink-0 rounded-[3px] opacity-75 transition group-hover:opacity-100"
+        loading="lazy"
+        decoding="async"
+      />
+      <span
+        className={`font-stoke lowercase tracking-[-0.01em] text-stone-200 transition group-hover:text-stone-50 ${
+          prominent
+            ? 'text-[clamp(1.35rem,4.5vw,2rem)] font-light'
+            : 'text-[clamp(1.1rem,3.5vw,1.45rem)] font-light'
+        }`}
+      >
+        {work.linkLabel}
+      </span>
+    </a>
+  )
+}
+
 function WorkBlock({ work, prominent }: { work: Work; prominent?: boolean }) {
   return (
     <article
@@ -22,24 +60,19 @@ function WorkBlock({ work, prominent }: { work: Work; prominent?: boolean }) {
       <p className="font-stoke text-[0.62rem] lowercase tracking-[0.2em] text-stone-600">
         {work.role}
       </p>
-      <a
-        href={work.href}
-        target="_blank"
-        rel="noreferrer"
-        className={`mt-3 inline-block font-stoke lowercase leading-none tracking-[-0.01em] text-stone-100 transition hover:text-white ${
-          prominent
-            ? 'text-[clamp(2rem,6vw,3.2rem)] font-light'
-            : 'text-[clamp(1.5rem,4.5vw,2.2rem)] font-light'
-        }`}
-      >
-        {work.name} ↗
-      </a>
+      <h2 className="sr-only">{work.name}</h2>
+      <WorkLink work={work} prominent={prominent} />
       <p className="mt-5 max-w-[52ch] font-crimson text-lg italic leading-[1.5] text-stone-500">
         {work.why}
       </p>
       <p className="mt-4 max-w-[58ch] font-crimson text-[1.05rem] leading-[1.58] text-stone-400">
         {work.building}
       </p>
+      {work.more && (
+        <p className="mt-4 max-w-[58ch] font-crimson text-[1.02rem] leading-[1.58] text-stone-500">
+          {work.more}
+        </p>
+      )}
     </article>
   )
 }
@@ -99,12 +132,16 @@ function WorkingOn() {
           <p className="mt-6 max-w-[48ch] font-crimson text-xl leading-[1.5] text-stone-400 md:text-[1.35rem]">
             {pageIntro.lede}
           </p>
-          <p className="mt-6 max-w-[54ch] font-crimson text-lg leading-[1.58] text-stone-500">
-            {pageIntro.why}
-          </p>
-          <p className="mt-5 max-w-[50ch] font-crimson text-[1.02rem] leading-[1.55] text-stone-600">
-            {pageIntro.background}
-          </p>
+          <div className="mt-6 space-y-5">
+            {pageIntro.paragraphs.map((paragraph) => (
+              <p
+                key={paragraph.slice(0, 32)}
+                className="max-w-[54ch] font-crimson text-lg leading-[1.58] text-stone-500"
+              >
+                {paragraph}
+              </p>
+            ))}
+          </div>
         </header>
 
         <section className="mt-16 md:mt-20">
