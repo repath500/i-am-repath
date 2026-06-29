@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
-  alsoTending,
+  beliefs,
   closingNote,
   mainWorks,
   pageIntro,
@@ -11,6 +11,9 @@ import PresenceWhisper from './PresenceWhisper'
 import { navigate } from './router'
 import { updateWorkingOnMeta } from './share'
 import { useMusicMuted } from './useMusicMuted'
+
+const bodyText =
+  'font-crimson text-[1.13rem] leading-[1.65] text-stone-300 md:text-[1.2rem] md:leading-[1.68]'
 
 function WorkLink({
   work,
@@ -24,24 +27,24 @@ function WorkLink({
       href={work.href}
       target="_blank"
       rel="noreferrer"
-      className={`group mt-3 inline-flex max-w-full items-center gap-2.5 border-b border-white/15 pb-1 transition duration-300 hover:border-white/40 ${
+      className={`group mt-4 inline-flex max-w-full items-center gap-2.5 border-b border-white/25 pb-1 transition duration-300 hover:border-white/55 ${
         prominent ? 'md:gap-3' : ''
       }`}
     >
       <img
         src={work.icon}
         alt=""
-        width={prominent ? 22 : 18}
-        height={prominent ? 22 : 18}
-        className="shrink-0 rounded-[3px] opacity-75 transition group-hover:opacity-100"
+        width={prominent ? 24 : 20}
+        height={prominent ? 24 : 20}
+        className="shrink-0 rounded-[3px] opacity-90 transition group-hover:opacity-100"
         loading="lazy"
         decoding="async"
       />
       <span
-        className={`font-stoke lowercase tracking-[-0.01em] text-stone-200 transition group-hover:text-stone-50 ${
+        className={`font-stoke lowercase tracking-[-0.01em] text-stone-100 transition group-hover:text-white ${
           prominent
-            ? 'text-[clamp(1.35rem,4.5vw,2rem)] font-light'
-            : 'text-[clamp(1.1rem,3.5vw,1.45rem)] font-light'
+            ? 'text-[clamp(1.45rem,4.8vw,2.15rem)] font-light'
+            : 'text-[clamp(1.2rem,3.8vw,1.55rem)] font-light'
         }`}
       >
         {work.linkLabel}
@@ -53,26 +56,22 @@ function WorkLink({
 function WorkBlock({ work, prominent }: { work: Work; prominent?: boolean }) {
   return (
     <article
-      className={`note-row border-t border-white/10 pt-10 md:pt-12 ${
+      className={`note-row border-t border-white/10 pt-12 md:pt-14 ${
         prominent ? 'first:border-t-0 first:pt-0' : ''
       }`}
     >
-      <p className="font-stoke text-[0.62rem] lowercase tracking-[0.2em] text-stone-600">
+      <p className="font-stoke text-[0.65rem] lowercase tracking-[0.2em] text-stone-500">
         {work.role}
       </p>
       <h2 className="sr-only">{work.name}</h2>
       <WorkLink work={work} prominent={prominent} />
-      <p className="mt-5 max-w-[52ch] font-crimson text-lg italic leading-[1.5] text-stone-500">
-        {work.why}
-      </p>
-      <p className="mt-4 max-w-[58ch] font-crimson text-[1.05rem] leading-[1.58] text-stone-400">
-        {work.building}
-      </p>
-      {work.more && (
-        <p className="mt-4 max-w-[58ch] font-crimson text-[1.02rem] leading-[1.58] text-stone-500">
-          {work.more}
-        </p>
-      )}
+      <div className="mt-6 space-y-4">
+        {work.paragraphs.map((paragraph) => (
+          <p key={paragraph.slice(0, 40)} className={`max-w-[58ch] ${bodyText}`}>
+            {paragraph}
+          </p>
+        ))}
+      </div>
     </article>
   )
 }
@@ -104,7 +103,7 @@ function WorkingOn() {
       <PresenceWhisper />
       <div className="pointer-events-none fixed inset-0 grain opacity-[0.13]" />
 
-      <div className="relative mx-auto w-full max-w-[720px] px-5 py-12 sm:px-6 md:py-20">
+      <div className="relative mx-auto w-full max-w-[740px] px-5 py-12 sm:px-6 md:py-20">
         <div className="flex items-start justify-between gap-4">
           <a
             href="/"
@@ -129,44 +128,49 @@ function WorkingOn() {
           <h1 className="font-stoke text-[clamp(2.6rem,9vw,5rem)] font-light lowercase leading-none tracking-[-0.01em] text-stone-100">
             what i&apos;m working on
           </h1>
-          <p className="mt-6 max-w-[48ch] font-crimson text-xl leading-[1.5] text-stone-400 md:text-[1.35rem]">
+          <p className="mt-8 max-w-[50ch] font-crimson text-[1.22rem] leading-[1.65] text-stone-200 md:text-[1.42rem] md:leading-[1.68]">
             {pageIntro.lede}
           </p>
-          <div className="mt-6 space-y-5">
+          <div className="mt-8 space-y-6">
             {pageIntro.paragraphs.map((paragraph) => (
-              <p
-                key={paragraph.slice(0, 32)}
-                className="max-w-[54ch] font-crimson text-lg leading-[1.58] text-stone-500"
-              >
+              <p key={paragraph.slice(0, 32)} className={`max-w-[58ch] ${bodyText}`}>
                 {paragraph}
               </p>
             ))}
           </div>
         </header>
 
-        <section className="mt-16 md:mt-20">
-          <p className="font-stoke text-[0.62rem] lowercase tracking-[0.24em] text-stone-600">
+        <section className="mt-16 border-t border-white/10 pt-12 md:mt-20 md:pt-16">
+          <p className="font-stoke text-[0.65rem] lowercase tracking-[0.24em] text-stone-500">
+            what i believe
+          </p>
+          <ul className="mt-6 space-y-4">
+            {beliefs.map((belief) => (
+              <li
+                key={belief}
+                className={`flex gap-3 max-w-[58ch] ${bodyText}`}
+              >
+                <span className="text-stone-600" aria-hidden="true">
+                  ·
+                </span>
+                <span>{belief}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="mt-16 border-t border-white/10 pt-12 md:mt-20 md:pt-16">
+          <p className="font-stoke text-[0.65rem] lowercase tracking-[0.24em] text-stone-500">
             the work
           </p>
-          <div className="mt-8">
+          <div className="mt-10">
             {mainWorks.map((work, index) => (
               <WorkBlock key={work.id} work={work} prominent={index === 0} />
             ))}
           </div>
         </section>
 
-        <section className="mt-16 border-t border-white/10 pt-12 md:mt-20 md:pt-16">
-          <p className="font-stoke text-[0.62rem] lowercase tracking-[0.24em] text-stone-600">
-            also tending
-          </p>
-          <div className="mt-8">
-            {alsoTending.map((work) => (
-              <WorkBlock key={work.id} work={work} />
-            ))}
-          </div>
-        </section>
-
-        <p className="note-row mt-16 max-w-[52ch] font-crimson text-lg italic leading-[1.55] text-stone-600 md:mt-20">
+        <p className={`note-row mt-16 max-w-[58ch] md:mt-20 ${bodyText} text-stone-400`}>
           {closingNote}
         </p>
 
