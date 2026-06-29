@@ -5,21 +5,27 @@ export type Work = {
   linkLabel: string
   icon: string
   role: string
-  why: string
-  building: string
-  more?: string
+  paragraphs: string[]
 }
 
 export const pageIntro = {
   label: 'repath khan',
   lede:
-    'i build ai systems for people who ship real software. not demos. products with traffic, sandboxes, and merge boundaries.',
+    'i build ai products for developers, founders, and people who want models as real tools. not chat demos.',
   paragraphs: [
-    'i have been in the ai space since late 2022. what started as a backup chat when gpt-4 went down became leemerchat, then infrastructure, then critique, then a whole stack i run every day. over two and a half thousand commits in the past year alone. billions of tokens through real traffic, not benchmarks.',
-    'i stay deep in the ecosystem. blessed with early access to frontier models like glm, kimi, and the lanes i actually ship against. i have been fortunate to try yc products pre-launch and post-launch with their founders, and to do the same with a16z founders. that keeps the work honest. you learn what breaks before the press release.',
-    'waterford, ireland. former analog devices engineer. i care about coordination over raw scale, and about building in europe without treating compliance as an afterthought. this page is the map of what i am building and why.',
+    'i have been building in ai since late 2022. over two and a half thousand commits in the past year alone. billions of tokens through real traffic. what started as a backup when gpt-4 went down became leemerchat, then critique, then a lab and a stack i run every day.',
+    'i am not casually using ai tools. i test models early, including pre-release lanes like glm and kimi. i talk to founders before and after launch, including people from yc and a16z-related networks. that keeps the work grounded. you see what breaks before the announcement.',
+    'i build because i want to understand where technology is going. especially ai as infrastructure for builders. developer tools, coding agents, model access, founder workflows. i learn by shipping fast, breaking things, and talking to people at the edge of the market.',
+    'waterford, ireland. former analog devices engineer. young, ambitious, still evolving. but serious about turning fast-moving ai into software people can actually ship with.',
   ],
 }
+
+export const beliefs = [
+  'ai should work inside real development workflows, not sit beside them as a chat box.',
+  'the best products come from testing models early and building before the category has a name.',
+  'speed matters, but so does proof. especially when agents are writing the code.',
+  'i am grateful for the founders and teams who let me test early. it shapes everything i ship.',
+]
 
 export const mainWorks: Work[] = [
   {
@@ -28,13 +34,12 @@ export const mainWorks: Work[] = [
     href: 'https://critique.sh',
     linkLabel: 'critique.sh',
     icon: 'https://www.critique.sh/icon.svg',
-    role: 'flagship · vibe insurance for developers',
-    why:
-      'agents write code faster than teams can trust it. i got tired of review tools that only read diffs. production breaks when nobody actually runs the tree. critique exists so the merge boundary has proof, not vibes.',
-    building:
-      'github-native change control. every serious pull request gets cloned into a sandbox, inspected, and turned into a stored verdict. not a chat thread. if it cannot run, it should not merge. that is the whole product.',
-    more:
-      'i built this because i kept shipping agent-written code and watching teams merge on faith. critique is the judge that is not the writer. sandboxes, change passports, merge policy. the boring infrastructure that keeps velocity from becoming debt.',
+    role: 'for builders · coding agents and developer workflows',
+    paragraphs: [
+      'critique is my most developer-focused product. ai coding agents, code review, repo understanding, sandboxed execution, bug fixing, pull request generation. the direction is simple: ai should help you ship software, not just reply in a thread.',
+      'it is built for builders, technical founders, indie hackers, and startups who care about speed and code quality. modern and direct. not generic enterprise saas.',
+      'every serious pull request can be cloned into a sandbox, inspected, and turned into a stored verdict. agents write the patch. critique judges whether it should merge. that is the workflow i wanted when review tools only read diffs and production still broke.',
+    ],
   },
   {
     id: 'leemerchat',
@@ -42,13 +47,12 @@ export const mainWorks: Work[] = [
     href: 'https://www.leemerchat.com',
     linkLabel: 'leemerchat.com',
     icon: 'https://www.leemerchat.com/favicon.ico',
-    role: 'daily workspace · frontier models in one place',
-    why:
-      'one api is the wrong abstraction. serious work needs model choice, research depth, and a shell that does not fall over when your primary provider blinks. leemerchat is the workspace i wanted when gpt-4 went down at 2am.',
-    building:
-      'multi-model chat, research, codebase context, and connectors. the place i go for reasoning, writing, and exploration. review-first ship work lives on critique now. leemerchat stays the brain, not the gate.',
-    more:
-      'more than a billion tokens have moved through this product from real users. i still use it daily. when a new frontier model drops, it lands here first. glm, kimi, sonnet, gpt. whatever is actually worth routing.',
+    role: 'ai chat · model access and experimentation',
+    paragraphs: [
+      'leemerchat is the ai chat product. more than a wrapper around one api. it is a clean interface for talking to models, comparing how they behave, and using ai in a way that feels fast and useful.',
+      'accessible but serious. part of the broader work around model access, usability, and better product experiences on top of large language models. over a billion tokens have moved through it from real users.',
+      'when a new frontier model is worth routing, it usually lands here first. this is where i test capability before it becomes infrastructure somewhere else in the stack.',
+    ],
   },
   {
     id: 'leemerlabs',
@@ -56,54 +60,14 @@ export const mainWorks: Work[] = [
     href: 'https://www.leemerlabs.com',
     linkLabel: 'leemerlabs.com',
     icon: 'https://www.leemerlabs.com/icon.svg',
-    role: 'research and infrastructure arm',
-    why:
-      'the products need a floor underneath them. inference, custom models, and the engineering that does not belong in a marketing page. leemerlabs is where the hard infra work lives.',
-    building:
-      'public inference gateway, model foundry, and the research layer behind leemerchat and critique. if i am testing a frontier model seriously, it probably routes through here first.',
-    more:
-      'born applied intelligence, foundry, the inference stack. this is the part of the group that does not need a glossy landing page to matter. it is the substrate.',
-  },
-]
-
-export const alsoTending: Work[] = [
-  {
-    id: 'daildex',
-    name: 'daildex',
-    href: 'https://www.leemerlabs.com',
-    linkLabel: 'leemerlabs.com',
-    icon: 'https://www.leemerlabs.com/icon.svg',
-    role: 'civic data · ireland',
-    why:
-      'i think ireland should know who is doing real ai work and who is performing it. daildex joins political data with that honesty. oireachtas framing, credibility signals, nothing performative.',
-    building:
-      'a monorepo tracking irish political infrastructure. parliamentary records, constituency context, and a surface that treats civic data like engineering, not a campaign site.',
-  },
-  {
-    id: 'ai-regulation-ie',
-    name: 'ai-regulation-ie',
-    href: 'https://github.com/repath500/ai-regulation-ie',
-    linkLabel: 'github.com/repath500/ai-regulation-ie',
-    icon: 'https://github.com/favicon.ico',
-    role: 'compliance workspace',
-    why:
-      'eu ai act posture should not live in a forgotten notion doc. i keep regulatory reference and safety flows adjacent to the products they actually govern.',
-    building:
-      'workspace and backup flow for ai regulatory compliance. the paperwork side of building in europe, kept close to the code.',
-  },
-  {
-    id: 'repath-life',
-    name: 'repath.life',
-    href: 'https://repath.life',
-    linkLabel: 'repath.life',
-    icon: 'https://repath.life/favicon.svg',
-    role: 'this site',
-    why:
-      'not everything i make is a product pitch. sometimes i want a quiet place. a film, a note, a letter sealed for later. this site is that.',
-    building:
-      'personal experiential site. square film per visit, visitor presence, notes, letters. the rest of the stack is work. this is the record of becoming.',
+    role: 'the lab · where experiments become products',
+    paragraphs: [
+      'leemerlabs is the broader ai lab identity. where i explore model workflows, test tools, prototype fast, and turn useful ideas into products. not academic research. a builder lab.',
+      'inference, foundry, agent tooling, founder-facing experiments. commercially useful learning. if i am trying to understand what a model is actually good at, a lot of that work happens here before it shows up in critique or leemerchat.',
+      'ambitious and technical, but product-driven. the umbrella for everything that does not fit neatly on one landing page.',
+    ],
   },
 ]
 
 export const closingNote =
-  'if you landed here from linkedin or a product, the work lives at the links above. this page is just me explaining what i am actually building, and why i have not stopped.'
+  'this site is my personal operating system for the work. not a cv. if you care about coding agents, model interfaces, or what i am building next, the products above are where it lives.'
