@@ -3,6 +3,8 @@ import {
   beliefs,
   closingNote,
   mainWorks,
+  moreFromLab,
+  openToWork,
   pageIntro,
   type Work,
 } from './ecosystem'
@@ -128,6 +130,9 @@ function WorkingOn() {
           <h1 className="font-stoke text-[clamp(2.6rem,9vw,5rem)] font-light lowercase leading-none tracking-[-0.01em] text-stone-100">
             what i&apos;m working on
           </h1>
+          <p className="mt-5 font-stoke text-[0.68rem] lowercase tracking-[0.16em] text-stone-500">
+            {pageIntro.alsoKnownAs}
+          </p>
           <p className="mt-8 max-w-[50ch] font-crimson text-[1.22rem] leading-[1.65] text-stone-200 md:text-[1.42rem] md:leading-[1.68]">
             {pageIntro.lede}
           </p>
@@ -168,6 +173,36 @@ function WorkingOn() {
               <WorkBlock key={work.id} work={work} prominent={index === 0} />
             ))}
           </div>
+        </section>
+
+        <section className="mt-16 border-t border-white/10 pt-12 md:mt-20 md:pt-16">
+          <p className="font-stoke text-[0.65rem] lowercase tracking-[0.24em] text-stone-500">
+            more from the lab
+          </p>
+          <div className="mt-10">
+            {moreFromLab.map((work) => (
+              <WorkBlock key={work.id} work={work} />
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-16 border-t border-white/10 pt-12 md:mt-20 md:pt-16">
+          <p className="font-stoke text-[0.65rem] lowercase tracking-[0.24em] text-stone-500">
+            {openToWork.heading}
+          </p>
+          <div className="mt-6 space-y-4">
+            {openToWork.paragraphs.map((paragraph) => (
+              <p key={paragraph.slice(0, 32)} className={`max-w-[58ch] ${bodyText}`}>
+                {paragraph}
+              </p>
+            ))}
+          </div>
+          <a
+            href={`mailto:${openToWork.email}`}
+            className="mt-6 inline-block border-b border-white/25 pb-1 font-stoke text-[clamp(1.1rem,3.5vw,1.35rem)] lowercase text-stone-100 transition hover:border-white/55 hover:text-white"
+          >
+            {openToWork.email}
+          </a>
         </section>
 
         <p className={`note-row mt-16 max-w-[58ch] md:mt-20 ${bodyText} text-stone-400`}>

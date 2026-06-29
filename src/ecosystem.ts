@@ -10,10 +10,11 @@ export type Work = {
 
 export const pageIntro = {
   label: 'repath khan',
+  alsoKnownAs: 'some people know me as ray. my name is repath khan.',
   lede:
     'i build ai products for developers, founders, and people who want models as real tools. not chat demos.',
   paragraphs: [
-    'i have been building in ai since late 2022. over two and a half thousand commits in the past year alone. billions of tokens through real traffic. what started as a backup when gpt-4 went down became leemerchat, then critique, then a lab and a stack i run every day.',
+    'i have been building in ai since late 2022. over two and a half thousand commits in the past year alone. tens of billions of tokens through real traffic. what started as a backup when gpt-4 went down became leemerchat, then critique, then a stack of products i run every day.',
     'i am not casually using ai tools. i test models early, including pre-release lanes like glm and kimi. i talk to founders before and after launch, including people from yc and a16z-related networks. that keeps the work grounded. you see what breaks before the announcement.',
     'i build because i want to understand where technology is going. especially ai as infrastructure for builders. developer tools, coding agents, model access, founder workflows. i learn by shipping fast, breaking things, and talking to people at the edge of the market.',
     'waterford, ireland. former analog devices engineer. young, ambitious, still evolving. but serious about turning fast-moving ai into software people can actually ship with.',
@@ -38,7 +39,8 @@ export const mainWorks: Work[] = [
     paragraphs: [
       'critique is my most developer-focused product. ai coding agents, code review, repo understanding, sandboxed execution, bug fixing, pull request generation. the direction is simple: ai should help you ship software, not just reply in a thread.',
       'it is built for builders, technical founders, indie hackers, and startups who care about speed and code quality. modern and direct. not generic enterprise saas.',
-      'every serious pull request can be cloned into a sandbox, inspected, and turned into a stored verdict. agents write the patch. critique judges whether it should merge. that is the workflow i wanted when review tools only read diffs and production still broke.',
+      'every serious pull request can be cloned into a sandbox, inspected, and turned into a stored verdict. agents write the patch. critique judges whether it should merge.',
+      'critique is also going open source. a self-hosted community edition for github pr review lives in repath500/critique-community, split from the hosted product so teams can run the review loop on their own infra.',
     ],
   },
   {
@@ -50,8 +52,8 @@ export const mainWorks: Work[] = [
     role: 'ai chat · model access and experimentation',
     paragraphs: [
       'leemerchat is the ai chat product. more than a wrapper around one api. it is a clean interface for talking to models, comparing how they behave, and using ai in a way that feels fast and useful.',
-      'accessible but serious. part of the broader work around model access, usability, and better product experiences on top of large language models. over a billion tokens have moved through it from real users.',
-      'when a new frontier model is worth routing, it usually lands here first. this is where i test capability before it becomes infrastructure somewhere else in the stack.',
+      'accessible but serious. tens of billions of tokens have moved through it from real users. part of the broader work around model access, usability, and better experiences on top of large language models.',
+      'when a new frontier model is worth routing, it usually lands here first. this is where i test capability before it becomes product elsewhere.',
     ],
   },
   {
@@ -60,14 +62,37 @@ export const mainWorks: Work[] = [
     href: 'https://www.leemerlabs.com',
     linkLabel: 'leemerlabs.com',
     icon: 'https://www.leemerlabs.com/icon.svg',
-    role: 'the lab · where experiments become products',
+    role: 'the lab · inference, foundry, and experiments',
     paragraphs: [
-      'leemerlabs is the broader ai lab identity. where i explore model workflows, test tools, prototype fast, and turn useful ideas into products. not academic research. a builder lab.',
-      'inference, foundry, agent tooling, founder-facing experiments. commercially useful learning. if i am trying to understand what a model is actually good at, a lot of that work happens here before it shows up in critique or leemerchat.',
-      'ambitious and technical, but product-driven. the umbrella for everything that does not fit neatly on one landing page.',
+      'the broader lab identity. ireland-hosted inference, custom model training through foundry, and the place where i prototype before ideas harden into products. not academic research. a builder lab.',
+      'inference gateway, born applied intelligence, commercially useful experiments. ambitious and technical, but product-driven. the umbrella for work that does not fit on one landing page.',
     ],
   },
 ]
 
+export const moreFromLab: Work[] = [
+  {
+    id: 'warren',
+    name: 'warren.wiki',
+    href: 'https://warren.wiki',
+    linkLabel: 'warren.wiki',
+    icon: 'https://www.warren.wiki/favicon.ico',
+    role: 'knowledge · infinite wiki explorer',
+    paragraphs: [
+      'warren.wiki turns any topic into a living outline you can expand by following connections. wiki mode for structured learning, rabbit hole mode for discovery, and askwarren for real-time answers blended with search and news.',
+      'built from ireland, privacy-first, open source minded. one of the domain products that came out of the same lab stack as everything else. finance and research shaped, but useful for anyone who thinks in networks rather than linear articles.',
+    ],
+  },
+]
+
+export const openToWork = {
+  heading: 'open to work',
+  paragraphs: [
+    'i am open to the right opportunities. founding engineer roles, ai product builds, technical collaborations with teams that are serious about shipping. especially if you are working on agents, developer tools, or model-facing products.',
+    'if that sounds like your world, email me. i read everything that comes through.',
+  ],
+  email: 'ray@critique.sh',
+}
+
 export const closingNote =
-  'this site is my personal operating system for the work. not a cv. if you care about coding agents, model interfaces, or what i am building next, the products above are where it lives.'
+  'this site is my personal operating system for the work. not a cv. if you care about coding agents, model interfaces, or what i am building next, the links above are where it lives.'
