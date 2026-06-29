@@ -714,7 +714,7 @@ function Notes({ initialNoteIndex }: { initialNoteIndex?: number }) {
               }}
               className="transition hover:text-stone-100"
             >
-              build
+              working on
             </a>
           </nav>
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
