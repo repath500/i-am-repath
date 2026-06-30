@@ -7,6 +7,7 @@ import {
   duckMusicForSpeech,
 } from './audioConfig'
 import BuildingPreview from './BuildingPreview'
+import LetterLandingPrompt from './LetterLandingPrompt'
 import IdentityWhisper from './IdentityWhisper'
 import SiteFooter from './SiteFooter'
 import PresenceWhisper from './PresenceWhisper'
@@ -862,6 +863,8 @@ function App() {
         </div>
 
         <BuildingPreview />
+
+        <LetterLandingPrompt />
 
         <SiteFooter
           layout="home"

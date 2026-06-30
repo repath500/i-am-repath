@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { identity } from './ecosystem'
+import { repathPublicLetters } from './hiddenContent'
+import LetterBadge from './LetterBadge'
 import MusicMute from './MusicMute'
 import { navigate } from './router'
 
@@ -35,28 +37,54 @@ function BrandLink({ className = '' }: { className?: string }) {
   )
 }
 
+function NavLinkItem({
+  href,
+  label,
+  badge,
+}: {
+  href: string
+  label: string
+  badge?: string
+}) {
+  return (
+    <a
+      href={href}
+      onClick={(event) => {
+        event.preventDefault()
+        navigate(href)
+      }}
+      className={`inline-flex items-center gap-1.5 ${navLink}`}
+    >
+      {label}
+      {badge ? <LetterBadge>{badge}</LetterBadge> : null}
+    </a>
+  )
+}
+
 function NavLinks({
   className = '',
   vertical = false,
+  showLetterBadge = false,
 }: {
   className?: string
   vertical?: boolean
+  showLetterBadge?: boolean
 }) {
+  const letterBadge =
+    showLetterBadge && repathPublicLetters.length > 1
+      ? `letter ${repathPublicLetters.length}`
+      : undefined
+
   if (vertical) {
     return (
       <nav className={`flex flex-col gap-3 ${className}`}>
         {navItems.map((item) => (
-          <a
+          <NavLinkItem
             key={item.href}
             href={item.href}
-            onClick={(event) => {
-              event.preventDefault()
-              navigate(item.href)
-            }}
-            className={navLink}
-          >
-            {item.label}
-          </a>
+            label={item.label}
+            badge={item.href === '/letter' ? letterBadge : undefined}
+          />
         ))}
       </nav>
     )
@@ -71,16 +99,11 @@ function NavLinks({
               ·
             </span>
           ) : null}
-          <a
+          <NavLinkItem
             href={item.href}
-            onClick={(event) => {
-              event.preventDefault()
-              navigate(item.href)
-            }}
-            className={navLink}
-          >
-            {item.label}
-          </a>
+            label={item.label}
+            badge={item.href === '/letter' ? letterBadge : undefined}
+          />
         </span>
       ))}
     </nav>
@@ -108,11 +131,13 @@ function FooterMoreMenu({
   musicMuted,
   onToggleMusic,
   hideFrom = 'md',
+  showLetterBadge = false,
 }: {
   clock?: string
   musicMuted: boolean
   onToggleMusic: () => void
   hideFrom?: 'sm' | 'md'
+  showLetterBadge?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -154,7 +179,7 @@ function FooterMoreMenu({
         }`}
         aria-hidden={!open}
       >
-        <NavLinks vertical />
+        <NavLinks vertical showLetterBadge={showLetterBadge} />
         <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
           {clock ? (
             <span
@@ -199,6 +224,7 @@ function SiteFooter({
           musicMuted={musicMuted}
           onToggleMusic={onToggleMusic}
           hideFrom="sm"
+          showLetterBadge
         />
 
         <div className="hidden sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4">
@@ -207,7 +233,7 @@ function SiteFooter({
             <span className="text-white/15" aria-hidden="true">
               ·
             </span>
-            <NavLinks />
+            <NavLinks showLetterBadge={layout === 'home'} />
           </div>
           {clock ? (
             <span
