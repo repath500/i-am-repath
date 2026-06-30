@@ -1,12 +1,13 @@
-import { repathPublicLetterParagraphs } from './hiddenContent'
+import { repathPublicLetters } from './hiddenContent'
 import { navigate } from './router'
 
 const bodyText =
   'font-crimson text-[1.13rem] leading-[1.65] text-stone-300 md:text-[1.2rem] md:leading-[1.68]'
 
 function LetterTeaser() {
-  const opener = repathPublicLetterParagraphs[0]
-  const closer = repathPublicLetterParagraphs.slice(-2).join(' ')
+  const latestLetter = repathPublicLetters[repathPublicLetters.length - 1]
+  const opener = latestLetter.paragraphs[0]
+  const closer = latestLetter.paragraphs.slice(-2).join(' ')
 
   return (
     <section className="note-row mt-16 border-t border-white/10 pt-12 md:mt-20 md:pt-16">

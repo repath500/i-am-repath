@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
-  repathPublicLetterParagraphs,
-  repathPublicLetterSignOff,
+  repathPublicLetters,
+  type RepathLetter,
 } from './hiddenContent'
 import { navigate } from './router'
 import {
@@ -11,12 +11,58 @@ import {
 } from './repathLetterPref'
 
 type RepathPublicLetterProps = {
-  reading: boolean
-  onListen: () => void
+  readingLetterId: string | null
+  onListen: (letter: RepathLetter) => void
 }
 
-function RepathPublicLetter({ reading, onListen }: RepathPublicLetterProps) {
+function RepathLetterArticle({
+  letter,
+  isPreview,
+  onListen,
+  reading,
+}: {
+  letter: RepathLetter
+  isPreview: boolean
+  onListen: () => void
+  reading: boolean
+}) {
+  return (
+    <article
+      className={`space-y-6 ${
+        isPreview
+          ? 'letter-preview-mask max-h-[30vh] overflow-hidden md:max-h-[34vh]'
+          : ''
+      }`}
+    >
+      {letter.paragraphs.map((paragraph) => (
+        <p
+          key={paragraph.slice(0, 32)}
+          className="font-crimson text-[clamp(1.05rem,2.8vw,1.28rem)] leading-[1.62] text-stone-200"
+        >
+          {paragraph}
+        </p>
+      ))}
+      {!isPreview && (
+        <>
+          <p className="pt-2 font-stoke text-[0.72rem] lowercase tracking-[0.18em] text-stone-500">
+            {letter.signOff}
+          </p>
+          <button
+            type="button"
+            onClick={onListen}
+            className="font-stoke text-[0.58rem] lowercase tracking-[0.16em] text-stone-500 transition duration-300 hover:text-stone-200"
+          >
+            {reading ? 'reading' : 'listen'}
+          </button>
+        </>
+      )}
+    </article>
+  )
+}
+
+function RepathPublicLetter({ readingLetterId, onListen }: RepathPublicLetterProps) {
   const [view, setView] = useState<RepathLetterView>(getRepathLetterView)
+  const latestLetter = repathPublicLetters[repathPublicLetters.length - 1]
 
   const updateView = (next: RepathLetterView) => {
     setView(next)
@@ -47,7 +93,7 @@ function RepathPublicLetter({ reading, onListen }: RepathPublicLetterProps) {
               onClick={() => updateView('expanded')}
               className="font-stoke text-[0.58rem] lowercase tracking-[0.16em] text-stone-500 transition duration-300 hover:text-stone-200"
             >
-              show letter
+              show {repathPublicLetters.length > 1 ? 'letters' : 'letter'}
             </button>
           </div>
         </div>
@@ -79,8 +125,8 @@ function RepathPublicLetter({ reading, onListen }: RepathPublicLetterProps) {
             </p>
             <p className="mt-2 max-w-[42ch] font-crimson text-[1rem] italic leading-[1.5] text-stone-500 md:text-[1.05rem]">
               {isPreview
-                ? 'one letter for everyone. read it, then write your own below.'
-                : 'one letter for everyone. read it, hide it, then write your own below.'}
+                ? `one letter for everyone${repathPublicLetters.length > 1 ? ` — ${repathPublicLetters.length} letters` : ''}. read it, then write your own below.`
+                : `letters for everyone${repathPublicLetters.length > 1 ? ` — ${repathPublicLetters.length} in all` : ''}. read them, hide them, then write your own below.`}
             </p>
           </div>
           {!isPreview && (
@@ -94,52 +140,47 @@ function RepathPublicLetter({ reading, onListen }: RepathPublicLetterProps) {
           )}
         </div>
 
-        <div
-          className={`relative mt-10 md:mt-12 ${isPreview ? 'pb-8' : ''}`}
-        >
-          <article
-            className={`space-y-6 ${
+        {isPreview ? (
+          <div className="relative mt-10 pb-8 md:mt-12">
+            <RepathLetterArticle
+              letter={latestLetter}
               isPreview
-                ? 'letter-preview-mask max-h-[30vh] overflow-hidden md:max-h-[34vh]'
-                : ''
-            }`}
-          >
-            {repathPublicLetterParagraphs.map((paragraph) => (
-              <p
-                key={paragraph.slice(0, 32)}
-                className="font-crimson text-[clamp(1.05rem,2.8vw,1.28rem)] leading-[1.62] text-stone-200"
-              >
-                {paragraph}
-              </p>
-            ))}
-            {!isPreview && (
-              <p className="pt-2 font-stoke text-[0.72rem] lowercase tracking-[0.18em] text-stone-500">
-                {repathPublicLetterSignOff}
-              </p>
-            )}
-          </article>
-
-          {isPreview && (
+              onListen={() => {}}
+              reading={false}
+            />
             <div className="absolute inset-x-0 bottom-0 flex justify-center pb-1">
               <button
                 type="button"
                 onClick={() => updateView('expanded')}
                 className="font-stoke text-[0.58rem] lowercase tracking-[0.18em] text-stone-500 transition duration-300 hover:text-stone-200"
               >
-                read full letter
+                read full {repathPublicLetters.length > 1 ? 'letters' : 'letter'}
               </button>
             </div>
-          )}
-        </div>
-
-        {!isPreview && (
-          <button
-            type="button"
-            onClick={onListen}
-            className="mt-10 font-stoke text-[0.58rem] lowercase tracking-[0.16em] text-stone-500 transition duration-300 hover:text-stone-200"
-          >
-            {reading ? 'reading' : 'listen'}
-          </button>
+          </div>
+        ) : (
+          <div className="mt-10 space-y-16 md:mt-12 md:space-y-20">
+            {repathPublicLetters.map((letter, index) => (
+              <div
+                key={letter.id}
+                className={
+                  index > 0 ? 'border-t border-white/10 pt-16 md:pt-20' : ''
+                }
+              >
+                {repathPublicLetters.length > 1 && (
+                  <p className="mb-8 font-stoke text-[0.58rem] lowercase tracking-[0.2em] text-stone-600">
+                    letter {index + 1}
+                  </p>
+                )}
+                <RepathLetterArticle
+                  letter={letter}
+                  isPreview={false}
+                  onListen={() => onListen(letter)}
+                  reading={readingLetterId === letter.id}
+                />
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </section>

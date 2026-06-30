@@ -2,7 +2,10 @@ import { mkdir, writeFile, readFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { repathPublicLetterSpeakText } from '../src/hiddenContent.ts'
+import {
+  getRepathPublicLetterSpeakText,
+  repathPublicLetters,
+} from '../src/hiddenContent.ts'
 import { NOTE_VOICE_DIR } from '../src/voices.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -38,37 +41,42 @@ if (!voiceId) {
   process.exit(1)
 }
 
-const response = await fetch(
-  `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-  {
-    method: 'POST',
-    headers: {
-      'xi-api-key': apiKey,
-      'Content-Type': 'application/json',
-      Accept: 'audio/mpeg',
-    },
-    body: JSON.stringify({
-      text: repathPublicLetterSpeakText,
-      model_id: 'eleven_multilingual_v2',
-      voice_settings: {
-        stability: 0.42,
-        similarity_boost: 0.8,
-        style: 0.35,
-      },
-    }),
-  },
-)
-
-if (!response.ok) {
-  const detail = await response.text()
-  console.error(`ElevenLabs error ${response.status}: ${detail}`)
-  process.exit(1)
-}
-
 const dir = path.join(root, 'public/voices', NOTE_VOICE_DIR)
 await mkdir(dir, { recursive: true })
 
-const filePath = path.join(dir, 'letter.mp3')
-await writeFile(filePath, Buffer.from(await response.arrayBuffer()))
+for (const letter of repathPublicLetters) {
+  const speakText = getRepathPublicLetterSpeakText(letter)
+  const fileName =
+    letter.id === 'childhood' ? 'letter.mp3' : `letter-${letter.id}.mp3`
 
-console.log(`Public letter voice saved to public/voices/${NOTE_VOICE_DIR}/letter.mp3`)
+  const response = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+    {
+      method: 'POST',
+      headers: {
+        'xi-api-key': apiKey,
+        'Content-Type': 'application/json',
+        Accept: 'audio/mpeg',
+      },
+      body: JSON.stringify({
+        text: speakText,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: {
+          stability: 0.42,
+          similarity_boost: 0.8,
+          style: 0.35,
+        },
+      }),
+    },
+  )
+
+  if (!response.ok) {
+    const detail = await response.text()
+    console.error(`ElevenLabs error ${response.status} (${letter.id}): ${detail}`)
+    process.exit(1)
+  }
+
+  const filePath = path.join(dir, fileName)
+  await writeFile(filePath, Buffer.from(await response.arrayBuffer()))
+  console.log(`Public letter voice saved to public/voices/${NOTE_VOICE_DIR}/${fileName}`)
+}

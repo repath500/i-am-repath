@@ -6,7 +6,10 @@ import {
   duckMusicForSpeech,
   startAmbientMusic,
 } from './audioConfig'
-import { repathPublicLetterSpeakText } from './hiddenContent'
+import {
+  getRepathPublicLetterSpeakText,
+  type RepathLetter,
+} from './hiddenContent'
 import RepathPublicLetter from './RepathPublicLetter'
 import { getRepathPublicLetterVoiceSrc } from './voices'
 import {
@@ -38,7 +41,7 @@ type LetterProps = {
 }
 
 type SealPhase = 'idle' | 'animating' | 'done'
-type ReadingTarget = 'repath' | 'delivery' | null
+type ReadingTarget = string | null
 
 const PLACEHOLDERS = [
   'dear future me —',
@@ -133,7 +136,7 @@ function Letter({ deliveryId }: LetterProps) {
 
   const playNarration = async (
     target: ReadingTarget,
-    options: { src?: string; text?: string },
+    options: { src?: string; text?: string; fallbackText?: string },
     onComplete?: () => void,
   ) => {
     if (readingTarget === target) {
@@ -161,6 +164,8 @@ function Letter({ deliveryId }: LetterProps) {
       return
     }
 
+    const fallbackText = options.fallbackText ?? options.text
+
     if (options.src) {
       narration.pause()
       narration.currentTime = 0
@@ -168,22 +173,22 @@ function Letter({ deliveryId }: LetterProps) {
       narration.volume = 1
       narration.onended = finish
       narration.onerror = () => {
-        if (target === 'repath') {
-          speakWithBrowser(repathPublicLetterSpeakText)
+        if (target !== 'delivery' && fallbackText) {
+          speakWithBrowser(fallbackText)
           window.setTimeout(
             finish,
-            Math.min(120_000, repathPublicLetterSpeakText.length * 80),
+            Math.min(120_000, fallbackText.length * 80),
           )
           return
         }
         finish()
       }
       narration.play().catch(() => {
-        if (target === 'repath') {
-          speakWithBrowser(repathPublicLetterSpeakText)
+        if (target !== 'delivery' && fallbackText) {
+          speakWithBrowser(fallbackText)
           window.setTimeout(
             finish,
-            Math.min(120_000, repathPublicLetterSpeakText.length * 80),
+            Math.min(120_000, fallbackText.length * 80),
           )
           return
         }
@@ -228,8 +233,13 @@ function Letter({ deliveryId }: LetterProps) {
     window.setTimeout(finish, Math.min(120_000, text.length * 80))
   }
 
-  const listenToRepathLetter = () =>
-    playNarration('repath', { src: getRepathPublicLetterVoiceSrc() })
+  const listenToRepathLetter = (letter: RepathLetter) => {
+    const fallbackText = getRepathPublicLetterSpeakText(letter)
+    playNarration(letter.id, {
+      src: getRepathPublicLetterVoiceSrc(letter.id),
+      fallbackText,
+    })
+  }
 
   const dismissRule = () => {
     if (!showRule) return
@@ -383,7 +393,7 @@ function Letter({ deliveryId }: LetterProps) {
       )}
 
       <RepathPublicLetter
-        reading={readingTarget === 'repath'}
+        readingLetterId={readingTarget !== 'delivery' ? readingTarget : null}
         onListen={listenToRepathLetter}
       />
 
