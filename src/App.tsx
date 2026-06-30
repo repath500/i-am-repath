@@ -792,6 +792,15 @@ function App() {
                 <button
                   type="button"
                   onClick={togglePlay}
+                  aria-label={isPlaying ? 'pause video' : 'play video'}
+                  className="absolute inset-0 z-[5] cursor-pointer bg-transparent"
+                />
+              )}
+
+              {isReady && !hasEnded && (
+                <button
+                  type="button"
+                  onClick={togglePlay}
                   aria-label={isPlaying ? 'pause' : 'play'}
                   className={`absolute bottom-4 right-4 z-10 grid h-9 w-9 place-items-center rounded-full backdrop-blur-sm transition duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] active:translate-y-[1px] ${
                     isPlaying
@@ -816,7 +825,7 @@ function App() {
                 <button
                   type="button"
                   onClick={enableSound}
-                  className="absolute bottom-4 left-4 border border-white/15 bg-stone-100 px-4 py-2 font-stoke text-xs lowercase text-[#050505] transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:translate-y-[1px]"
+                  className="absolute bottom-4 left-4 z-10 border border-white/15 bg-stone-100 px-4 py-2 font-stoke text-xs lowercase text-[#050505] transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-white active:translate-y-[1px]"
                 >
                   tap for sound
                 </button>

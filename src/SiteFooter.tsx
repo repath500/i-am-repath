@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { identity } from './ecosystem'
 import MusicMute from './MusicMute'
 import { navigate } from './router'
@@ -12,59 +13,175 @@ type SiteFooterProps = {
 const navLink =
   'transition duration-300 hover:text-stone-100'
 
-function NavLinks({ className = '' }: { className?: string }) {
+const navItems = [
+  { href: '/', label: 'home' },
+  { href: '/notes', label: 'notes' },
+  { href: '/letter', label: 'letter' },
+  { href: '/working-on', label: 'building' },
+] as const
+
+function BrandLink({ className = '' }: { className?: string }) {
+  return (
+    <a
+      href="/"
+      onClick={(event) => {
+        event.preventDefault()
+        navigate('/')
+      }}
+      className={`tracking-[0.18em] text-stone-400 transition duration-300 hover:text-stone-100 ${className}`}
+    >
+      repath
+    </a>
+  )
+}
+
+function NavLinks({
+  className = '',
+  vertical = false,
+}: {
+  className?: string
+  vertical?: boolean
+}) {
+  if (vertical) {
+    return (
+      <nav className={`flex flex-col gap-3 ${className}`}>
+        {navItems.map((item) => (
+          <a
+            key={item.href}
+            href={item.href}
+            onClick={(event) => {
+              event.preventDefault()
+              navigate(item.href)
+            }}
+            className={navLink}
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
+    )
+  }
+
   return (
     <nav className={`flex flex-wrap items-center gap-2 ${className}`}>
-      <a
-        href="/"
-        onClick={(event) => {
-          event.preventDefault()
-          navigate('/')
-        }}
-        className={navLink}
-      >
-        home
-      </a>
-      <span className="text-white/15" aria-hidden="true">
-        ·
-      </span>
-      <a
-        href="/notes"
-        onClick={(event) => {
-          event.preventDefault()
-          navigate('/notes')
-        }}
-        className={navLink}
-      >
-        notes
-      </a>
-      <span className="text-white/15" aria-hidden="true">
-        ·
-      </span>
-      <a
-        href="/letter"
-        onClick={(event) => {
-          event.preventDefault()
-          navigate('/letter')
-        }}
-        className={navLink}
-      >
-        letter
-      </a>
-      <span className="text-white/15" aria-hidden="true">
-        ·
-      </span>
-      <a
-        href="/working-on"
-        onClick={(event) => {
-          event.preventDefault()
-          navigate('/working-on')
-        }}
-        className={navLink}
-      >
-        building
-      </a>
+      {navItems.map((item, index) => (
+        <span key={item.href} className="inline-flex items-center gap-2">
+          {index > 0 ? (
+            <span className="text-white/15" aria-hidden="true">
+              ·
+            </span>
+          ) : null}
+          <a
+            href={item.href}
+            onClick={(event) => {
+              event.preventDefault()
+              navigate(item.href)
+            }}
+            className={navLink}
+          >
+            {item.label}
+          </a>
+        </span>
+      ))}
     </nav>
+  )
+}
+
+function Copyright({ showLocation = true }: { showLocation?: boolean }) {
+  return (
+    <span className="text-stone-600">
+      © repath khan
+      {showLocation ? (
+        <>
+          <span className="px-1.5 text-white/15" aria-hidden="true">
+            ·
+          </span>
+          {identity.location}
+        </>
+      ) : null}
+    </span>
+  )
+}
+
+function FooterMoreMenu({
+  clock,
+  musicMuted,
+  onToggleMusic,
+  hideFrom = 'md',
+}: {
+  clock?: string
+  musicMuted: boolean
+  onToggleMusic: () => void
+  hideFrom?: 'sm' | 'md'
+}) {
+  const [open, setOpen] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+
+    const onPointerDown = (event: MouseEvent | TouchEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('touchstart', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('touchstart', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [open])
+
+  const hideClass = hideFrom === 'sm' ? 'sm:hidden' : 'md:hidden'
+
+  return (
+    <div ref={rootRef} className={`relative ${hideClass}`}>
+      <div
+        id="footer-more-menu"
+        className={`absolute inset-x-0 bottom-full mb-2 origin-bottom rounded border border-white/10 bg-[#0a0a0a]/96 px-4 py-4 shadow-[0_-12px_40px_rgba(0,0,0,0.45)] backdrop-blur-sm transition duration-300 ${
+          open
+            ? 'pointer-events-auto translate-y-0 opacity-100'
+            : 'pointer-events-none translate-y-2 opacity-0'
+        }`}
+        aria-hidden={!open}
+      >
+        <NavLinks vertical />
+        <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
+          {clock ? (
+            <span
+              className="block tabular-nums tracking-[0.16em] text-stone-500"
+              aria-label="local time"
+            >
+              {clock}
+            </span>
+          ) : null}
+          <MusicMute muted={musicMuted} onToggle={onToggleMusic} />
+          <Copyright showLocation />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-4">
+        <BrandLink />
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          aria-controls="footer-more-menu"
+          className="font-stoke text-[0.58rem] lowercase tracking-[0.18em] text-stone-500 transition duration-300 hover:text-stone-200"
+        >
+          {open ? 'less' : 'more'}
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -76,82 +193,70 @@ function SiteFooter({
 }: SiteFooterProps) {
   if (layout === 'home') {
     return (
-      <footer className="mx-auto w-full max-w-[1400px] border-t border-white/10 pt-5 font-stoke text-[0.64rem] lowercase tracking-[0.14em] text-stone-500 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4 sm:pt-4 sm:text-[0.68rem]">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 sm:justify-self-start">
-          <a
-            href="/"
-            onClick={(event) => {
-              event.preventDefault()
-              navigate('/')
-            }}
-            className="tracking-[0.18em] text-stone-400 transition duration-300 hover:text-stone-100"
-          >
-            repath
-          </a>
-          <span className="text-white/15" aria-hidden="true">
-            ·
-          </span>
-          <NavLinks />
-        </div>
-        {clock ? (
-          <span
-            className="mt-4 block tabular-nums tracking-[0.18em] text-stone-400 sm:mt-0 sm:justify-self-center"
-            aria-label="local time"
-          >
-            {clock}
-          </span>
-        ) : (
-          <span aria-hidden="true" className="hidden sm:block" />
-        )}
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 sm:mt-0 sm:justify-end sm:justify-self-end">
-          <MusicMute muted={musicMuted} onToggle={onToggleMusic} />
-          <span className="text-stone-600">
-            © repath khan
-            <span className="text-white/15 px-1.5" aria-hidden="true">
+      <footer className="mx-auto w-full max-w-[1400px] border-t border-white/10 pt-4 font-stoke text-[0.64rem] lowercase tracking-[0.14em] text-stone-500 sm:pt-4 sm:text-[0.68rem]">
+        <FooterMoreMenu
+          clock={clock}
+          musicMuted={musicMuted}
+          onToggleMusic={onToggleMusic}
+          hideFrom="sm"
+        />
+
+        <div className="hidden sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 sm:justify-self-start">
+            <BrandLink />
+            <span className="text-white/15" aria-hidden="true">
               ·
             </span>
-            {identity.location}
-          </span>
+            <NavLinks />
+          </div>
+          {clock ? (
+            <span
+              className="justify-self-center tabular-nums tracking-[0.18em] text-stone-400"
+              aria-label="local time"
+            >
+              {clock}
+            </span>
+          ) : (
+            <span aria-hidden="true" />
+          )}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 sm:justify-end sm:justify-self-end">
+            <MusicMute muted={musicMuted} onToggle={onToggleMusic} />
+            <Copyright showLocation />
+          </div>
         </div>
       </footer>
     )
   }
 
   return (
-    <footer className="mt-16 flex flex-col gap-4 border-t border-white/10 pt-6 font-stoke text-[0.68rem] lowercase tracking-[0.14em] text-stone-500 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-wrap items-center gap-3">
-        <a
-          href="/"
-          onClick={(event) => {
-            event.preventDefault()
-            navigate('/')
-          }}
-          className="tracking-[0.18em] text-stone-400 transition duration-300 hover:text-stone-100"
-        >
-          repath
-        </a>
-        <span className="text-white/15" aria-hidden="true">
-          ·
-        </span>
-        <NavLinks />
-      </div>
-      <div className="flex items-center gap-4">
-        {clock ? (
-          <span
-            className="tabular-nums tracking-[0.16em] text-stone-600"
-            aria-label="local time"
-          >
-            {clock}
-          </span>
-        ) : null}
-        <MusicMute muted={musicMuted} onToggle={onToggleMusic} />
-        <span className="text-stone-600">
-          © repath khan
-          <span className="hidden text-white/15 px-1.5 md:inline" aria-hidden="true">
+    <footer className="mt-16 border-t border-white/10 pt-4 font-stoke text-[0.68rem] lowercase tracking-[0.14em] text-stone-500 md:pt-6">
+      <FooterMoreMenu
+        clock={clock}
+        musicMuted={musicMuted}
+        onToggleMusic={onToggleMusic}
+        hideFrom="md"
+      />
+
+      <div className="hidden flex-col gap-4 md:flex md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
+          <BrandLink />
+          <span className="text-white/15" aria-hidden="true">
             ·
           </span>
-          <span className="hidden md:inline">{identity.location}</span>
-        </span>
+          <NavLinks />
+        </div>
+        <div className="flex items-center gap-4">
+          {clock ? (
+            <span
+              className="tabular-nums tracking-[0.16em] text-stone-600"
+              aria-label="local time"
+            >
+              {clock}
+            </span>
+          ) : null}
+          <MusicMute muted={musicMuted} onToggle={onToggleMusic} />
+          <Copyright showLocation />
+        </div>
       </div>
     </footer>
   )
