@@ -1,779 +1,837 @@
-# repath.life v2 — "cut glass"
+# repath.life v2 — "the night shift"
 
-A complete redesign plan for repath.life. New vibe, new structure, Three.js at the core, built from who Repath actually is.
+### a waterford story, told like a golden-age animated feature
 
-> **The one-line idea:** Waterford is famous for cut crystal. Repath is a Waterford kid who works in a takeaway by day and builds AI tools at night. The site becomes a **piece of living Waterford crystal** that light (his films, his work, his words) passes through and comes out the other side as a spectrum. *One person in, many colours out.*
+> **Logline:** a kid from waterford works the takeaway counter by day and builds the future by night. one night a piece of waterford crystal wakes up his sidekicks, and together they ship. he gets lost in the middle, finds his way back by the light of his own notes, and when the story tries to end, he paints over "the end" with **"not even close."**
+
+The whole site *is* that story. Hand-drawn 1940s-style art, moving like a classic animated feature, with real Three.js depth (a literal multiplane camera), Repath's real films projected inside the cartoon world, and his real products as characters.
+
+![model sheet](story/concepts/00-model-sheet.jpg)
 
 ---
 
-## Table of contents
+## Contents
 
-0. [TL;DR](#0-tldr)
-1. [Research dossier: who Repath is](#1-research-dossier-who-repath-is)
-2. [Honest audit of the current site](#2-honest-audit-of-the-current-site)
-3. [Creative direction: "cut glass"](#3-creative-direction-cut-glass)
-4. [Information architecture](#4-information-architecture)
-5. [The experience, chapter by chapter](#5-the-experience-chapter-by-chapter)
-6. [Product "worlds": one 3D object per product](#6-product-worlds-one-3d-object-per-product)
-7. [Personal, live, and secret features](#7-personal-live-and-secret-features)
-8. [Design system](#8-design-system)
-9. [21st.dev and component sourcing](#9-21stdev-and-component-sourcing)
-10. [Tech architecture](#10-tech-architecture)
-11. [Media pipeline: films, images, audio](#11-media-pipeline-films-images-audio)
-12. [Performance budget and degradation ladder](#12-performance-budget-and-degradation-ladder)
-13. [Accessibility](#13-accessibility)
-14. [Copy deck](#14-copy-deck)
-15. [Build phases with acceptance criteria](#15-build-phases-with-acceptance-criteria)
-16. [Risks and mitigations](#16-risks-and-mitigations)
-17. [Assets and decisions needed from Repath](#17-assets-and-decisions-needed-from-repath)
-18. [Inspiration board](#18-inspiration-board)
+- [0. TL;DR](#0-tldr)
+- [1. Research dossier](#1-research-dossier)
+- [2. Audit of the current site](#2-audit-of-the-current-site)
+- [3. Story bible](#3-story-bible)
+- [4. The cast](#4-the-cast)
+- [5. The screenplay: chapter by chapter](#5-the-screenplay-chapter-by-chapter)
+- [6. Funny stuff: the gag list](#6-funny-stuff-the-gag-list)
+- [7. Inspiring stuff: the heart list](#7-inspiring-stuff-the-heart-list)
+- [8. Motion graphics system](#8-motion-graphics-system)
+- [9. Art direction and design system](#9-art-direction-and-design-system)
+- [10. Asset pipeline: OpenRouter (FLUX.3 + Seedance 2.0 Mini)](#10-asset-pipeline-openrouter-flux3--seedance-20-mini)
+- [11. Tech architecture](#11-tech-architecture)
+- [12. Sound and voice](#12-sound-and-voice)
+- [13. Information architecture and routes](#13-information-architecture-and-routes)
+- [14. Live and personal features](#14-live-and-personal-features)
+- [15. 21st.dev component sourcing](#15-21stdev-component-sourcing)
+- [16. Performance budget](#16-performance-budget)
+- [17. Accessibility](#17-accessibility)
+- [18. Build phases (tickets + acceptance criteria)](#18-build-phases-tickets--acceptance-criteria)
+- [19. Risks](#19-risks)
+- [20. Open questions for Repath](#20-open-questions-for-repath)
+- [21. Concept frames](#21-concept-frames)
 
 ---
 
 ## 0. TL;DR
 
-| | Today | v2 |
+| | v1 (today) | v2 "the night shift" |
 |---|---|---|
-| Feeling | Quiet, dark, grain, one square film, serif notes. A diary. | Cinematic, tactile, alive. A crystal object you can turn in your hands. Still honest, still lowercase, but with *pulse*. |
-| Hero | "i am repath" fades, random film plays. | A real-time 3D Waterford-crystal prism. Films play *inside* the facets, refracted into a spectrum. Your cursor turns it. |
-| Work | Long text page (`/working-on`). | Five product "worlds", each a distinct 3D object (critique terminal monolith, DáilDex Ireland point map, Warren knowledge graph, LeemerChat model stream, LeemerLabs growing lattice). |
-| Proof | Flat GitHub calendar. | A 3D GitHub **skyline**: a year of commits as a glass city you fly over. |
-| Personal | Notes, letters, narration, presence. | All of that kept, plus live Waterford time + weather (it actually rains on the glass when it rains in Waterford), the takeaway-vs-lab split, Gaeilge mode, a hidden `critique` terminal, and visitor names engraved in the crystal. |
-| Stack | React 19 + Vite + Tailwind 4, no 3D. | Same base, plus `three`, `@react-three/fiber`, `drei`, `postprocessing`, `motion`, `lenis`, `zustand`, and selected 21st.dev components. |
+| Format | A quiet diary: one random square film, then a note. | A scroll-driven **animated storybook** in 9 chapters, with a cast, comedy, a low point, and a comeback. |
+| Look | Black, grain, serif. | **Golden-age hand-drawn animation**: ink outlines, gouache backgrounds, Technicolor, film grain, iris wipes, title cards. |
+| 3D | None. | Three.js **multiplane camera** (the real technique classic studios used: painted layers on glass at different depths), a real-time **3D crystal** that drops out of the 2D drawing, and video planes. |
+| Products | Paragraphs on `/working-on`. DáilDex missing. | Each product is a **character** with its own scene: Crit (critique), Dex (DáilDex), Leemer (LeemerChat), Warren (warren.wiki), Born (LeemerLabs). |
+| The takeaway | Not mentioned. | Chapter 1 is the takeaway, a full slapstick set piece, plus a running gag (the ticket printer, Spice Bag). |
+| Real films | The whole homepage. | Projected by a vintage projector onto a bedsheet in the attic, real footage inside the cartoon. |
+| Ending | Footer. | "the end" gets painted over with **"not even close."**, then old-school scrolling credits. |
+| Assets | 11 MP4s. | 68 FLUX.3 images and 25 Seedance 2.0 Mini clips, all defined in `scripts/story/manifest.ts` and generated with one command. |
+| Contact | `ray@critique.sh`. | Dex delivers two envelopes: **ray@critique.sh** (dev tools, agents, critique) and **ray@daildex.com** (DáilDex, civic tech, press). |
 
-The **signature mechanic** we keep from v1: the *develop* effect, where text starts blurred and sharpens like a photograph in a darkroom tray. In v2 everything develops: text, the crystal's clarity, even the colour saturation as you scroll.
+**What we keep, no matter what:** his lowercase voice, the notes, the letters, the narration, the "develop" blur-to-sharp signature, presence, the hidden thank-you note, and every existing URL.
 
 ---
 
-## 1. Research dossier: who Repath is
+## 1. Research dossier
 
-Gathered from repath.life, critique.sh, critique.sh/founder, daildex.com, leemerlabs.com, leemerchat.com/about-us, warren.wiki, LinkedIn posts, and GitHub (`repath500`).
+Sources: repath.life, critique.sh, critique.sh/founder, critique.sh/blog, daildex.com, leemerlabs.com, leemerchat.com/about-us, warren.wiki, github.com/repath500, Repath's public LinkedIn posts.
 
 ### 1.1 The person
 
 - **Repath "Ray" Khan.** "ray to some. repath to the work."
-- **Waterford, Ireland.** He's proud of it. Waterford is Ireland's oldest city (founded by Vikings in 914) and is world-famous for **Waterford Crystal**. Reginald's Tower and the Viking Triangle are its landmarks.
-- **Two worlds.** From critique.sh/founder: *"I help run a busy takeaway in Waterford — speed, reliability, customers, operations, costs, staff, and pressure are not theory. If something breaks, you feel it immediately."* and *"In a takeaway, nobody cares about your clever theory. Customers wait. Staff stress. Money moves."*
+- **Waterford, Ireland.** Ireland's oldest city (Viking-founded, 914). Reginald's Tower, the river Suir, the quays. World-famous for **Waterford Crystal**.
+- **The takeaway.** From critique.sh/founder: *"I help run a busy takeaway in Waterford — speed, reliability, customers, operations, costs, staff, and pressure are not theory. If something breaks, you feel it immediately."* and *"In a takeaway, nobody cares about your clever theory. Customers wait. Staff stress. Money moves. That shaped how I think about software."*
 - **Builds at night.** *"young, outside the usual network, building on nights, testing fast."*
-- **Founder beliefs (his own five):** speed matters · taste matters · trust matters · small teams deserve power · Ireland can compete globally.
-- **Proof over hype.** "github is the receipts." 2,500+ commits in the past year. Billions of tokens through real traffic.
-- **Former Analog Devices software intern.** In AI since late 2022 (OrionAI → LeemerChat → Critique → the rest).
-- **Emotional register (from the notes and letters):** survival, resolve, grief, brotherhood ("growing up with my brothers"), being lost in the middle, "i'm going to win", "i'm not done. not even close." Profanity used sparingly and on purpose. Everything lowercase.
-- **Bar for his own work:** *"Can this make a developer genuinely more dangerous? Faster. Sharper. Less blocked."*
+- **Five beliefs (his):** speed matters · taste matters · trust matters · small teams deserve power · Ireland can compete globally.
+- **Receipts:** 2,500+ commits in the past year. Billions of tokens through real traffic. In AI since late 2022. Former Analog Devices software intern.
+- **His own bar:** *"Can this make a developer genuinely more dangerous? Faster. Sharper. Less blocked."*
+- **His taste, in his words:** *"Developer tools do not have to feel dead. Serious engineering can still have a memorable brand."* and *"Infrastructure can feel alive."* A character-driven animated site is exactly that, applied to himself.
+- **Emotional register (notes and letters):** survival, resolve, grief, growing up with his brothers, "lost in the middle", "i'm going to win", "i'm not done. not even close." Lowercase. Profanity sparingly, on purpose.
 
-### 1.2 The products (each needs its own visual identity in v2)
+### 1.2 The products → the cast
 
-| Product | What it is (Oct 2026) | Visual hook for v2 |
+| Product | What it is (Oct 2026) | Character | Why that character |
+|---|---|---|---|
+| **critique.sh** | Independent code-review CLI: `critique finish --intent "…" --json` returns outcome, evidence, limits, exit code. CritiqueCode is an open-source agentic coding harness. Community edition open source. His founder page literally calls the mascot language "Crit". | **Crit**, a grumpy glass owl with a monocle and a terminal in its chest. | Owls judge. Glass is Waterford crystal. It reviews what agents wrote, so it's the judge in a courtroom. |
+| **DáilDex** (daildex.com) | Follow Irish TDs and Senators, get plain-English, source-linked email alerts when they vote, speak, or ask questions. Reply to ask follow-ups. "Ask Dex" AI assistant. 234 representatives, 43 constituencies. No app, no password, free. Launched 29 Sep 2026; featured in the **data.gov.ie Open Data Showcase** on 1 Oct 2026. Backend open source (MIT). | **Dex**, a carrier pigeon postman in a green cap. | Email-first: a pigeon delivers letters. The assistant is already called Dex. Neutral, friendly, civic. |
+| **LeemerChat** | Ireland-built multi-model AI workspace. Started when GPT-4 went down and he needed a backup. Was one of the most used apps on OpenRouter. | **Leemer**, a lemur whose many tails each end in a different-coloured lantern. | "Leemer" sounds like lemur. Many tails = many models. Lanterns = backup light when the big one goes dark. |
+| **LeemerLabs** | Independent AI lab in Waterford: Born models (Born-9B Preview), BornBench, European inference, Gaeilge research, fine-tuning. "A language should not need permission to enter the future." | **Born**, a tiny gold-crystal seedling sprite. | The model programme is called Born. Training is growth. |
+| **warren.wiki** | Infinite knowledge explorer: wiki mode, rabbit-hole mode, AskWarren. "for people who think in networks, not linear articles." | **Warren**, a scholarly rabbit. | A warren is where rabbits live. Rabbit-hole mode. |
+| **the takeaway** | The day job that taught him operations. | **Spice Bag**, a sentient takeaway bag. | The spice bag is Ireland's national takeaway icon. Pure comic relief. |
+
+**Domain note:** the user wrote "DailDex.com". The live product is **daildex.com** (DáilDex). `dialdex.com` is parked and for sale at HugeDomains, so we never link to it. Bonus easter egg: the *Rayner Dialdex* is a 1970s gem refractometer, an instrument that measures how crystal bends light. That's on-theme for a site whose magic object is a crystal.
+
+---
+
+## 2. Audit of the current site
+
+**Keep and elevate:** the voice, the develop mechanic, the 11 films and their one-word titles, ElevenLabs narration ("david"), music crossfades, letters to your future self, presence, public names, the hidden thank-you note, GitHub receipts.
+
+**What's holding it back:**
+1. No place, no story, no scale. Nothing says Waterford, takeaway, Ireland, or ambition.
+2. The work is buried in paragraphs. **DáilDex is missing entirely**, even though it's his newest launch and has government recognition.
+3. One visual treatment repeated everywhere.
+4. Motion is decorative fades only.
+5. `App.tsx` is 933 lines and mixes the audio engine, video state, typography, and layout, with duplicated desktop/mobile blocks. It needs splitting before anything else.
+6. Mixed-aspect films (`11.mp4` is 576×1024, `12.mp4` is 1024×576) are cropped to a square.
+7. `README.md` describes an older version.
+
+---
+
+## 3. Story bible
+
+### 3.1 Theme
+
+**Pressure makes crystal.** The takeaway, the late nights, and the hard seasons in the notes are the pressure. The products are the light that comes out. The story never pretends it's easy. Chapter 4 is the honest low point (straight from his second public letter), and the comeback is earned by the small things he kept: his notes, as fireflies.
+
+### 3.2 Tone
+
+| Ratio | Mode | Where |
 |---|---|---|
-| **critique.sh** | Independent code review CLI for local changes. `critique finish --intent "…" --json` returns outcome, evidence, limits, exit code. Also CritiqueCode, an open-source agentic coding harness. Community edition open sourced. | Terminal, exit codes, "verdict", a monolith that inspects things. Mono type. Signal green. |
-| **DáilDex** (daildex.com) | Follow Irish TDs and Senators, get plain-English, source-linked email alerts when they vote, speak, or ask parliamentary questions. "Ask Dex" AI assistant. 234 representatives, 43 constituencies. Launched 29 Sep 2026; featured in data.gov.ie Open Data Showcase on 1 Oct 2026. Backend open source (MIT). | Map of Ireland made of points, 43 constituencies lighting up as votes come in. Tá/Níl. Civic green. |
-| **LeemerChat** | Ireland-built multi-model AI workspace. Started as a backup when GPT-4 went down. Was one of the most used apps on OpenRouter. | Streams of tokens flowing between model "stars". |
-| **LeemerLabs** | Independent AI lab in Waterford: Born models (Born-9B Preview), BornBench, European inference, Gaeilge (Irish language) research, private fine-tuning. "A language should not need permission to enter the future." | A lattice that grows: training as organic crystal growth. Gaeilge text. |
-| **warren.wiki** | Infinite knowledge explorer. Wiki mode, rabbit-hole mode, AskWarren. "for people who think in networks, not linear articles." | 3D force-directed knowledge graph you can pull on. |
+| 40% | **Funny**: slapstick, sidekick bickering, visual gags | Counter, night shift, product beats, 404, intermission, credits |
+| 35% | **Wonder**: magic, light, flight | Storybook, crystal, Dex over Ireland, sunrise |
+| 25% | **Heart**: honest, quiet, a bit raw | The middle (fog), notes, letters, bottles |
 
-**Note on the name:** the user wrote "DailDex.com". The live product is **daildex.com** (DáilDex, with the fada). `dialdex.com` is a parked domain owned by HugeDomains, so we never link to it. Fun coincidence we can use as an easter egg: the *Rayner Dialdex* is a 1970s gem **refractometer**, an instrument that measures the refractive index of crystal. That fits a site about light passing through crystal almost too well.
+Rule of thumb: **every heavy beat is followed by a light one, and every gag lands on something true.**
 
-### 1.3 What his own product sites already say about taste
+### 3.3 Narration voice
 
-critique.sh/founder: *"Developer tools do not have to feel dead. Serious engineering can still have a memorable brand."* and *"Infrastructure can feel alive. Crit, the cinematic product language, the agent-worker framing — intentional."*
+Two voices, clearly separated:
 
-So the redesign isn't us imposing a vibe. **Cinematic, alive, memorable** is his stated taste. v1 was the quiet diary. v2 is the same person with the lights on.
+- **The narrator** (storybook voice, sentence case allowed only inside the book art): *"once upon a time, in waterford, the oldest city in ireland…"* Read aloud by the existing ElevenLabs "david" voice.
+- **Ray** (his real voice, lowercase, first person). Notes, letters, and the short lines in each chapter. Never polished.
 
----
+### 3.4 Visual rules
 
-## 2. Honest audit of the current site
-
-### 2.1 What's genuinely great (keep, elevate)
-
-1. **The voice.** Lowercase, honest, unpolished-on-purpose. Notes like "motivation visits. resolve stays." are the soul of the site. *Do not lose this.*
-2. **The develop mechanic.** Blur-to-sharp text tied to video progress is a real signature.
-3. **The 11 films** with one-word titles (living, fly, rise, alive, peace, who cares, darkest hours, no option, i am, smile, figure it out).
-4. **Narration** via ElevenLabs ("david" voice), music crossfades, and the hidden note you unlock by finishing everything.
-5. **Letters to your future self** (`/letter`) with delivery dates, threads, and replies.
-6. **Presence** ("someone else is here") and **public names** via Upstash.
-7. **GitHub as receipts.**
-
-### 2.2 What's holding it back
-
-1. **No sense of place or scale.** It's a dark rectangle with a square video. Nothing says Waterford, takeaway, Ireland, AI lab, or *ambition*.
-2. **The work is buried.** Critique, DáilDex (missing entirely), Warren, and Leemer are paragraphs on a sub-page. A visitor can't *feel* the range of what he's shipped.
-3. **DáilDex isn't on the site at all**, even though it's his newest launch and has government recognition (data.gov.ie). That's the single biggest content gap.
-4. **Everything uses the same treatment** (stone-500 Stoke label, Crimson body, border-t, repeat). It becomes wallpaper.
-5. **Motion is decorative, not spatial.** Fades and rises only. No depth, no interaction, nothing to play with.
-6. **Code health:** `App.tsx` is 933 lines and mixes audio engine, video state machine, typography logic, and layout. Desktop and mobile note blocks are duplicated. `README.md` describes an older version. This needs to be untangled before 3D gets added on top.
-7. **Mixed-aspect films are forced into a square** (`11.mp4` is portrait 576×1024, `12.mp4` is landscape 1024×576), so they get cropped.
-
-### 2.3 What we drop
-
-- The Stoke font (it reads "wedding invitation", not "builder").
-- The flat grain dot overlay (replaced by a real film-grain pass in the post-processing stack).
-- The "one random film, then a note" as the *whole* homepage. It becomes one chapter.
+1. Everything hand-drawn **except two things**: the **crystal** (real-time 3D glass) and **Ray's real films** (photographic). Those are the "real" things in the cartoon world, his inner light and his real life. This contrast is the site's signature, a bit like a live-action-meets-animation film.
+2. Night scenes: indigo with warm practical light. Day scenes: Technicolor warmth.
+3. Products only appear in their own colour inside their own scene.
 
 ---
 
-## 3. Creative direction: "cut glass"
+## 4. The cast
 
-### 3.1 The concept
+| Character | Personality | Catchphrase / tic | Motion notes | Appears in |
+|---|---|---|---|---|
+| **Ray** | Determined, warm, tired but stubborn. Funny under pressure. | *"figure it out, i guess."* | Snappy, fast at the counter; slow and deliberate at the desk. | Everywhere |
+| **Crit** | Grumpy perfectionist with a soft centre. Never impressed, secretly proud. | *"exit 2."* (unimpressed) / *"…exit 0."* (rare, proud) | Minimal movement, big eyebrow acting, monocle pops off when shocked. | Night shift, court, credits, scroll-speed gag |
+| **Dex** | Eager, chatty, neutral to a fault. Will not tell you how to vote. | *"straight from the record!"* | Bouncy, flappy, always slightly out of breath. | Map flight, contact envelopes, letter delivery |
+| **Leemer** | Mischievous show-off, saves the day then takes a bow. | *"backup's here."* | Swinging, upside down, tails swirling like a light show. | Lights-out, loading, idle screensaver |
+| **Warren** | Absent-minded professor. Gets distracted by everything. | *"ooh, but have you read about…"* | Floaty, reading while falling. | Rabbit hole, tooltips |
+| **Born** | Tiny, curious, quietly growing. | (no words, just chimes) | Gentle bobbing, grows a little every visit. | Greenhouse lab, seasonal growth |
+| **Spice Bag** | Chaos agent. Hungry. Always where it shouldn't be. | *"…me?"* | Rubber-hose dance, crumbs everywhere. | Counter, 404, intermission, credits |
+| **The Fog** | Not a villain, a feeling. Grey, shapeless, made of question marks and unfinished apps. | (silence) | Slow, heavy, swallows colour. | Chapter 4 only |
 
-**Waterford crystal is cut by hand.** Each cut is a decision. Light enters, hits the cuts, and splits into colour. That's the metaphor for the whole site:
+---
 
-- **The crystal = Repath.** Faceted, made by pressure and heat (the takeaway, the hard seasons in the notes).
-- **The light = his life and work.** Films, products, commits, words.
-- **The spectrum = what comes out.** Five products, a public letter, a record of becoming.
+## 5. The screenplay: chapter by chapter
 
-The tagline evolves from *"a record of becoming"* to:
+Each chapter lists the **beat**, the **scroll mechanic**, the **assets** (ids from `scripts/story/manifest.ts`), **copy**, and **interactions**. The DOM scrolls natively; a single fixed WebGL canvas behind it plays the scene for the current chapter.
 
-> **repath.life — cut by hand in waterford.**
+### Prologue: the projector light
 
-(Alternative: *"pressure, light, and a lot of commits."* or keep *"a record of becoming"* as the subtitle.)
+- **Beat:** black screen. Projector whirr. A flickering countdown leader (8, 7, 6…) in the classic film-leader circle, drawn in ink. Then a title card: **"a waterford picture"**.
+- **Mechanic:** plays once (about 3s), skippable by click, scroll, or any key. Skipped automatically for returning visitors and reduced motion.
+- **Assets:** CSS/SVG countdown + `OldFilm` shader. No generated asset needed.
 
-### 3.2 Three moods, driven by real Waterford time
+### Chapter 0: once upon a time
 
-The site reads the actual time in `Europe/Dublin` and the sun position over Waterford (lat 52.2593, lon −7.1101).
+![storybook](story/concepts/01-storybook-opening.jpg)
 
-| Mood | When | Look |
+- **Beat:** the leather storybook (`sc00-cover`) sits on red velvet. The faceted crystal set into the cover is **real 3D glass**, catching light and following your cursor. Click it (or scroll) and the book opens (`v00-book-opens`, cover → first page). Narrator: *"once upon a time, in waterford, the oldest city in ireland, there lived a boy who worked the counter by day and built the future by night."*
+- **Multiplane moment:** the watercolour of Waterford on the left page **lifts off the page** into five depth layers (`mp-quay-0-sky` … `mp-quay-4-near`). The camera dollies *into* the picture: sky far back, the round tower in the middle, the quay railing and lamp sliding past in front. This is the multiplane camera, rebuilt in Three.js.
+- **Copy (overlay, lowercase):** `i am repath` (hand-lettered, `ui-title-lettering`) · `waterford, ireland · builder · {waterford time}`
+- **Interactions:** the crystal rings when hovered (one pitch per facet); drag to spin it. A "skip the story" link goes straight to `/work` for people in a hurry (recruiters, founders).
+
+### Chapter 1: the counter
+
+![the counter](story/concepts/02-the-counter.jpg)
+
+- **Beat:** 6pm rush at the takeaway. Ray juggles boxes, the phone rings, the ticket printer goes feral, Spice Bag escapes, customers check their pocket watches. Pure slapstick (`sc02-counter`, `v02-counter-chaos`).
+- **Mechanic:** pinned scene; scroll speeds up the chaos (the ticket ribbon unspools faster as you scroll). At the end of the pin, the shop shutter slams down with a cartoon *clang* and the lights go off. Night.
+- **Real ticket rail (DOM, crisp):** thermal-paper tickets print down the side with real-looking orders that are actually his story:
+  - `#0914 · 1× spice bag · 1× curry chips · collection 18:40`
+  - `#2025 · 2,500 commits · extra spicy · no rush`
+  - `#0001 · 1× big dream · hold the doubt`
+  - `#4040 · 1× existential crisis · salt & vinegar`
+- **Copy (Ray):** *"in a takeaway, nobody cares about your clever theory. customers wait. staff stress. money moves. that shaped how i think about software."*
+- **Interactions:** the cursor becomes a salt shaker; click to salt the scene (salt particles). Click Spice Bag to make it dance.
+
+### Chapter 1b: the reel (his real films)
+
+![the reel](story/concepts/11-the-reel.jpg)
+
+- **Beat:** upstairs in the attic, after the shift. Ray threads a projector. His **real films** play on a bedsheet: real life inside the drawing (`sc17-projector`, `v01b-projector`).
+- **Mechanic:** the sheet area is a Three.js plane with a `VideoTexture` of the selected film, with a projector-light shader on top (warm falloff, flicker, dust, slight keystone). All v1 film behaviour is kept: sound-on attempt with "tap for sound" fallback, music crossfade, the develop effect on the note after the film ends, narration, progress tracking, the hidden note.
+- **Choosing a film:** a row of **film canisters** on a shelf, each labelled in hand lettering (`01 living`, `02 fly`, … `12 figure it out`). Click one and Ray swaps the reel (2-frame cartoon swap animation).
+- **Aspect ratios:** the sheet resizes to match each film (square, portrait, landscape). Nothing is cropped.
+- **Copy:** `frames` / *"some moments i kept, and the small truths they left behind."* (v1 line)
+
+### Chapter 2: two worlds
+
+- **Beat:** Ray split down the middle: apron and takeaway bag on the left in sodium amber, hoodie and laptop on the right in moonlit blue (`sc03-two-worlds`).
+- **Mechanic:** a **draggable divider**. Drag left and the takeaway side grows (ambient fryer and till sounds); drag right and the lab side grows (keyboard and fan). At the centre the light mixes into white on the crystal hanging above him.
+- **Copy:** left label `the counter`, right label `the terminal`. Centre: *"two worlds. same person. one taught me pressure, the other taught me leverage."*
+- **Terminal (right half, DOM):** types out a real critique run:
+
+```
+$ critique finish --intent "stop duplicate charges" --json
+→ change reconstructed       ready
+→ reproduction + limits      attached
+→ outcome                    repair_ready
+exit 2
+```
+
+### Chapter 3: the night shift (the products)
+
+![night shift](story/concepts/03-the-night-shift.jpg)
+
+- **Beat:** 3am in the attic. The crystal glows and, one by one, **the sidekicks come to life in its light** (`sc04-night-shift`, `v04-night-shift`). Each is introduced with its own short scene, like a classic character-intro montage.
+- **Mechanic:** pinned horizontal scroll on desktop (5 panels), vertical stack on mobile. Each panel: scene art or loop, character name card, product name, one line, a live stat, `visit →` and `go deeper →` (to `/work/:slug`).
+
+| Panel | Scene | Character beat | Product line | Live stat |
+|---|---|---|---|---|
+| **3.1 leemerchat** | `sc05-leemer-backup`, `v05-leemer-arrives` | The big monitor goes dark with a sad face; Ray's eyes go huge; Leemer swings in, lanterns blazing: *"backup's here."* | *"started when gpt-4 went down. became the main thing."* | models available |
+| **3.2 critique** | `sc06-crit-court`, `v06-crit-gavel` | Courtroom. A sweaty robot coding agent presents a looong scroll. Crit squints, bangs the gavel, stamps **repair ready**. Chest screen: `exit 2`. | *"your agent writes the change. critique checks it."* | latest CLI version, `npm i -g @critiquedotsh/cli` copy button |
+| **3.3 dáildex** | `sc07-dex-flies`, `v07-dex-flight` | Dex flies over a storybook map of Ireland at dawn, a kite-tail of envelopes behind. *"straight from the record!"* | *"see what your td said, did and voted for — in your inbox."* | **234 TDs and Senators · 43 constituencies · as featured on data.gov.ie** |
+| **3.4 warren.wiki** | `sc08-warren-hole`, `v08-warren-fall` | Warren falls down an endless rabbit hole of bookshelves, reading, unbothered. | *"for people who think in networks, not linear articles."* | — |
+| **3.5 leemerlabs** | `sc09-born-grows`, `v09-born-grows` | In a tiny rooftop greenhouse lab, Born grows a crystal lattice. A chalkboard curve slopes down. Gaeilge on the seed packets. | *"ai made for irish reality."* | Born-9B Preview |
+
+- **DáilDex panel interaction (the 3D one):** hover the map and it turns into a **3D point-cloud Ireland** (Three.js instanced points grouped by the 43 constituencies). Every few seconds a constituency pulses and a sample alert card floats up: `your td voted tá on a housing motion · official record ↗`. Non-partisan: no party colours, generic topics only, matching DáilDex's own framing.
+- **critique panel interaction:** a mini terminal where you can run three canned `critique finish` scenarios and watch Crit react (exit 0 makes Crit do a tiny proud nod; that's the rarest animation on the site).
+
+### Chapter 4: the middle
+
+![fog](story/concepts/05-fog-of-the-middle.jpg)
+
+- **Beat:** the honest part. Ray walks the quay alone in the rain. The Fog rolls in, made of question marks and half-finished app windows (`sc10-fog`, `v10-fog`). The colour drains out of the whole page (a CSS/WebGL saturation pass driven by scroll).
+- **Copy:** lines from his second public letter, revealed one at a time with the develop effect:
+  - *"i don't really know what i'm chasing right now."*
+  - *"not broken. not finished. just tired in a way that is hard to explain."*
+  - *"but even with all of that, there is still something in me that hasn't fully given up."*
+- **The turn:** small gold fireflies rise from his pocket, each carrying a word from his notes (`resolve`, `still here`, `keep going`). They light a path through the fog. As you scroll, colour returns, first in the fireflies, then everywhere.
+- **Sound:** music ducks almost to silence; rain only. Then a single warm note when the first firefly lights.
+- **No gags in this chapter.** Not one.
+
+### Chapter 5: notes (the fireflies)
+
+- **Beat:** a meadow on the banks of the Suir at night, full of fireflies (`sc11-fireflies`, `v11-fireflies`). **Every firefly is one of his notes.**
+- **Mechanic:** Three.js instanced fireflies at different depths, each tied to a note. Mood maps to behaviour: `light` notes are bright and quick, `soft` ones gentle, `heavy` ones dim and slow and further away. Hover or focus a firefly and it drifts forward; click it and the note opens on a parchment card with the develop effect, `listen` narration, and `share`.
+- **Keyboard and screen readers:** a visually-hidden list of all notes, in order, with the same open action.
+- **The hidden note** (finish every note and film) arrives as a single firefly that's brighter than the rest, flying straight to you.
+
+### Chapter 6: receipts
+
+![sunrise](story/concepts/09-receipts-sunrise.jpg)
+
+- **Beat:** dawn. Ray on the hill above Waterford, crystal raised; the sidekicks cheer; Spice Bag throws chips like confetti (`sc12-sunrise`, `v12-sunrise`).
+- **The 3D bit:** the "glass city" below **is his real GitHub contribution graph**: a 7 × 52 grid of glass towers in Three.js, height = commits that day, glowing green. The painted sunrise is the backdrop; the 3D city is composited into the valley. Hover a tower: `tue 14 jul · 23 commits`.
+- **Counter:** `2,5xx commits in the last year` ticks up (number ticker).
+- **Ship log** as a parade marquee along the bottom: `sep 2026 · dáildex launched` · `oct 2026 · dáildex on data.gov.ie` · `sep 2026 · critiquecode open sourced` · `may 2026 · critique community edition` · `apr 2026 · warren rabbit hole mode` …
+- **Copy:** `github is the receipts.` / *"some commits become products. some become infrastructure. some become lessons."*
+- **His beliefs** appear as five banners carried by the sidekicks: speed matters · taste matters · trust matters · small teams deserve power · **ireland can compete globally**.
+
+### Chapter 7: write one
+
+![bottle](story/concepts/10-letter-bottle.jpg)
+
+- **Beat:** night again, on the river. Ray places a glowing bottle on the Suir. Dozens of others already drift toward the sea: everyone else's letters (`sc13-bottle`, `v13-bottles`).
+- **Ray's public letters** first: rendered on parchment with an ink-bleed reveal shader (latest letter first, as in v1). Narration available.
+- **Then the visitor writes one** (the existing letter feature, local-first, with delivery dates). On "seal it", the parchment rolls, slides into a bottle, the cork pops in, and the bottle joins the river in the 3D scene with the delivery date on its tag.
+- **On the delivery date**, Dex flies across the screen when they return and drops the bottle at their feet: *"post for you!"*
+- **Copy:** `write one too.` / *"seal it, or don't. keep it private, or leave it open. you do you."* (from letter 1)
+- **Names:** "leave your name on the crystal" (existing `/api/names`). Names get engraved around the base of the 3D crystal like a trophy dedication.
+
+### Chapter 8: not even close
+
+![not even close](story/concepts/06-not-even-close.jpg)
+
+- **Beat:** the classic red-velvet end card fades in: **"the end"** (`sc14-the-end`). A beat of silence. Then Ray leans in with a giant paintbrush, strikes it out, and paints **"not even close."** (`v14-not-even-close`, first frame `sc14`, last frame `sc15`). The cast pile into frame.
+- **Contact:** Dex flies in with **two envelopes**, each a big tappable card:
+  - **"about critique, agents, dev tools"** → `ray@critique.sh`
+  - **"about dáildex, civic tech, press"** → `ray@daildex.com`
+  - Line above: *"if you're building in this space, i want to hear from you."*
+- **Credits roll** (old-school, over `sc19-credits`), funny but true:
+
+```
+the night shift
+a waterford picture
+
+written & directed by ........ repath khan
+also known as ................ ray
+code review .................. crit
+postal service ............... dex
+lighting ..................... leemer
+research ..................... warren
+growing ...................... born
+catering ..................... the takeaway
+chaos ........................ spice bag
+commits ...................... 2,5xx and counting
+
+filmed on location in waterford, ireland
+no ai wrappers were harmed in the making of this website
+
+special thanks
+to everyone who stayed long enough to read it.
+```
+
+- **Final frame:** iris-out on the crystal. Then a tiny line: `stay for more? ↺` that starts the story from the top.
+
+---
+
+## 6. Funny stuff: the gag list
+
+Each gag is small, optional, and never blocks content.
+
+| # | Gag | Trigger | Implementation |
+|---|---|---|---|
+| 1 | **Crit judges your scrolling.** Crit pops up in the corner: `exit 2 — scrolled too fast. you missed a note.` | Scroll velocity above a threshold for over 1.5s | Lenis velocity → sprite `v-sprite-crit` + speech bubble |
+| 2 | **Lights out, Leemer saves you.** The page dims to black, then Leemer swings in with lanterns. | 60s idle | Overlay + `v-sprite-leemer`, any input restores |
+| 3 | **Spice Bag ate the 404.** | Any unknown route | `sc16-lost-404`, copy: *"this page got eaten. sorry. it was very good."* |
+| 4 | **Intermission.** Card: `intermission — go get a snack`. Spice Bag: *"…me?"* | 8+ minutes of active reading | `sc18-intermission`, dismissible, once per visit |
+| 5 | **Visitor ticket.** A ticket prints with your visitor number and order: `#5172 · 3 films · 2 notes · 1 letter · thank you, come again`. Shareable PNG. | Footer button / on leaving the credits | Canvas render, thermal-paper style |
+| 6 | **Salt shaker cursor.** | Chapter 1 | Custom cursor, click = salt particles |
+| 7 | **Spice bag mode.** Chips rain from the top of the screen. | Konami code or typing `spicebag` | Instanced chip particles |
+| 8 | **Secret terminal.** `critique finish --intent "build a life"` → `outcome: in_progress · evidence: 2,5xx commits, 11 films, 2 letters · limits: still in the middle · exit 0`. Also `whoami`, `ls work/`, `cat notes/06`, `play 09`, `gaeilge`, `rain`, `credits`. | Type `critique` or press `⌘K` → "terminal" | Quake-style drop-down |
+| 9 | **3am.** At exactly 03:00–03:59 Waterford time, a banner: `the night shift is on. ray's probably awake.` The crystal glows brighter. | Waterford clock | Time check |
+| 10 | **Warren tooltips.** Hover certain underlined words (waterford, crystal, vikings, spice bag) for a rabbit-hole card chain that always ends back at "this website". | Hover/focus | Popover chain |
+| 11 | **Refractometer.** Hold `R` on the crystal: `refractive index ≈ 1.56 · lead crystal · origin: waterford`. | Key hold / long-press | Overlay (a nod to the Rayner Dialdex refractometer) |
+| 12 | **Dex refuses to pick a side.** Click Dex 5 times: *"i don't do opinions. i do sources."* | Clicks | Speech bubble |
+| 13 | **Crit's rare approval.** Watch every film to the end and Crit gives a single slow nod: `exit 0`. Rarest animation on the site. | `progress.ts` all films | Sprite state |
+
+---
+
+## 7. Inspiring stuff: the heart list
+
+1. **The middle is in the story.** Most personal sites only show wins. This one has a chapter where he's lost, in his own words, and shows how he got through it.
+2. **Notes as fireflies.** The things he wrote to himself literally light the way out of the fog.
+3. **"the end" → "not even close."** The thesis of the whole site in one gag.
+4. **Ireland can compete globally.** Waterford isn't a backdrop, it's the hero's home. DáilDex's data.gov.ie feature is shown as proof.
+5. **Receipts, not claims.** The glass city is his real commit history.
+6. **The visitor joins the story.** Write a letter, seal it in a bottle, and Dex brings it back on the date you picked.
+7. **Credits thank the reader.** *"to everyone who stayed long enough to read it."*
+
+---
+
+## 8. Motion graphics system
+
+### 8.1 The building blocks
+
+| Technique | What it does | Tech |
 |---|---|---|
-| **Daylight** | Sunrise → 2h before sunset | Cool white light, crisp refraction, pale glass, ink text on near-white areas inside panels. |
-| **Golden** | Around sunset | Low amber light raking across facets, long caustics, warm spectrum. |
-| **3am** | Night (default for most visitors, matches when he builds) | Deep ink, sodium-amber street-light glow from one side (the takeaway), cold blue monitor glow from the other (the lab). The signature mood. |
+| **Multiplane camera** | Painted layers at different depths; the camera dollies through them for real parallax. The classic studio technique, rebuilt in WebGL. | R3F: one `planeGeometry` per layer, keyed WebP textures, positioned along z, camera on a scroll-driven spline. Slight per-layer blur for depth of field. |
+| **Generated loops** | Each scene breathes: steam, sparkles, fireflies, characters blinking. | Seedance 2.0 Mini image-to-video with **first frame = last frame** for seamless loops; played as `VideoTexture` on the scene plane or as a DOM `<video>`. |
+| **Generated transitions** | Story beats that need real animation: the book opening, Leemer's entrance, Crit's gavel, the "not even close" paint gag. | Seedance **first frame → last frame** interpolation between two FLUX images. |
+| **Sprite mascots** | Small characters that pop into the UI corners (Crit, Leemer, Dex, Spice Bag, Born). | Green-screen FLUX pose → Seedance idle loop → ffmpeg chroma key → **VP9 alpha WebM** (Chrome/Firefox) + **HEVC alpha MOV** made on macOS for Safari, with a static PNG fallback. |
+| **The crystal** | The one real 3D object in a 2D world. | drei `MeshTransmissionMaterial`, faceted icosahedron, `ior ≈ 1.56`, chromatic aberration, drag-to-spin with inertia. Rendered *on top of* the painted storybook cover so it looks like the drawing came alive. |
+| **Old-film post-processing** | Makes everything feel like a 1940s print. | Custom `postprocessing` Effect `OldFilm`: grain, gate weave (sub-pixel jitter), luminance flicker, dust and hair specks, soft vignette, slight colour bleed. Intensity per chapter (strong in the prologue, almost off in the notes). |
+| **Animated on twos** | Classic hand-drawn cadence (12 drawings per second). | Optional `steps()` timing for character overlays and sprite playback at 12fps, while the camera stays smooth at 60fps. That contrast is what makes it feel hand-made. |
+| **Iris wipe** | The classic circle that closes on a character to end a scene. | CSS `clip-path: circle()` animated with Motion; used for route changes and the finale. |
+| **Page turn** | Moving between chapters on mobile, or into `/work/:slug`. | A curled plane in Three.js (vertex shader bend) or CSS 3D for the low tier. |
+| **Title cards** | "chapter 3 — the night shift" between chapters. | `ui-chapter-0x` art + `OldFilm` + a 1.2s hold. |
+| **Develop** | v1's blur → sharp signature, used for all body text. | `<Develop progress>` component (blur, opacity, translateY), driven by scroll or video progress. |
+| **Hand-lettered type** | Titles look painted, not typeset. | Generated lettering (`ui-title-lettering`) as keyed WebP; SVG stroke-draw for short labels. |
 
-A tiny line in the corner explains it: `waterford · 03:12 · light rain · 9°` so the mood is never random.
+### 8.2 Scroll choreography
 
-### 3.3 Motion principles
+- **Lenis** for smooth native scrolling. **Motion** (`useScroll`) for DOM timelines. A **zustand** store (`chapter`, `progress`, `velocity`, `mood`, `tier`) that the canvas reads in `useFrame` without React re-renders.
+- **Pinned scenes:** Chapter 1 (the counter), Chapter 3 (horizontal products), Chapter 4 (the fog walk). Everything else scrolls naturally.
+- **Timing law:** the easing curve stays v1's `cubic-bezier(0.16, 1, 0.3, 1)`. Character pops use an overshoot spring (`stiffness 260, damping 14`) for cartoon squash and stretch.
 
-1. **One easing curve everywhere**: keep `cubic-bezier(0.16, 1, 0.3, 1)` from v1 (continuity), plus a spring for physical objects (`stiffness 120, damping 18`).
-2. **Develop, don't fade.** Reveals go blur → sharp, desaturated → colour, low-refraction → full dispersion.
-3. **Physical, not floaty.** Objects have weight. The crystal has inertia when you drag it and settles.
-4. **Scroll is a camera dolly**, not a page scroll. The DOM scrolls normally (for accessibility and SEO); the 3D camera follows a spline keyed to scroll progress.
-5. **Silence is a feature.** Every chapter has one moment of stillness where nothing moves but the grain.
+### 8.3 Classic animation principles, applied to UI
 
-### 3.4 Sound
-
-- Keep the music bed (`sparky-deathcap-september.mp3`) and narration system.
-- Add a tiny **glass sound palette** (4–6 one-shots: soft clink, ring, shimmer, low hum) via Web Audio, pitch-shifted per facet. Muted until first user gesture; respects the existing music mute toggle.
-- Spatialise the takeaway ambience (extractor fan hum, distant till beeps, rain) on the left channel and the lab ambience (fan whine, keyboard) on the right in Chapter 02. Subtle, under −24 LUFS.
-
----
-
-## 4. Information architecture
-
-### 4.1 Routes
-
-| Route | v2 purpose | Notes |
-|---|---|---|
-| `/` | The full scroll journey (chapters 00–07). | One page, one persistent WebGL canvas. |
-| `/work` | Index of all five product worlds. | `/working-on` 301 → `/work`. |
-| `/work/critique`, `/work/daildex`, `/work/leemerchat`, `/work/leemerlabs`, `/work/warren` | Deep-dive page per product with its own 3D object full-bleed. | Shareable, own OG image. |
-| `/films` | All 11 films as a refracted shard gallery. | `/films/:slug` deep links (e.g. `/films/figure-it-out`). |
-| `/notes`, `/notes/:id` | Existing notes feed, restyled as glass cards. | Keep URLs (they've been shared). |
-| `/letter`, `/letter/:id` | Repath's public letters plus write-your-own. | Keep URLs and localStorage keys. |
-| `/receipts` | Full-screen GitHub skyline. | Optional standalone. |
-| `/now` | What he's doing this week. Live GitHub activity, current focus. | Replaces `nowLine`. |
-
-### 4.2 Navigation
-
-- **Desktop:** a floating "lens" nav pill at the top centre (frosted glass, `backdrop-filter`, 1px inner highlight). Items: `films · work · notes · letter · now`. Live clock and weather on the right. Music toggle as a small waveform icon that animates while playing.
-- **Mobile:** bottom dock (Magic UI "Dock"-style) with 4 icons + "more" sheet. Thumb-reachable.
-- **Command palette** (`⌘K` / `/`): jump to any film, note, product, or letter. Type `critique` to open the secret terminal (see §7).
+| Principle | UI use |
+|---|---|
+| Squash and stretch | Buttons squish on press, then spring back. |
+| Anticipation | Cards dip 2px before they fly up. |
+| Follow-through | Speech bubbles overshoot, then settle. |
+| Staging | Only one moving focal point per screen. Everything else holds. |
+| Secondary action | Sidekicks blink and fidget while you read. |
+| Timing | Fast gags, slow heart. |
+| Appeal | Every character readable as a silhouette at 64px. |
 
 ---
 
-## 5. The experience, chapter by chapter
+## 9. Art direction and design system
 
-The homepage is one long scroll with eight chapters. A single R3F `<Canvas>` sits fixed behind the DOM; each chapter registers a "scene state" (camera position, crystal pose, lighting, which objects are visible) and the scene interpolates between them by scroll progress.
+### 9.1 Style
 
-### Chapter 00 — Arrival ("i am repath")
+**Golden-age 1940s hand-drawn cel animation:** confident ink outlines, flat cel colour with soft painted shading, lush gouache and watercolour backgrounds, three-strip Technicolor warmth, film grain. Defined once as `STYLE` in `scripts/story/manifest.ts` so every asset matches.
 
-**Goal:** first 3 seconds should make someone say "oh."
+We describe the **technique**, never a studio or its characters. Prompts never say "Disney", and no existing characters are referenced. The cast is 100% original. (See §19.)
 
-- Black screen. A single thin line of light draws across (like a laser scoring glass).
-- The line splits into a spectrum and the words **i am repath** etch in, letter by letter, as if cut with a wheel (text-scramble that resolves into a glass-material 3D text, or a DOM heading with a shader mask on top).
-- The crystal assembles from shards flying in from the edges and locks together with a soft *clink*.
-- Below: `waterford, ireland · builder · 03:12` (live) and a small "scroll" cue that is a drop of light falling.
-- **Interaction:** drag or move the cursor and the crystal rotates with inertia. Hovering a facet makes it ring (a pitch per facet).
-- **Fallback:** if WebGL is unavailable or reduced motion is on, show a pre-rendered crystal still (AVIF) and the heading, no animation.
-
-**The crystal itself:** a procedurally generated faceted shape. Start from an icosahedron with `detail = 1`, apply non-uniform scaling to make it taller (like a cut-glass tumbler or obelisk, nodding to Reginald's Tower), flat-shade it so the cuts read clearly. Material: drei `MeshTransmissionMaterial` with `thickness ~1.2`, `ior ~1.56` (lead crystal territory), `chromaticAberration ~0.06`, `anisotropy ~0.3`, `distortion ~0.1`, `backside: true`. Behind it is an environment the crystal refracts (see Chapter 01).
-
-### Chapter 01 — Frames (the films)
-
-**Goal:** the films become *the light that passes through the crystal.*
-
-- As you scroll in, the camera pushes past the crystal. Behind it, the films are revealed playing on **11 floating shards** (thin bevelled glass slabs) arranged in a loose arc. Each shard's aspect matches its film (square, portrait, landscape), so no more cropping.
-- The shards play a **muted 3-second loop preview** (generated by the media pipeline). The crystal in the foreground refracts them, so you see the films broken into spectra through the glass.
-- **Click a shard:** it flies to centre and scales up, the others dim and drift back, the full-quality film loads and plays **with sound** (same autoplay-with-sound logic as v1, same "tap for sound" fallback), and the music crossfades exactly as today.
-- **When the film ends:** the *develop* moment. The note (or letter line) appears beside the film blurred and sharpens. "listen" plays the narration. Buttons: `play again · another frame · share`.
-- **Film title** is engraved on the bottom edge of each shard in tiny caps: `09 · no option`.
-- **Mobile:** shards become a vertical snap carousel (one film per screen), still 3D but camera-locked; tap to play.
-
-### Chapter 02 — Two worlds
-
-**Goal:** make the takeaway-by-day, AI-by-night story *physical*.
-
-- Full-bleed split screen with a **draggable divider** (cursor or thumb).
-  - **Left: the takeaway.** Warm sodium amber. A scrolling rail of **order tickets** (thermal-printer style, monospace, torn edge) that print in from the top: `#2514 · 2× spice bag · 1× curry chips · collection 18:40`. Steam particles rise. Ambient: extractor hum.
-  - **Right: the lab.** Cold blue. A terminal printing real-looking agent output: `critique finish --intent "stop duplicate charges"` → `outcome repair_ready` → `exit 2`. Ambient: keyboard.
-- As you drag the divider toward centre, the two sides' light **mixes into white** on the crystal, which hangs in the middle. That's the thesis: both worlds make the person.
-- Copy (his own words, lightly trimmed): *"in a takeaway, nobody cares about your clever theory. customers wait. staff stress. money moves. that shaped how i think about software."*
-- Implementation: two DOM panels with `clip-path` driven by a motion value; the WebGL layer reads the same value for light mixing. Tickets are DOM (crisp text) on top of a WebGL steam layer.
-
-### Chapter 03 — The work (spectrum)
-
-**Goal:** show the range. Five products, five colours, five objects.
-
-- The crystal splits white light into **five beams** (a nod to Pink Floyd's prism, but the beams are coloured to match each product). Each beam lands on a product object (§6).
-- Horizontal scroll-jacked section on desktop (pinned, scroll moves the camera along the spectrum). Vertical stack on mobile.
-- Each product card: name, one-line role, one-line origin story (from v1 `ecosystem.ts`, e.g. "born from watching agents write code nobody trusted to merge."), a live stat where possible (DáilDex: "234 representatives tracked"; Critique: latest CLI version; GitHub stars), and a `visit →` link plus `go deeper →` to `/work/:slug`.
-- **Order:** critique → daildex → leemerchat → leemerlabs → warren. (Decision for Repath: is critique still the lead? See §17.)
-
-### Chapter 04 — Receipts (GitHub skyline)
-
-**Goal:** turn "github is the receipts" from a slogan into a place.
-
-- Fetch the past 365 days of contributions for `repath500` (same data source as today's `react-github-calendar`, via a cached edge function so we're not rate-limited).
-- Render as a **7 × 52 grid of glass columns**, height = commits that day, emissive intensity = relative activity. It looks like a crystal city at night.
-- Camera does a slow fly-over as you scroll. Hover a column to see `tue 14 jul · 23 commits`. The tallest day gets a tiny flag.
-- A counter ticks up: **2,5xx commits in the last year** (Magic UI-style number ticker).
-- The weekly rhythm line from v1 ("last seven days: …") sits under it.
-- Below: the **ship log** as a horizontal timeline marquee (`sep 2026 · daildex launched`, `sep 2026 · critiquecode open sourced`, `may 2026 · critique community edition`, …).
-
-### Chapter 05 — Notes and letters
-
-**Goal:** the emotional core. Slow everything down here.
-
-- The camera drifts into a dark field. **Notes float as frosted glass cards** at different depths, drifting slowly. Mood-coded: `light` cards are clearer, `heavy` cards are frostier and sit deeper.
-- Hover/focus a card: it comes forward, de-frosts (develop), and the note sharpens. Click: opens the full note with narration.
-- **Repath's public letters** appear as paper (not glass) with an **ink-bleed reveal shader**: the text appears as if written live in fountain-pen ink. Latest letter first, as today.
-- The hidden "thank you for reading all of it" note still unlocks when someone completes every note and film (existing `progress.ts`).
-
-### Chapter 06 — Write one (seal it in glass)
-
-**Goal:** turn the visitor into a participant.
-
-- Existing "write a letter to your future self" feature (local-first, with delivery date presets).
-- New ritual: when you seal the letter, it **folds, slides into a small glass bottle / crystal capsule**, and the capsule drifts off into the field from Chapter 05 with your chosen date engraved on it. On the delivery date, returning visitors see their capsule come back and crack open.
-- Optional: "leave your name" (existing `/api/names`). Names get **engraved around the base of the hero crystal** in tiny type, like a dedication on a trophy. Moderated by the existing length cap, plus a simple blocklist.
-
-### Chapter 07 — Contact / now
-
-**Goal:** a clear, confident ending.
-
-- Big line: **"if you're building in this space, i want to hear from you."**
-- Email as a magnetic button: `ray@critique.sh` (confirm which address, §17).
-- `now:` line (what he's shipping this week), live presence as fireflies ("3 people here right now"), Waterford clock and weather.
-- Final frame: the crystal, small, rotating slowly. Under it: *"i'm not done. not even close."*
-- Footer: links to all five products, GitHub, LinkedIn, X, and `© repath khan · waterford, ireland`.
-
----
-
-## 6. Product "worlds": one 3D object per product
-
-Each object lives in `src/scene/worlds/` and is used in two places: small in Chapter 03 and full-bleed on `/work/:slug`.
-
-### 6.1 critique: "the monolith"
-
-- A tall black-glass slab (2001 monolith energy) with a terminal **rendered onto its face** (DOM-to-texture via a canvas, or drei `<Html transform occlude>`).
-- A scanner line sweeps down the monolith, "inspecting" a code diff that floats in front of it. Lines turn green (pass) or amber (needs repair).
-- At the end it prints a verdict: `outcome repair_ready · evidence attached · exit 2`.
-- Palette: near-black, signal green `#39D353` (ties to the GitHub skyline), amber `#F5A524` for warnings. Mono type.
-- Deep page: interactive "run a finish check" demo with three canned scenarios, an install command with copy button (`npm install --global @critiquedotsh/cli`), and links to CritiqueCode (open source) and critique-community.
-
-### 6.2 DáilDex: "the island"
-
-- **Ireland made of ~4,000 points** (instanced mesh), shaped from a GeoJSON outline of the 43 Dáil constituencies (public data from data.gov.ie / Tailte Éireann boundaries). Points are grouped by constituency.
-- Every few seconds a constituency **pulses** and an alert card floats up: `your TD voted Tá on a housing motion · official record ↗`. Colours mark activity type, matching DáilDex's own system (vote, debate, question, news).
-- Hover a constituency: name plus number of TDs. Keyboard accessible via a hidden list.
-- Badge: **"as featured on data.gov.ie"**.
-- Palette: civic green `#169B62` (Irish flag green), white, with orange `#FF883E` used sparingly. Never party colours, to stay non-partisan like DáilDex itself.
-- Deep page: "follow your TD" link to daildex.com, "Ask Dex" mention, link to the open-source backend repo.
-
-### 6.3 LeemerChat: "the router"
-
-- Six to eight glowing "model stars" (unlabelled, or labelled generically: frontier, open-weight, fast, reasoning…) in a ring. A central node (the user) sends **streams of token particles** that route to different stars and back. The routing visibly *switches* when one star "goes down" (dims), echoing the origin story: *"started when gpt-4 went down and i needed a backup that became the main thing."*
-- Palette: violet-to-cyan.
-
-### 6.4 LeemerLabs: "the growth"
-
-- A **crystal lattice that grows** in real time (instanced cubes/octahedra added along a diffusion-limited-aggregation path). Growth speeds up on scroll, like a training run. A small loss-curve sparkline in the corner trends down.
-- Gaeilge floats nearby: *"Ní neart go cur le chéile"* (there is no strength without unity), tying to the Irish-language research.
-- Palette: pale gold and bone white.
-
-### 6.5 warren.wiki: "the warren"
-
-- A 3D **force-directed knowledge graph** (`d3-force-3d` or `r3f-forcegraph`). Seed node: "waterford". Click a node and it expands into related nodes (canned data, a few levels deep): waterford → vikings → reginald's tower → … → crystal → refraction → light → this website. A rabbit hole that ends where you started.
-- Palette: earthy green and sand (a warren is a burrow).
-
----
-
-## 7. Personal, live, and secret features
-
-These are what make it *his* site and not a template.
-
-### 7.1 Live Waterford
-
-- **Clock** in `Europe/Dublin`, always shown (v1 shows the visitor's local time; v2 shows *his*, and labels it).
-- **Weather** from Open-Meteo (free, no key) for Waterford, cached 15 min in an edge function at `/api/waterford`. Drives:
-  - **Rain on the glass**: a screen-space raindrop refraction shader over the crystal when it's raining in Waterford (it often is). This is the single most delightful "is this real?" moment.
-  - Fog density when it's misty. Wind sways steam particles in Chapter 02.
-- **Sun position** via `suncalc` drives the three moods (§3.2).
-
-### 7.2 Currently shipping
-
-- Edge function `/api/now` pulls the latest public GitHub events for `repath500` (cached 10 min) and shows: `pushed to critique-code · 2h ago`. Displayed as a tiny pulsing dot plus text in the nav. Falls back to the hand-written `nowLine` if the API is unavailable.
-
-### 7.3 Presence as fireflies
-
-- Existing `/api/presence` count becomes small light motes orbiting the crystal, one per active visitor. Your own mote is slightly brighter and follows your cursor loosely.
-
-### 7.4 Secret: the `critique` terminal
-
-- Type `critique` anywhere (or `⌘K` then "terminal") to drop down a Quake-style terminal. Commands:
-  - `critique finish --intent "build a life"` → prints a verdict in finish.v1 style: `outcome: in_progress · evidence: 2,5xx commits, 11 films, 2 letters · limits: still in the middle · exit 0`.
-  - `whoami` → `repath. ray to some.`
-  - `ls work/` → lists the five products.
-  - `cat notes/06` → prints note 6.
-  - `play 09` → plays the "no option" film.
-  - `gaeilge` → toggles Gaeilge mode.
-  - `rain` → forces rain on the glass.
-  - `help`, `clear`, `exit`.
-
-### 7.5 Secret: Gaeilge mode
-
-- Toggles key labels to Irish (e.g. `films → scannáin`, `work → obair`, `notes → nótaí`, `letter → litir`, `now → anois`) and swaps the hero to **"is mise repath"**. Nods to LeemerLabs' Gaeilge work. Translations should be checked by a fluent speaker before shipping.
-
-### 7.6 Secret: the refractometer
-
-- Hold `R` (or long-press the crystal on mobile) to show a vintage-instrument overlay: `refractive index 1.56 · lead crystal · origin waterford`. A wink at the Rayner *Dialdex* refractometer coincidence (§1.2).
-
-### 7.7 Takeaway receipt for your visit
-
-- On leaving (or via a "get receipt" button in the footer), generate a thermal-receipt-style image of the visit: `order #<visitor number> · 3 films watched · 2 notes read · 1 letter sealed · thank you, come again`. Shareable PNG via a canvas. Ties the takeaway world to the visitor.
-
-### 7.8 Keep from v1
-
-`RespectWhisper`, `IdentityWhisper`, `PresenceWhisper`, hidden note, progress tracking, narration, music ducking, letter delivery. They all get restyled and moved into the new structure; the logic stays.
-
----
-
-## 8. Design system
-
-### 8.1 Colour tokens (Tailwind 4 `@theme`)
+### 9.2 Colour tokens (Tailwind 4 `@theme`)
 
 ```css
 @theme {
-  /* base */
-  --color-ink: #05060a;          /* background, deeper/cooler than v1 #050505 */
-  --color-ink-2: #0b0d14;        /* raised surfaces */
-  --color-glass: #e8f1f2;        /* primary text on dark */
-  --color-glass-dim: #9aa4ad;    /* secondary text */
-  --color-glass-faint: #4a525c;  /* tertiary, labels */
-  --color-edge: rgb(255 255 255 / 0.08); /* hairlines */
+  --color-velvet: #7a1e22;      /* curtains, end cards */
+  --color-gold: #d9a441;        /* gold leaf, frames, lettering */
+  --color-parchment: #f2e6cc;   /* storybook pages, notes, letters */
+  --color-ink: #1b1410;         /* outlines, text on parchment */
+  --color-night: #141a3a;       /* night scenes, base background */
+  --color-night-deep: #0b0f24;
+  --color-moon: #7fa7d9;        /* lab side, moonlight */
+  --color-sodium: #ff9f43;      /* takeaway side, street lamps */
+  --color-firefly: #ffd36b;     /* notes */
+  --color-fog: #8a9099;         /* chapter 4 */
 
-  /* the two worlds */
-  --color-sodium: #ff9f43;       /* takeaway / street light */
-  --color-monitor: #5b8cff;      /* lab / screen glow */
-
-  /* product accents (only used inside their own world) */
+  /* product accents (only inside their own scene) */
   --color-critique: #39d353;
   --color-daildex: #169b62;
-  --color-daildex-accent: #ff883e;
   --color-leemerchat: #8b5cf6;
   --color-leemerlabs: #e9d8a6;
   --color-warren: #7f9f6a;
 }
 ```
 
-Rule: the **spectrum** (full rainbow) only ever appears *through refraction*. It's never used as a flat UI colour. That keeps it special.
+### 9.3 Typography
 
-### 8.2 Typography
-
-| Role | Font | Why |
+| Role | Font | Notes |
 |---|---|---|
-| Display (hero, chapter titles) | **Instrument Serif** (Google Fonts, free), italic for emphasis | Editorial, sharp, feels like cut glass. Pairs with the existing serif voice but is more modern than Crimson. |
-| Long-form (notes, letters) | **Crimson Text** (keep) or **Newsreader** | Continuity with v1. Notes should still feel like v1 notes. |
-| UI / labels | **Geist** or **Inter Tight** | Clean, technical, legible at small sizes. |
-| Data / terminal / tickets | **Geist Mono** or **JetBrains Mono** | Critique terminal, order tickets, receipts, stats. |
+| Storybook display | **IM Fell English** / **IM Fell DW Pica** (Google Fonts, free) | Old book type for narrator text and chapter labels. |
+| Big titles | **Generated hand lettering** (keyed WebP) | `i am repath`, `the night shift`, chapter titles. |
+| Ray's voice (notes, letters) | **Fraunces** (soft, slightly wonky optical axes) or keep **Crimson Text** | Warm, readable, a little hand-made. Lowercase. |
+| UI labels | **Inter Tight** | Small, clean, lowercase, tracked. |
+| Terminal, tickets, credits leaders | **JetBrains Mono** | Crit, the critique terminal, takeaway tickets. |
 
-Type scale (fluid with `clamp`): display `clamp(3rem, 10vw, 9rem)`, h2 `clamp(2rem, 5vw, 4rem)`, body `1.125rem / 1.65`, label `0.6875rem`, tracking `0.18em`, lowercase. **Lowercase stays the default** everywhere. It's his voice.
+Self-host everything (`@fontsource/*`).
 
-Self-host fonts (`@fontsource/*` or files in `/public/fonts`) instead of Google Fonts CSS, to cut a render-blocking request.
+### 9.4 Surfaces
 
-### 8.3 Surfaces
-
-- **Glass panel:** `bg-white/[0.03] backdrop-blur-xl border border-white/10` plus a 1px top inner highlight (`inset 0 1px 0 rgb(255 255 255 / 0.08)`) and an SVG noise overlay at 3% opacity.
-- **Paper (letters only):** warm off-white `#efe9df`, subtle fibre texture, ink `#1b1a17`. The only light surface on the site, which makes letters feel precious.
-- **Ticket (takeaway only):** thermal paper `#f4f1ea`, mono type, zig-zag torn edge via CSS `mask`.
-
-### 8.4 Motion tokens
-
-```ts
-export const ease = [0.16, 1, 0.3, 1] as const      // from v1
-export const spring = { type: 'spring', stiffness: 120, damping: 18 }
-export const durations = { xs: 0.2, sm: 0.4, md: 0.7, lg: 1.2, xl: 2.4 }
-```
-
-### 8.5 Cursor
-
-- Desktop: a small ring cursor that becomes a **lens** (magnifies and slightly refracts what's under it, via a CSS `backdrop-filter` circle or a WebGL pass) when over interactive objects. Hidden on touch devices and when reduced motion is on.
+- **Parchment card** (notes, letters): `--color-parchment`, paper fibre texture, deckled edge mask, ink text.
+- **Velvet** (end card, intermission, credits): deep red with a soft fabric normal map.
+- **Ticket** (takeaway): thermal paper `#f4f1ea`, torn zig-zag edge, mono.
+- **Night glass** (UI chrome over scenes): `bg-night/60 backdrop-blur-md`, gold 1px hairline.
 
 ---
 
-## 9. 21st.dev and component sourcing
+## 10. Asset pipeline: OpenRouter (FLUX.3 + Seedance 2.0 Mini)
 
-21st.dev is a registry of 12,000+ community React + Tailwind components installable via the shadcn CLI, or pulled in through their MCP (`npx @21st-dev/cli@latest init --client cursor`). Free tier: 2 copies per day, so pick deliberately. Everything below gets **restyled to our tokens**. We take the mechanics, not the look.
+### 10.1 Models (checked live on OpenRouter, Oct 2026)
 
-### 9.1 Shortlist by chapter
+| Model | Endpoint | What we use it for | Constraints | Price |
+|---|---|---|---|---|
+| `black-forest-labs/flux-3-image` | `POST /api/v1/images` | All stills: model sheets, scenes, multiplane layers, UI art, sprite key poses | `resolution` 768/1K/1.5K/2K/4K · many aspect ratios · `n` = 1 · **up to 10 `input_references`** (used for character consistency) · `seed` | $0.041 (768) · $0.048 (1K) · $0.07 (1.5K) · $0.10 (2K) · $0.607 (4K) per image |
+| `bytedance/seedance-2.0-mini` | `POST /api/v1/videos` (async: submit → poll → download) | Loops, transitions, sprite idles | 480p/720p · sizes up to 1280×720 / 720×1280 / 720×720 · **4–15s** · `frame_images` with `first_frame` and `last_frame` · optional generated audio · `seed` | Billed per video token (`$0.0000035`/token); actual cost logged per job |
 
-Names are from the 21st catalog (Oct 2026). Verify each preview before installing.
+### 10.2 What's in the repo now
 
-| Use | Candidate(s) on 21st.dev | How we adapt it |
-|---|---|---|
-| Hero shader backdrop | **Liquid Metal Shader** (johnmamanao), **Cloud Shader** (Manu Arora) | Recolour to ink/sodium/monitor; use as the environment the crystal refracts, not as a visible background. |
-| Arrival text | Motion Primitives **Text Scramble** / **Text Effect** (ibelick) | Glyphs scramble then "cut" into place. |
-| Chapter backgrounds | **Luminous Topography** (Mehi), **Floating paths** (Bundui.io), **Beams Background** (Kokonut UI), **Sonar Grid** (NIMA MZ) | Topography = contour lines of Waterford harbour/the Suir. Beams = the spectrum beams in Chapter 03. Sonar = presence pings. |
-| Film gallery | **Centered Hero with Image Fan**, **Editorial Collage Hero** (felipemenezes098), **Parallax Scrolling** (osmosupply), **Scroll Morph Hero** (Prashant Som) | Layout reference for the mobile carousel and the `/films` page. |
-| Product cards | Aceternity **3D Card Effect**, Magic UI **Border Beam**, Motion Primitives **Spotlight** | Tilt + beam in each product's accent colour. |
-| Receipts | Magic UI **Number Ticker**, **Marquee**; Aceternity **Tracing Beam** | Commit counter, ship-log marquee, timeline beam. |
-| Terminal | Magic UI **Terminal** | Base for the secret critique terminal and Chapter 02's lab side. |
-| Notes field | Motion Primitives **Morphing Dialog**, Magic UI **Blur Fade** | Card → full-note morph; blur fade = develop. |
-| Nav | Magic UI **Dock** (mobile), a glass pill (custom) | Bottom dock on mobile. |
-| Command palette | shadcn **Command** (cmdk) | `⌘K`. |
-| Typography specimen | **Lycoris Specimen** (Kedhareswer Naidu) | Reference for the `/now` page layout. |
+```
+scripts/story/
+  manifest.ts     # the whole shot list: 68 images + 25 videos, prompts, refs, sizes
+  generate.ts     # OpenRouter runner (dependency-ordered, resumable, retries, cost ledger)
+  optimize.sh     # raw → web: AVIF/WebP, chroma-key sprites, H.264 + VP9, posters
+docs/story/concepts/   # 12 concept frames used in this plan
+```
 
-### 9.2 Setup
+`package.json` scripts:
 
 ```bash
-# one-time: shadcn in a Vite + Tailwind 4 project
-npx shadcn@latest init           # choose "new-york", CSS variables, src/components/ui
-# add path alias "@/*" -> "src/*" in tsconfig.app.json and vite.config.ts
-
-# optional: 21st MCP for the agent
-npx @21st-dev/cli@latest init --client cursor
+npm run story:generate -- --dry                 # plan + estimated image cost, no API calls
+npm run story:generate -- --stage=refs          # characters first (review them!)
+npm run story:generate -- --kind=image          # all stills
+npm run story:generate -- --kind=video          # all clips (needs the stills)
+npm run story:generate -- --only=sc02-counter --force   # redo one shot
+npm run story:generate -- --kind=video --audio  # let Seedance add audio where marked
+npm run story:optimize                          # make web versions in public/story/
 ```
 
-Folder convention: anything from 21st or shadcn lands in `src/components/ui/` *as our code* (owned, edited). Bespoke components go in `src/components/`.
+Add `OPENROUTER_API_KEY` to `.env` locally (template in `.env.example`) or as a Cursor Cloud Agent secret.
+
+### 10.3 How consistency works
+
+1. **Stage 1: the model sheet** (`char-lineup`, fixed `seed: 1914`) defines the cast.
+2. **Turnarounds** per character (`char-<name>-turnaround`) take the lineup as a reference.
+3. **Every scene** passes the lineup plus the relevant turnarounds as `input_references` (FLUX.3 accepts up to 10).
+4. **Mobile 9:16 versions** of each scene also take the desktop scene as a reference, so they're recompositions, not new paintings.
+5. **Videos** use the scene stills as `first_frame` (and `last_frame` for loops/transitions), so motion starts and ends exactly on approved art.
+6. **Human review gates:** approve the lineup → approve turnarounds → then run scenes. Re-roll anything off-model with `--only=<id> --force`.
+7. **Ray's likeness:** with his OK, add 2–3 real photos as extra references for `char-lineup` and `char-ray-turnaround` so cartoon Ray actually looks like him.
+
+### 10.4 Shot list summary
+
+| Group | Count | Examples |
+|---|---|---|
+| Character refs | 8 | `char-lineup`, 7 turnarounds |
+| Sprite key poses (green screen) | 5 | `sprite-crit`, `sprite-dex`, `sprite-leemer`, `sprite-spicebag`, `sprite-born` |
+| Story scenes (16:9 + 9:16) | 40 | `sc00-cover` … `sc19-credits`, each with a `-mobile` twin |
+| Multiplane layers (21:9) | 5 | `mp-quay-0-sky` … `mp-quay-4-near` |
+| UI art | 10 | `ui-title-lettering`, 7 chapter cards, `ui-og`, `ui-favicon-crit` |
+| **Images total** | **68** | **≈ $5.65** at the listed resolutions |
+| Scene loops | 11 | `v01-storybook-idle`, `v01b-projector`, `v04-night-shift`, `v10-fog`, `v12-sunrise` … |
+| Transitions / beats | 4 | `v00-book-opens`, `v05-leemer-arrives`, `v06-crit-gavel`, `v14-not-even-close` |
+| Sprite idles | 5 | `v-sprite-*` (720×720, 4s) |
+| Mobile loops | 5 | `v-mobile-*` (720×1280, 6s) |
+| **Videos total** | **25** | cost logged to `scripts/story/ledger.jsonl` |
+
+Budget guidance: expect 2–3 re-rolls on hero shots. Plan for about **$15–20 of images** in total, and check the first few video jobs' logged cost before running the full video batch.
+
+### 10.5 Web delivery
+
+`optimize.sh` produces:
+
+- Stills: AVIF + WebP at ≤ 2560px (hero) / ≤ 1280px (mobile).
+- Keyed layers and sprites: transparent WebP.
+- Loops: H.264 MP4 (`faststart`) + VP9 WebM at ≤ 1280px, muted unless the clip has designed audio, with a WebP poster for each.
+- Sprite loops: VP9-alpha WebM at 360px/12fps (Safari needs an HEVC-alpha `.mov` exported on macOS with `avconvert` or Compressor; fallback is the static PNG).
+
+Hosting: move `public/story/video` to **Vercel Blob** (or any CDN) once it passes ~50 MB, so the git repo stays light.
 
 ---
 
-## 10. Tech architecture
+## 11. Tech architecture
 
-### 10.1 Dependencies to add
+### 11.1 Dependencies
 
 ```bash
 npm i three @react-three/fiber @react-three/drei @react-three/postprocessing postprocessing \
       motion lenis zustand maath suncalc
-npm i -D @types/three @types/suncalc leva r3f-perf vite-plugin-glsl
-# later / optional:
-npm i d3-force-3d          # warren graph
-npm i cmdk                 # command palette (via shadcn)
+npm i -D @types/three @types/suncalc leva r3f-perf vite-plugin-glsl rollup-plugin-visualizer
+npm i cmdk            # command palette (via shadcn)
+npm i detect-gpu      # starting quality tier
 ```
 
-- `@react-three/fiber` v9+ supports React 19 (which the repo already uses).
-- `motion` is the current name of Framer Motion.
-- `lenis` gives smooth scroll that still uses native scrolling (good for accessibility).
-- `zustand` is the bridge between DOM and canvas (scroll progress, active chapter, mood, audio state).
-- Keep Vite (no need to move to Next.js; the site is a client-side experience with a few edge functions, which Vercel already serves from `/api`).
+React 19 is already in the repo; `@react-three/fiber` v9+ supports it. Stay on Vite. Vercel already serves `/api/*` edge functions.
 
-### 10.2 Proposed file structure
+### 11.2 File structure
 
 ```
 src/
   main.tsx
   app/
-    Root.tsx                 # router + providers + persistent canvas
-    routes.ts                # extends existing router.ts (keeps /notes/:id, /letter/:id)
+    Root.tsx                # router + providers + ONE persistent <Canvas>
+    routes.ts               # extends router.ts; keeps /notes/:id, /letter/:id
   state/
-    useScene.ts              # zustand: scroll, chapter, mood, pointer, quality tier
-    useAudio.ts              # extracted from App.tsx: music, narration, crossfades, ducking
-    useFilms.ts              # extracted from App.tsx: queue, current film, progress, develop
+    useStory.ts             # zustand: chapter, progress, velocity, mood, tier, gags
+    useAudio.ts             # extracted from App.tsx (music, narration, ducking, sfx)
+    useFilms.ts             # extracted from App.tsx (queue, progress, develop)
+    useProgress.ts          # wraps progress.ts (films/notes completed, hidden note)
   scene/
-    Canvas.tsx               # <Canvas> + PerformanceMonitor + AdaptiveDpr + Suspense
-    Rig.tsx                  # camera spline keyed to scroll
-    Crystal.tsx              # the hero crystal (geometry + transmission material)
-    Environment.tsx          # what the crystal refracts (shader backdrop + film textures)
-    Shards.tsx               # film shards (Chapter 01)
-    Skyline.tsx              # GitHub skyline (Chapter 04)
-    NotesField.tsx           # floating glass notes (Chapter 05)
-    Fireflies.tsx            # presence
-    Rain.tsx                 # rain-on-glass pass
-    Effects.tsx              # postprocessing: bloom, chromatic aberration, noise, vignette
-    worlds/
-      Monolith.tsx           # critique
-      Island.tsx             # daildex
-      Router.tsx             # leemerchat
-      Growth.tsx             # leemerlabs
-      Warren.tsx             # warren
+    StoryCanvas.tsx         # Canvas, PerformanceMonitor, AdaptiveDpr, Suspense
+    CameraRig.tsx           # scroll-driven spline per chapter
+    Multiplane.tsx          # layered planes at depth (generic, data-driven)
+    ScenePlane.tsx          # still → loop video texture swap, with poster
+    Crystal.tsx             # 3D crystal (transmission material, facet hit-testing)
+    Projector.tsx           # bedsheet video plane + projector light shader
+    IrelandPoints.tsx       # DáilDex 3D point map (43 constituencies)
+    GlassCity.tsx           # GitHub contributions → instanced towers
+    Fireflies.tsx           # notes as instanced fireflies
+    Bottles.tsx             # sealed letters drifting on the river
+    Rain.tsx                # rain-on-glass pass (Waterford weather)
+    effects/
+      OldFilm.ts            # custom postprocessing Effect
+      OldFilm.frag.glsl
     shaders/
-      rain.frag.glsl
+      projectorLight.frag.glsl
       inkReveal.frag.glsl
-      caustics.frag.glsl
+      pageCurl.vert.glsl
   chapters/
-    Arrival.tsx  Frames.tsx  TwoWorlds.tsx  Spectrum.tsx
-    Receipts.tsx Notes.tsx   WriteOne.tsx  Contact.tsx
-  pages/
-    Work.tsx  WorkDetail.tsx  Films.tsx  NotesPage.tsx  LetterPage.tsx  Now.tsx
+    Prologue.tsx  OnceUponATime.tsx  TheCounter.tsx  TheReel.tsx
+    TwoWorlds.tsx NightShift.tsx     TheMiddle.tsx   Notes.tsx
+    Receipts.tsx  WriteOne.tsx       NotEvenClose.tsx
+  characters/
+    Sprite.tsx              # alpha-video mascot with PNG fallback
+    SpeechBubble.tsx
+    gags/                   # one file per gag in §6, lazy-loaded
   components/
-    ui/                      # shadcn + 21st components (owned)
-    Nav.tsx  Dock.tsx  CommandPalette.tsx  Terminal.tsx  Ticket.tsx  Receipt.tsx
-    Develop.tsx              # the signature blur→sharp text primitive
-    GlassPanel.tsx  MagneticButton.tsx  LiveWaterford.tsx
+    ui/                     # shadcn + 21st.dev (owned code)
+    Develop.tsx  TitleCard.tsx  IrisWipe.tsx  Ticket.tsx  Terminal.tsx
+    Nav.tsx  Dock.tsx  CommandPalette.tsx  LiveWaterford.tsx  Credits.tsx
   content/
+    story.ts                # chapter copy, narration lines, credits
     films.ts  notes.ts  letters.ts  ecosystem.ts  shiplog.ts  gaeilge.ts
+    assets.ts               # generated from scripts/story/manifest.ts (ids → URLs)
 api/
-  names.ts  notes.ts  presence.ts  speak.ts   # existing
-  waterford.ts                                  # weather + sun, cached
-  now.ts                                        # github events, cached
-  contributions.ts                              # github contributions, cached
+  names.ts notes.ts presence.ts speak.ts      # existing
+  waterford.ts                                 # weather + sun (Open-Meteo, cached)
+  now.ts                                       # GitHub events (cached)
+  contributions.ts                             # GitHub contribution calendar (cached)
+scripts/story/
+  manifest.ts generate.ts optimize.sh          # added in this PR
 ```
 
-### 10.3 Key patterns
+### 11.3 Key patterns
 
-**DOM drives, canvas follows.** All content is real HTML in the scroll flow. Each chapter section has a `data-chapter` attribute; an `IntersectionObserver` + Lenis scroll progress write `{ chapter, progress }` into zustand. The canvas reads it in `useFrame` (no React re-renders per frame).
+**DOM drives, canvas follows.** All content is real HTML. Chapters register with an `IntersectionObserver` + Lenis progress, write to zustand, and the canvas reads it in `useFrame`:
 
 ```tsx
-// state/useScene.ts
-export const useScene = create<SceneState>()((set) => ({
-  chapter: 'arrival',
-  progress: 0,            // 0..1 within chapter
-  globalProgress: 0,      // 0..1 whole page
-  mood: 'night',
-  tier: 'high',           // high | medium | low | static
-  setScroll: (p) => set(p),
-}))
-
-// scene/Rig.tsx
+// scene/CameraRig.tsx
 useFrame((state, delta) => {
-  const { globalProgress } = useScene.getState()
-  const target = cameraSpline.getPointAt(globalProgress)
-  easing.damp3(state.camera.position, target, 0.35, delta)  // maath
-  state.camera.lookAt(lookSpline.getPointAt(globalProgress))
+  const { chapter, progress } = useStory.getState()
+  const path = cameraPaths[chapter]
+  easing.damp3(state.camera.position, path.position.getPointAt(progress), 0.4, delta)
+  state.camera.lookAt(path.target.getPointAt(progress))
 })
 ```
 
-**One canvas for the whole app.** It's mounted once in `Root.tsx`, so navigating between `/` and `/work/critique` doesn't rebuild the WebGL context. Route changes swap which scene graph is visible, and objects animate between layouts.
+**Multiplane, data-driven:**
 
-**Film textures.** Use `THREE.VideoTexture` on hidden `<video muted loop playsInline>` elements with the short preview loops. Only the 3–4 shards nearest the camera play at once; the others show a poster texture. The *selected* film uses the real `<video>` element from `useFilms` (the one with sound), so the audio engine from v1 still owns playback.
+```tsx
+const quay = [
+  { src: '/story/img/mp-quay-0-sky.webp',   z: -40, scale: 2.2 },
+  { src: '/story/img/mp-quay-1-far.webp',   z: -24, scale: 1.7 },
+  { src: '/story/img/mp-quay-2-mid.webp',   z: -12, scale: 1.3 },
+  { src: '/story/img/mp-quay-3-water.webp', z:  -6, scale: 1.15 },
+  { src: '/story/img/mp-quay-4-near.webp',  z:  -2, scale: 1.0 },
+]
+<Multiplane layers={quay} />
+```
 
-**Develop primitive.** Extract v1's blur/opacity/translate math into `<Develop progress={0..1}>` so every reveal on the site uses the same signature.
+**Still → loop upgrade.** Each `ScenePlane` shows the AVIF still immediately, then swaps in the loop video as a `VideoTexture` once it can play through, and only while the chapter is on screen (max 2 videos decoding at once).
 
-**Refactor first.** Before any 3D, split `App.tsx` into `useAudio`, `useFilms`, and presentational pieces, with no visual change. This de-risks everything after.
+**One canvas for the app**, mounted in `Root.tsx`, so route changes don't rebuild WebGL.
 
-### 10.4 Post-processing stack (tier: high)
-
-`EffectComposer` → `Bloom` (luminanceThreshold 0.8, intensity 0.6, mipmapBlur) → `ChromaticAberration` (tiny, radial) → `Noise` (opacity 0.04, replaces the v1 grain div) → `Vignette` (0.35). Medium tier drops chromatic aberration; low tier keeps only noise and vignette.
-
----
-
-## 11. Media pipeline: films, images, audio
-
-### 11.1 Current films (measured)
-
-| File | Title | Size | Resolution | Duration |
-|---|---|---|---|---|
-| 1.mp4 | living | 1.4 MB | 720×720 | 13.7s |
-| 2.mp4 | fly | 3.3 MB | 722×720 | 29.2s |
-| 3.mp4 | rise | 5.8 MB | 720×724 | 53.3s |
-| 4.mp4 | alive | 1.5 MB | 576×576 | 16.9s |
-| 5.mp4 | peace | 0.4 MB | 768×576 | 13.7s |
-| 6.mp4 | who cares | 1.7 MB | 576×576 | 36.4s |
-| 8.mp4 | darkest hours | 3.6 MB | 576×576 | 78.4s |
-| 9.mp4 | no option | 4.6 MB | 726×720 | 64.6s |
-| 10.mp4 | i am | 3.1 MB | 576×576 | 26.2s |
-| 11.mp4 | smile | 1.2 MB | 576×1024 (portrait) | 20.7s |
-| 12.mp4 | figure it out | 3.1 MB | 1024×576 (landscape) | 33.4s |
-
-All H.264, about 29 MB total. Odd dimensions (722, 724, 726) should be normalised to even numbers.
-
-### 11.2 Script: `scripts/build-media.sh`
-
-For each film, generate:
-
-1. **Preview loop** (for shards): 3s, muted, 360px on the long edge, ~150 KB.
-   `ffmpeg -ss <best moment> -t 3 -i in.mp4 -an -vf "scale=360:-2,fps=24" -c:v libx264 -crf 30 -preset slow -movflags +faststart previews/<slug>.mp4`
-2. **Poster** (AVIF + JPEG fallback) from the same moment.
-   `ffmpeg -ss <t> -i in.mp4 -frames:v 1 -vf "scale=720:-2" posters/<slug>.jpg` then `avifenc`.
-3. **Full film**, normalised to even dimensions, H.264 `crf 23` + `faststart`, and optionally an AV1/WebM rendition for browsers that support it (`<source type="video/webm; codecs=av01">` first).
-4. **A `films.ts` manifest** generated from ffprobe: slug, title, aspect, duration, preview, poster, sources.
-
-Optionally move full films to Vercel Blob or a CDN so the repo stays light.
-
-### 11.3 New imagery needed
-
-- 6–12 photos: Waterford at night (quay, Reginald's Tower, the Suir), the takeaway (kitchen, tickets, the counter at closing), his desk/monitor at 3am, a portrait or two. These go into the Two Worlds chapter, the `/now` page, and OG images.
-- A real Waterford Crystal piece photographed on black (optional), as a reference for the 3D crystal and as an HDRI-style environment source.
-- **Product screenshots/recordings** for each world's deep page (critique CLI run, DáilDex alert email, Warren rabbit hole, LeemerChat, BornBench).
-
-### 11.4 OG images
-
-Per-route OG images rendered at build time (or via a Vercel OG edge function): the crystal still plus route title. Films get a poster-based OG with the title (`09 · no option`).
+**Refactor first.** Split `App.tsx` into `useAudio` / `useFilms` / `<Develop>` with zero visual change before any of this.
 
 ---
 
-## 12. Performance budget and degradation ladder
+## 12. Sound and voice
 
-### 12.1 Budgets
+| Layer | Source | Notes |
+|---|---|---|
+| Music bed | Existing `sparky-deathcap-september.mp3` | Ducks for narration (existing `duckMusicForSpeech`). Drops near silent in Chapter 4. |
+| Narrator | ElevenLabs "david" (existing `api/speak.ts` + `scripts/generate-*-voice.ts`) | Pre-generate the storybook lines to static MP3s, like the notes are today. |
+| Ray's notes/letters | Existing narration files | Unchanged. |
+| SFX | ElevenLabs sound-effects generation, or Seedance-generated audio on beat clips (`--audio`) | Projector whirr, page turn, book thump, shutter clang, gavel, pigeon flap, lantern whoosh, slide whistle, boing, chip crunch, glass ring (pitched per facet). |
+| Ambience | Generated or licensed loops | Takeaway (fryer, till, chatter), attic (clock tick, keyboard), quay (rain, river). Spatialised left/right in Two Worlds. |
+
+All audio stays muted until a user gesture, follows the existing music toggle, and respects a new global "sound off" in the nav.
+
+---
+
+## 13. Information architecture and routes
+
+| Route | Purpose | Notes |
+|---|---|---|
+| `/` | The full story (prologue → chapter 8) | One page, one canvas |
+| `/work` | All five products, no story (fast path for founders/recruiters) | `/working-on` 301 → `/work` |
+| `/work/critique` · `/work/daildex` · `/work/leemerchat` · `/work/leemerlabs` · `/work/warren` | Deep dive per product, with its character scene full-bleed, real screenshots, links | Own OG image per product |
+| `/films` · `/films/:slug` | The projector, standalone | e.g. `/films/figure-it-out` |
+| `/notes` · `/notes/:id` | Firefly meadow + list | Existing URLs kept |
+| `/letter` · `/letter/:id` | Letters + write one | Existing URLs and localStorage keys kept |
+| `/receipts` | Glass city full screen | |
+| `/now` | This week, from live GitHub activity plus a hand-written line | |
+| `/credits` | Just the credits | Shareable |
+| anything else | Spice Bag 404 | |
+
+**Navigation:** a slim night-glass bar with a gold hairline: `story · work · films · notes · letter · now`, plus the Waterford clock/weather and a sound toggle. Mobile: bottom dock. `⌘K` command palette for everything (and the secret terminal).
+
+---
+
+## 14. Live and personal features
+
+- **Waterford clock** (`Europe/Dublin`), always visible and labelled as *his* time.
+- **Waterford weather** via Open-Meteo (free, no key) at `/api/waterford`, cached 15 min. Rain → rain on the crystal and real rain in the Chapter 4 loop; fog → thicker Fog; clear night → stars.
+- **Sun position** (`suncalc`, lat 52.2593, lon −7.1101) → day / golden / night palettes on the live UI chrome.
+- **3am mode** (gag #9).
+- **Now shipping** via `/api/now` (latest public GitHub events, cached 10 min): `pushed to critique-code · 2h ago`.
+- **Presence**: the existing `/api/presence` count becomes fireflies orbiting the crystal, one per visitor.
+- **Names on the crystal**: existing `/api/names`, engraved around the 3D crystal's base.
+- **Born grows**: Born's lattice gets one branch bigger for every month LeemerLabs ships something (edit a number in `content/story.ts`).
+- **Gaeilge mode** (`gaeilge` in the terminal): nav becomes `scéal · obair · scannáin · nótaí · litir · anois`, hero becomes *"is mise repath"*. Strings to be checked by a fluent speaker.
+
+---
+
+## 15. 21st.dev component sourcing
+
+21st.dev is a registry of community React + Tailwind components, installed through the shadcn CLI or the 21st MCP (`npx @21st-dev/cli@latest init --client cursor`). Free tier allows 2 copies a day, so pick on purpose. Everything gets restyled to the storybook tokens.
+
+| Need | 21st.dev candidates (Oct 2026 catalog) | Adaptation |
+|---|---|---|
+| Text reveals | Motion Primitives **Text Effect**, **Text Scramble** | Develop-style reveals, ink-draw for narrator lines |
+| Card morph | Motion Primitives **Morphing Dialog** | Firefly → parchment note |
+| Spotlight | Motion Primitives **Spotlight** | Projector light hover |
+| Number counter | Magic UI **Number Ticker** | Commits counter |
+| Ship log | Magic UI **Marquee** | Parade banner |
+| Terminal | Magic UI **Terminal** | Critique panel + secret terminal |
+| Mobile nav | Magic UI **Dock** | Bottom dock |
+| Card tilt | Aceternity **3D Card Effect** | Product panels, film canisters |
+| Timeline | Aceternity **Tracing Beam** | `/now` page |
+| Backgrounds (low tier) | **Floating paths** (Bundui.io), **Luminous Topography** (Mehi), **Cloud Shader** (Manu Arora) | Fallback ambience when WebGL is off or on the low tier |
+| Hero layout | **Scroll Morph Hero** (Prashant Som), **Editorial Collage Hero** (felipemenezes098) | Reference for the `/work` index |
+| Command palette | shadcn **Command** (cmdk) | `⌘K` |
+
+---
+
+## 16. Performance budget
 
 | Metric | Target |
 |---|---|
-| LCP (mobile, 4G, mid-range Android) | < 2.2s (the hero heading is DOM text, so it paints before WebGL) |
-| Initial JS (gzip), excluding the 3D chunk | < 120 KB |
-| 3D chunk (three + fiber + drei subset + scene) | < 350 KB gzip, lazy-loaded right after first paint |
+| LCP (mobile 4G, mid Android) | < 2.2s. The LCP element is the cover still (AVIF, preloaded) |
+| Initial JS (gzip) excluding 3D | < 120 KB |
+| 3D chunk | < 350 KB gzip, lazy after first paint |
+| Hero bytes before interaction | < 1.2 MB (cover still + crystal, no video yet) |
+| Video | Max 2 decoding at once; loops ≤ 1.5 MB each at 720p |
+| FPS | 60 desktop, ≥ 45 mid mobile, auto-degrade |
 | CLS | < 0.05 |
-| Frame rate | 60fps desktop, ≥ 45fps mid mobile, auto-degrade below that |
-| Hero transfer before interaction | < 1.5 MB (no full films until clicked) |
 
-### 12.2 Quality tiers
+**Quality tiers** (drei `PerformanceMonitor` + `detect-gpu`):
 
-drei `<PerformanceMonitor>` plus a GPU tier check (`detect-gpu`) picks a starting tier, then steps down if FPS drops.
-
-| Tier | Crystal material | Post FX | Shards playing | DPR | Extras |
+| Tier | Multiplane | Loops | Crystal | OldFilm | Extras |
 |---|---|---|---|---|---|
-| **high** | `MeshTransmissionMaterial`, samples 10, backside | full | 4 | ≤ 2 | rain shader, caustics, fireflies |
-| **medium** | transmission, samples 4, no backside | bloom + noise | 2 | ≤ 1.5 | rain (lite) |
-| **low** | `MeshPhysicalMaterial` + env map (fake refraction) | noise | 1 | 1 | none |
-| **static** | pre-rendered AVIF stills + CSS | none | 0 | n/a | reduced motion, no WebGL, or save-data |
+| high | 5 layers + DoF | on | transmission, backside | full | rain, fireflies 300, glass city |
+| medium | 3 layers | on (1 at a time) | transmission, low samples | grain + vignette | fireflies 120 |
+| low | 2 layers | posters only | physical material + env map | grain | fireflies 40, flat calendar |
+| static | still images | none | pre-rendered still | none | reduced motion / no WebGL / save-data |
 
-Also: pause the render loop when the tab is hidden or the canvas is off-screen (`frameloop="demand"` outside active chapters), and dispose textures on route change.
-
----
-
-## 13. Accessibility
-
-- **The canvas is decorative** (`aria-hidden`). Every piece of content (films, notes, products, letters) exists as real, focusable HTML.
-- **Keyboard:** tab through shards, product cards, and notes in a logical order; `Enter` plays/opens; `Esc` closes; skip-to-content link.
-- **Reduced motion:** static tier, no scroll-jacking, no camera moves, instant develops.
-- **Audio:** nothing autoplays with sound without a fallback; narration has a visible transcript (the note text itself); music toggle is persistent.
-- **Captions** for any film that has speech (to check with Repath).
-- **Contrast:** body text ≥ 4.5:1 against ink; labels can't drop below `--color-glass-faint` on raised surfaces.
-- **Scroll-jacking** (Chapter 03 horizontal) must still be operable by keyboard and must not trap focus; on mobile it becomes vertical.
+Pause rendering when the tab is hidden or the canvas is off-screen; dispose textures on route change.
 
 ---
 
-## 14. Copy deck
+## 17. Accessibility
 
-Keep his words where they exist. New lines are written in his register: lowercase, short, honest.
-
-**Meta title:** `repath.life — cut by hand in waterford`
-**Meta description:** `repath khan. builder from waterford, ireland. films, notes, and the products i ship: critique, dáildex, leemerchat, leemerlabs, warren.`
-
-**00 Arrival:** `i am repath` / `waterford, ireland · builder · {time}`
-**01 Frames:** label `frames` / sub `some moments i kept, and the small truths they left behind.` (v1 line)
-**02 Two worlds:** title `two worlds` / left `the counter` / right `the terminal` / body: his takeaway quote.
-**03 Spectrum:** title `one light. five colours.` / sub `everything i'm building, split out.`
-**04 Receipts:** title `github is the receipts.` (v1) / `some commits become products. some become infrastructure. some become lessons.` (v1)
-**05 Notes:** title `notes` / sub `the small truths, in no particular order.`
-**06 Write one:** title `write one too.` / sub `seal it, or don't. you do you.` (from letter 1)
-**07 Contact:** `if you're building in this space, i want to hear from you.` / closing `i'm not done. not even close.` (from letter 1)
-
-**Product one-liners:**
-- critique: `your agent writes the change. critique checks it.`
-- dáildex: `see what your td said, did and voted for — in your inbox.`
-- leemerchat: `started when gpt-4 went down. became the main thing.`
-- leemerlabs: `ai made for irish reality.`
-- warren: `for people who think in networks, not linear articles.`
+- The canvas is **decorative** (`aria-hidden`). All story text, notes, products, letters, and contact links are real HTML, in order, focusable.
+- **Reduced motion:** static tier, no pinning, no camera moves, no gags that move across the screen, instant develops, transitions become cross-fades.
+- **Skip the story:** a visible link at the top goes to `/work`; a "chapters" menu jumps anywhere.
+- **Captions/transcripts** for narration and any generated clip with dialogue or meaningful audio.
+- **Keyboard:** fireflies, film canisters, product panels, and the divider (arrow keys) are all operable.
+- **Contrast:** parchment/ink ≥ 7:1; text over scenes always sits on a night-glass scrim.
+- **Gags never block content** and can be turned off with a single "calm mode" toggle (also the default for reduced motion).
 
 ---
 
-## 15. Build phases with acceptance criteria
+## 18. Build phases (tickets + acceptance criteria)
 
-Each phase ships to a Vercel preview and is mergeable on its own. Order is chosen so the riskiest technical pieces (3D performance, video textures) are proven early.
+Each phase ships to a Vercel preview and can be merged on its own.
 
-### Phase 0 — Foundations (no visual change)
+### Phase A: assets (can start now, in parallel with everything else)
 
-- Split `App.tsx` into `useAudio`, `useFilms`, `<Develop>`, and presentational components. Remove duplicated mobile/desktop note blocks.
-- Add path alias `@/`, shadcn init, design tokens in `@theme`, self-hosted fonts.
-- Update `README.md`.
-- **Done when:** the live site looks and behaves identically, `npm run build` and `npm run lint` pass, `App.tsx` < 250 lines.
+- [ ] Add `OPENROUTER_API_KEY` (local `.env` or Cloud Agent secret).
+- [ ] `npm run story:generate -- --stage=refs` → review the lineup + turnarounds with Repath. Re-roll until the cast is right. Add his photos as references for Ray if he agrees.
+- [ ] Generate scenes (`--kind=image`), review, re-roll the off-model ones.
+- [ ] Generate 2–3 videos first, check quality and ledger cost, then the rest.
+- [ ] `npm run story:optimize`, upload video to Vercel Blob.
+- **Done when:** every id in the manifest has an approved web asset, and `content/assets.ts` maps ids → URLs.
 
-### Phase 1 — The crystal (hero proof of concept)
+### Phase 0: foundations (no visual change)
 
-- Persistent canvas, quality tiers, `Crystal.tsx` with transmission material, shader environment, drag-to-rotate, facet ring sounds, Arrival sequence, static fallback.
-- **Done when:** hero hits 60fps on an M1 MacBook Air and ≥ 45fps on a mid-range Android (e.g. Pixel 6a), LCP < 2.2s, and reduced motion shows the still.
+- [ ] Split `App.tsx` into `useAudio`, `useFilms`, `<Develop>`; remove duplicated mobile/desktop blocks.
+- [ ] Tokens in `@theme`, self-hosted fonts, path alias `@/`, shadcn init.
+- [ ] Fix the existing 15 ESLint errors (currently on `main`) so CI can enforce lint.
+- [ ] Update `README.md`.
+- **Done when:** the live site behaves identically, build + lint pass, `App.tsx` < 250 lines.
 
-### Phase 2 — Frames
+### Phase 1: the storybook engine
 
-- Media pipeline script, previews and posters, `films.ts` manifest, `Shards.tsx` with video textures, select-to-play wired to `useFilms`/`useAudio`, develop-on-end, mobile carousel, `/films` and `/films/:slug`.
-- **Done when:** all v1 film behaviour works (sound fallback, crossfade, narration, progress tracking) and no film is cropped.
+- [ ] Persistent canvas, quality tiers, `useStory` store, Lenis, `CameraRig`.
+- [ ] `Multiplane`, `ScenePlane` (still → loop), `OldFilm` effect, `IrisWipe`, `TitleCard`.
+- [ ] Prologue + Chapter 0 (cover with 3D crystal, book-open clip, multiplane quay).
+- **Done when:** Chapter 0 hits 60fps on an M1 Air, ≥ 45fps on a Pixel 6a-class phone, LCP < 2.2s, and the static tier looks intentional.
 
-### Phase 3 — Two worlds + Spectrum + product worlds (small)
+### Phase 2: the counter + the reel
 
-- Split-screen with tickets and terminal, light mixing. Five world objects at "card" scale. Spectrum beams. Horizontal pinned scroll (desktop).
-- **Done when:** all five products are visible with correct links, DáilDex included, and the section is keyboard operable.
+- [ ] Chapter 1 pinned slapstick, ticket rail, salt cursor, shutter-slam transition.
+- [ ] Chapter 1b projector: `Projector.tsx` with the film `VideoTexture`, canisters, all v1 film behaviour, aspect-correct sheet.
+- **Done when:** every v1 film feature works inside the projector (sound fallback, crossfade, narration, develop, progress, hidden note) and nothing is cropped.
 
-### Phase 4 — Receipts
+### Phase 3: two worlds + the night shift
 
-- `/api/contributions` edge function (cached), `Skyline.tsx`, counter, ship-log marquee (updated with DáilDex and CritiqueCode open source).
-- **Done when:** the skyline renders real data, has a flat-calendar fallback, and hover tooltips work.
+- [ ] Draggable divider with light mixing and spatial ambience.
+- [ ] Five product panels with loops and character beats; horizontal pin on desktop.
+- [ ] DáilDex 3D point map (43 constituencies from public boundary data); critique mini-terminal.
+- **Done when:** all five products are present (DáilDex included) with correct links and live stats, and everything is keyboard operable.
 
-### Phase 5 — Notes, letters, write one
+### Phase 4: the middle + notes
 
-- Notes field, ink-reveal letters, capsule-sealing animation, names engraved on the crystal, restyled `/notes` and `/letter` (URLs and localStorage keys unchanged so existing visitors keep their letters).
-- **Done when:** a letter written on v1 still appears and delivers on v2.
+- [ ] Fog chapter with scroll-driven desaturation and the firefly turn.
+- [ ] Firefly meadow: one firefly per note, mood behaviours, parchment note card, narration.
+- **Done when:** existing `/notes/:id` links open the right note, and the hidden note still unlocks.
 
-### Phase 6 — Personal layer
+### Phase 5: receipts + write one
 
-- `/api/waterford` (weather + sun), moods, rain shader, `/api/now`, fireflies, command palette, secret terminal, Gaeilge mode, refractometer, visit receipt.
-- **Done when:** weather drives rain correctly (testable via the `rain` command), and every secret has a no-JS-safe path (none of them block content).
+- [ ] `/api/contributions` (cached) → `GlassCity` composited into the sunrise. Ticker, ship log, belief banners.
+- [ ] Letters on parchment with ink reveal; the bottle-sealing ritual; Dex delivers due letters; names on the crystal.
+- **Done when:** a letter written on v1 still appears and delivers on v2 (same storage keys).
 
-### Phase 7 — Deep pages, polish, launch
+### Phase 6: not even close + contact
 
-- `/work/:slug` pages, OG images, sound design pass, Lighthouse and accessibility pass, cross-browser (Safari iOS is the hardest for transmission and video textures), 301s from `/working-on`.
-- **Done when:** Lighthouse mobile ≥ 85 performance and ≥ 95 accessibility, no console errors, and Safari iOS 17+ works.
+- [ ] End-card paint gag, Dex with two envelopes (`ray@critique.sh`, `ray@daildex.com`), scrolling credits, iris-out, restart.
+- **Done when:** both mail links work on desktop and mobile, and the credits are selectable text.
+
+### Phase 7: gags + live layer
+
+- [ ] All 13 gags (§6), each lazy-loaded and individually disableable; calm mode.
+- [ ] `/api/waterford`, `/api/now`, 3am mode, presence fireflies, Gaeilge mode, refractometer, visitor ticket.
+- **Done when:** no gag can block content, calm mode turns them all off, and weather-driven rain can be forced with the `rain` command for testing.
+
+### Phase 8: deep pages + launch
+
+- [ ] `/work`, `/work/:slug`, `/films`, `/receipts`, `/now`, `/credits`, Spice Bag 404, OG images per route.
+- [ ] Sound pass, Lighthouse, cross-browser (Safari iOS: alpha video, transmission, autoplay), 301s.
+- **Done when:** Lighthouse mobile ≥ 85 performance and ≥ 95 accessibility, Safari iOS 17+ works, and there are no console errors.
 
 ---
 
-## 16. Risks and mitigations
+## 19. Risks
 
 | Risk | Mitigation |
 |---|---|
-| Transmission material is expensive on mobile GPUs | Quality tiers (§12.2); low tier fakes refraction with an env map. Prove it in Phase 1 before building more. |
-| iOS Safari video-texture quirks (autoplay, `playsInline`, CORS) | Same-origin files, `muted playsInline loop`, start on first gesture if needed, poster fallback. |
-| Scroll-jacking feels bad | Only one pinned section (Chapter 03), Lenis with native scroll, off for reduced motion and on mobile. |
-| Losing the intimacy of v1 under spectacle | Chapter 05 (notes and letters) is deliberately slow, dark, and quiet. The develop mechanic and his voice carry through. Review this against v1 at every phase. |
-| Bundle bloat | Lazy-load the 3D chunk, import drei per module, tree-shake three, measure with `rollup-plugin-visualizer`. |
-| Political neutrality for DáilDex | Use DáilDex's own non-partisan framing; no party colours; demo alerts use generic topics ("housing motion", "school transport"). |
-| Gaeilge accuracy | Have a fluent speaker check every string before Gaeilge mode ships. |
-| GitHub API rate limits | All GitHub calls go through cached edge functions (10–60 min TTL). |
-| Repo weight from media | Move full films to Vercel Blob or a CDN in Phase 2. |
+| **Style vs. IP.** "Old-school Disney" is the vibe, but we can't use their name, characters, or logos. | Prompts describe the 1940s technique only, the cast is original, and there's no "Disney" anywhere in the shipped site or its metadata. |
+| **Character drift** across 68 images | Model sheet → turnarounds → scenes with up to 10 references; review gates; per-shot re-rolls; fixed seeds where helpful. |
+| **Ray's likeness** | Only with his consent; use his own photos as references; he approves `char-ray-turnaround` before anything else. |
+| **AI text in images** (gibberish tickets, signs) | Most scenes use `NO_TEXT`; real text (tickets, terminal, labels) is DOM, layered on top. Only title cards and the end card ask for lettering, and those get re-rolled until they're right. |
+| **Video quality** at 720p max (Seedance Mini) | Loops are backgrounds under film grain; hero beats can be re-run on `bytedance/seedance-2.0` (same API) if Mini isn't enough. |
+| **Safari alpha video** | HEVC-alpha export on macOS, plus PNG fallback. |
+| **Weight and performance** | Stills first, loops lazy, max 2 decoders, tiers, Blob hosting. |
+| **Losing the intimacy of v1** | Chapters 4, 5, and 7 are slow, quiet, and in his own words. No gags there. Review against v1 at every phase. |
+| **DáilDex neutrality** | No party colours, generic alert topics, Dex's "i do sources" line. Mirrors DáilDex's own framing. |
+| **Gaeilge accuracy** | A fluent speaker checks the strings before Gaeilge mode ships. |
 
 ---
 
-## 17. Assets and decisions needed from Repath
+## 20. Open questions for Repath
 
-1. **Lead product:** is critique still the headline, or should DáilDex lead right now since it just launched and got the data.gov.ie feature?
-2. **Contact email:** `ray@critique.sh` (current site) or `ray@daildex.com` (on DáilDex), or a personal address?
-3. **Takeaway:** comfortable showing it (name, photos), or keep it anonymous ("a busy takeaway in waterford")?
-4. **Photos:** Waterford at night, the takeaway, desk at 3am, a portrait. Even phone photos work; they'll be graded to match.
-5. **New films?** Any new clips since September to add to the 11?
-6. **Tagline:** "cut by hand in waterford" vs. keeping "a record of becoming".
-7. **Socials to link:** GitHub `repath500`, LinkedIn, X/Twitter handle?
-8. **Gaeilge:** does he (or someone close) speak Irish to check strings?
-9. **Music:** keep "sparky-deathcap-september" as the only bed, or add a second track for the night mood?
-10. **Visitor names on the crystal:** opt in to moderation (manual approve) or auto-publish with a blocklist?
-
----
-
-## 18. Inspiration board
-
-**Repath's own surfaces (tone reference):**
-- critique.sh/founder: "infrastructure can feel alive", numbered sections (`[ 01.A ]`), the thesis structure.
-- daildex.com: plain English, source-linked, calm civic confidence.
-- leemerlabs.com: "a language should not need permission to enter the future."
-
-**21st.dev (component mechanics):** Liquid Metal Shader, Cloud Shader, Luminous Topography, Floating paths, Beams Background, Sonar Grid, Scroll Morph Hero, Editorial Collage Hero, Parallax Scrolling, and the Aceternity UI, Magic UI, and Motion Primitives libraries.
-
-**Three.js / R3F reference points (techniques to study, not copy):**
-- pmndrs drei `MeshTransmissionMaterial` examples (glass, dispersion).
-- The `react-three-fiber` examples gallery: "Caustics", "Glass flower", "Scroll controls", "Image gallery".
-- GitHub Skyline (3D contribution graphs).
-- Classic Pink Floyd prism imagery, for the spectrum beams in Chapter 03.
-
-**Real-world references:**
-- Waterford Crystal cutting (the wheel, the cuts, the light).
-- Thermal receipt printers and takeaway order rails.
-- Night street light on the Waterford quays (sodium amber on wet ground).
-- Darkroom photo developing (the *develop* mechanic).
+1. **Likeness:** OK to use 2–3 real photos as references so cartoon Ray looks like you?
+2. **Lead product on `/work`:** critique or DáilDex first right now?
+3. **The takeaway:** name it, or keep it "a busy takeaway in waterford"? Any real photos for reference (counter, tickets, the street)?
+4. **Spice Bag:** keep, or is there a real menu item from the takeaway that should be the mascot instead?
+5. **Sidekick names:** happy with Crit, Dex, Leemer, Warren, Born?
+6. **Narrator:** keep the ElevenLabs "david" voice, or record the opening line yourself?
+7. **Credits:** any real people to thank (brothers, family, early users, founders who let you test)?
+8. **Socials:** GitHub `repath500`, LinkedIn; X/Twitter handle?
+9. **Music:** one more track for the night chapters?
+10. **Budget:** fine with about $15–20 of images and a test batch of videos before the full run?
 
 ---
 
-*Plan written October 2026. Research sources: repath.life, critique.sh, critique.sh/founder, critique.sh/blog, daildex.com, leemerlabs.com, leemerchat.com/about-us, warren.wiki, github.com/repath500, Repath's public LinkedIn posts, 21st.dev catalog.*
+## 21. Concept frames
+
+Generated as direction for this plan (not final assets). Final assets come from `scripts/story/manifest.ts` on FLUX.3 + Seedance 2.0 Mini.
+
+| | |
+|---|---|
+| ![model sheet](story/concepts/00-model-sheet.jpg) **model sheet** | ![storybook](story/concepts/01-storybook-opening.jpg) **ch 0: once upon a time** |
+| ![counter](story/concepts/02-the-counter.jpg) **ch 1: the counter** | ![reel](story/concepts/11-the-reel.jpg) **ch 1b: the reel** |
+| ![night shift](story/concepts/03-the-night-shift.jpg) **ch 3: the night shift** | ![leemer](story/concepts/08-leemer-backup.jpg) **3.1: leemerchat, "backup's here"** |
+| ![crit](story/concepts/07-crit-verdict.jpg) **3.2: critique, exit 2** | ![dex](story/concepts/04-dex-flies.jpg) **3.3: dáildex, straight from the record** |
+| ![fog](story/concepts/05-fog-of-the-middle.jpg) **ch 4: the middle** | ![sunrise](story/concepts/09-receipts-sunrise.jpg) **ch 6: receipts** |
+| ![bottle](story/concepts/10-letter-bottle.jpg) **ch 7: write one** | ![end](story/concepts/06-not-even-close.jpg) **ch 8: not even close** |
+
+Notes from the concepts, already fixed in the manifest prompts: Ray drifted to slightly pointed ears (prompts now say "normal rounded human ears"), the ticket text came out as gibberish (tickets are now blank in the art, with real text in the DOM), and Leinster House drew as a castle (now described as a classical Georgian building with columns).
+
+---
+
+*Plan v2, October 2026. Supersedes v1 "cut glass". The crystal survives as the story's magic object.*
