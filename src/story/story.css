@@ -615,8 +615,11 @@ blockquote a,
   place-items: center;
   padding: 2rem;
   text-align: center;
-  background: #f3e6cc;
-  color: #1b1410;
+  background:
+    linear-gradient(rgb(12 8 6 / 0.55), rgb(12 8 6 / 0.82)),
+    url("/story/img/sc16-lost-404.webp") center / cover,
+    #12182f;
+  color: #f3e6cc;
   font-family: "Fraunces", serif;
 }
 
@@ -627,7 +630,7 @@ blockquote a,
 }
 
 .lost a {
-  color: #6e1c24;
+  color: #e2b657;
 }
 
 @media (max-width: 720px) {

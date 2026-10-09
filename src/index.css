@@ -16,7 +16,7 @@ a {
 }
 
 .font-stoke {
-  font-family: "Stoke", serif;
+  font-family: "IM Fell English", "Crimson Text", serif;
 }
 
 .font-crimson {
@@ -140,7 +140,7 @@ a {
 
 .proof-of-work-calendar .react-activity-calendar__scroll-container {
   color: rgb(120 113 108);
-  font-family: "Stoke", serif;
+  font-family: "IM Fell English", "Crimson Text", serif;
   text-transform: lowercase;
   letter-spacing: 0.08em;
 }
@@ -160,7 +160,7 @@ a {
   background-color: rgb(23 23 23);
   border: 1px solid rgb(255 255 255 / 0.1);
   color: rgb(231 229 228);
-  font-family: "Stoke", serif;
+  font-family: "IM Fell English", "Crimson Text", serif;
   font-size: 0.68rem;
   letter-spacing: 0.06em;
   text-transform: lowercase;
