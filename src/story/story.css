@@ -7,6 +7,7 @@
   --night-2: #0c1022;
   --moon: #c9d7ee;
   position: relative;
+  overflow-x: clip;
   background: var(--night-2);
   color: var(--parchment);
   font-family: "Fraunces", "Crimson Text", serif;
@@ -65,6 +66,21 @@
 .story-nav nav {
   display: flex;
   gap: 0.9rem;
+}
+
+@media (max-width: 560px) {
+  .story-nav {
+    flex-wrap: wrap;
+    row-gap: 0.25rem;
+  }
+
+  .story-nav nav {
+    gap: 0.7rem;
+  }
+
+  .story-clock {
+    display: none;
+  }
 }
 
 .story-clock {

@@ -1,5 +1,7 @@
 import { useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
+import { Environment, Lightformer } from '@react-three/drei'
+import { IcosahedronGeometry } from 'three'
 import type { Mesh, Group } from 'three'
 
 function Gem() {
@@ -35,6 +37,8 @@ function Gem() {
           ior={1.56}
           iridescence={1}
           iridescenceIOR={1.4}
+          flatShading
+          envMapIntensity={1.6}
           clearcoat={1}
           clearcoatRoughness={0.05}
           attenuationColor="#9ecbff"
@@ -43,6 +47,10 @@ function Gem() {
           emissiveIntensity={0.25}
         />
       </mesh>
+      <lineSegments scale={[0.79, 1.23, 0.79]}>
+        <edgesGeometry args={[new IcosahedronGeometry(1, 0)]} />
+        <lineBasicMaterial color="#fff1c2" transparent opacity={0.55} />
+      </lineSegments>
       <Sparkle position={[0.15, 0.72, 0.45]} />
     </group>
   )
@@ -73,6 +81,11 @@ export default function Crystal() {
       <pointLight position={[2.2, 1.6, 2]} intensity={18} color="#ffd36b" />
       <pointLight position={[-2.1, -0.4, 1.4]} intensity={14} color="#6aa4ff" />
       <pointLight position={[0.2, -1.8, 1.6]} intensity={8} color="#ff7eb3" />
+      <Environment resolution={128}>
+        <Lightformer form="rect" intensity={4} color="#ffe2a0" position={[3, 2, 2]} scale={[3, 2, 1]} />
+        <Lightformer form="rect" intensity={3} color="#7fb0ff" position={[-3, 0, 2]} scale={[2, 4, 1]} />
+        <Lightformer form="ring" intensity={2} color="#ff9cc8" position={[0, -3, 1]} scale={3} />
+      </Environment>
       <Gem />
     </Canvas>
   )
