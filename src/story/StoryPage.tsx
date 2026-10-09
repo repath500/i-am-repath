@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { beliefs, openToWork, shipLog } from '../ecosystem'
 import { repathPublicLetters } from '../hiddenContent'
 import ProofOfWork from '../ProofOfWork'
@@ -101,19 +101,89 @@ exit 2`}</pre>
   )
 }
 
+const sceneVideos: Record<string, { video: string; once?: boolean }> = {
+  'sc01-storybook': { video: 'v01-storybook-idle' },
+  'sc02-counter': { video: 'v02-counter-chaos' },
+  'sc04-night-shift': { video: 'v04-night-shift' },
+  'sc05-leemer-backup': { video: 'v05-leemer-arrives', once: true },
+  'sc06-crit-court': { video: 'v06-crit-gavel', once: true },
+  'sc07-dex-flies': { video: 'v07-dex-flight' },
+  'sc08-warren-hole': { video: 'v08-warren-fall' },
+  'sc09-born-grows': { video: 'v09-born-grows' },
+  'sc10-fog': { video: 'v10-fog' },
+  'sc11-fireflies': { video: 'v11-fireflies' },
+  'sc12-sunrise': { video: 'v12-sunrise' },
+  'sc13-bottle': { video: 'v13-bottles' },
+  'sc15-not-even-close': { video: 'v14-not-even-close', once: true },
+}
+
+function prefersStill() {
+  if (typeof window === 'undefined') return true
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
+  return Boolean(connection?.saveData)
+}
+
+function SceneVideo({ video, once }: { video: string; once?: boolean }) {
+  const ref = useRef<HTMLVideoElement>(null)
+  const [ready, setReady] = useState(false)
+  const [skip] = useState(prefersStill)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el || skip) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (once) el.currentTime = 0
+          void el.play().catch(() => undefined)
+        } else {
+          el.pause()
+        }
+      },
+      { threshold: 0.35 },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [once, skip])
+
+  if (skip) return null
+  return (
+    <video
+      ref={ref}
+      className={`scene-video${ready ? ' is-ready' : ''}`}
+      muted
+      playsInline
+      loop={!once}
+      preload="metadata"
+      aria-hidden="true"
+      tabIndex={-1}
+      onLoadedData={() => setReady(true)}
+      onError={() => setReady(false)}
+    >
+      <source src={`/story/video/${video}.webm`} type="video/webm" />
+      <source src={`/story/video/${video}.mp4`} type="video/mp4" />
+    </video>
+  )
+}
+
 function Scene({ id, alt }: { id: string; alt: string }) {
   const [src, setSrc] = useState(`/story/img/${id}.webp`)
   const [failed, setFailed] = useState(false)
+  const motion = sceneVideos[id]
   if (failed) return <div className="scene-fallback" role="img" aria-label={alt} />
   return (
-    <img
-      src={src}
-      alt={alt}
-      onError={() => {
-        if (src.endsWith('.webp')) setSrc(`/story/raw/img/${id}.png`)
-        else setFailed(true)
-      }}
-    />
+    <>
+      <img
+        src={src}
+        alt={alt}
+        onError={() => {
+          if (src.endsWith('.webp')) setSrc(`/story/raw/img/${id}.png`)
+          else setFailed(true)
+        }}
+      />
+      {motion && <SceneVideo video={motion.video} once={motion.once} />}
+    </>
   )
 }
 
