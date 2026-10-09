@@ -9,7 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "generate:voices": "npx tsx scripts/generate-note-voices.ts",
-    "generate:letter-voice": "npx tsx scripts/generate-public-letter-voice.ts"
+    "generate:letter-voice": "npx tsx scripts/generate-public-letter-voice.ts",
+    "story:generate": "npx tsx --env-file-if-exists=.env scripts/story/generate.ts",
+    "story:optimize": "bash scripts/story/optimize.sh"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.1",
