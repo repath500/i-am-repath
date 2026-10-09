@@ -84,6 +84,8 @@ async function withRetry<T>(label: string, run: () => Promise<T>, attempts = 4):
       return await run()
     } catch (error) {
       lastError = error
+      const message = (error as Error).message
+      if (/\b4\d\d\b/.test(message) && !message.includes('429')) throw error
       const wait = 4000 * 2 ** (attempt - 1)
       console.warn(`  ! ${label} failed (attempt ${attempt}/${attempts}): ${(error as Error).message}`)
       if (attempt < attempts) await sleep(wait)
@@ -98,9 +100,7 @@ async function generateImage(asset: ImageAsset) {
     prompt: asset.prompt,
     aspect_ratio: asset.aspect,
     resolution: asset.resolution,
-    output_format: 'png',
   }
-  if (asset.seed !== undefined) body.seed = asset.seed
   if (asset.refs?.length) {
     body.input_references = asset.refs.map((id) => ({ type: 'image_url', image_url: { url: dataUrl(id) } }))
   }

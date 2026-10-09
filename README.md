@@ -1,8 +1,6 @@
 # i am repath
 
-A minimal personal site built around one square personal film per visit.
-
-The page chooses a random local MP4 on load, attempts sound-on playback, and falls back to a small `tap for sound` control when the browser blocks autoplay audio. When the film ends, it scrolls into a personal note for that clip with replay and another-film controls.
+repath.life, told as a waterford story: the takeaway counter by day, and critique, dáildex, leemerchat, leemerlabs and warren by night.
 
 ## Run
 
@@ -10,6 +8,18 @@ The page chooses a random local MP4 on load, attempts sound-on playback, and fal
 npm install
 npm run dev
 ```
+
+## Story art
+
+Stills are generated with FLUX.3 and clips with Seedance 2.0 Mini, both through OpenRouter. Put `OPENROUTER_API_KEY` in `.env` (never commit it), then:
+
+```bash
+npm run story:generate -- --dry
+npm run story:generate -- --kind=image
+npm run story:optimize
+```
+
+The shot list, prompts and reference chain live in `scripts/story/manifest.ts`. The full redesign is written up in `docs/REDESIGN_PLAN.md`.
 
 ## Build
 

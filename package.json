@@ -14,11 +14,15 @@
     "story:optimize": "bash scripts/story/optimize.sh"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
     "@tailwindcss/vite": "^4.3.1",
+    "motion": "^14.0.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-github-calendar": "^5.0.6",
-    "tailwindcss": "^4.3.1"
+    "tailwindcss": "^4.3.1",
+    "three": "^0.186.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

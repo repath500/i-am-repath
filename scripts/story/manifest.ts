@@ -125,7 +125,7 @@ const sceneSpecs: SceneSpec[] = [
     id: 'sc01-storybook',
     chapter: '00 once upon a time',
     purpose: 'Open storybook. Last frame of the book-opening video, then the hero.',
-    body: 'The same leather storybook now open on red velvet by candlelight. Left page: a watercolour illustration of Waterford at dusk — the round stone Reginald\'s Tower with its conical roof beside the river Suir, quay lamps reflected in the water, a row of coloured terraced houses. Right page: an illuminated drop-cap "O" and storybook lettering: "once upon a time, in waterford, the oldest city in ireland, there lived a boy who worked the counter by day and built the future by night." Sparkles lift off the page.',
+    body: 'The same leather storybook now open on red velvet by candlelight. Left page: a watercolour illustration of Waterford at dusk — the round stone Reginald\'s Tower with its conical roof beside the river Suir, quay lamps reflected in the water, a row of coloured terraced houses. Right page: a richly illuminated gold and vine border around a large ornamental drop-cap, filled with decorative pen-flourishes and no readable words. Sparkles lift off the page.',
   },
   {
     id: 'sc02-counter',

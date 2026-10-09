@@ -45,6 +45,18 @@ export const testingLane = {
 
 export const shipLog: ShipLogEntry[] = [
   {
+    date: 'oct 2026',
+    line: 'dáildex featured on data.gov.ie open data showcase.',
+  },
+  {
+    date: 'sep 2026',
+    line: 'dáildex launched. follow your td by email, straight from the record.',
+  },
+  {
+    date: 'sep 2026',
+    line: 'critiquecode open sourced. the harness decides what is true.',
+  },
+  {
     date: 'jun 2026',
     line: 'proof of work on repath.life — github as receipts.',
   },
@@ -92,6 +104,20 @@ export const mainWorks: Work[] = [
       'it is built for technical founders, indie hackers, startups, and developers who care about speed and code quality. modern and direct. not generic enterprise saas.',
       'every serious pull request can be cloned into a sandbox, inspected, and turned into a stored verdict. agents write the patch. critique judges whether it should merge.',
       'critique is also going open source. a self-hosted community edition for github pr review lives in repath500/critique-community, split from the hosted product so teams can run the review loop on their own infrastructure.',
+    ],
+  },
+  {
+    id: 'daildex',
+    name: 'dáildex',
+    href: 'https://daildex.com',
+    linkLabel: 'daildex.com',
+    icon: 'https://daildex.com/favicon.ico',
+    role: 'see what your td said, did and voted for.',
+    origin: 'for people who vote and have no idea what their td does once they are elected.',
+    paragraphs: [
+      'dáildex follows irish tds and senators and sends a plain-english, source-linked email when they vote, speak, or ask a parliamentary question. no app. no password. free.',
+      'ask dex if you want the record explained. it does not tell you how to vote, it does not rank politicians, and it does not sell your data.',
+      '234 representatives across 43 constituencies. featured on the government of ireland open data showcase, data.gov.ie. the backend is open source.',
     ],
   },
   {
@@ -148,6 +174,10 @@ export const openToWork = {
     'email me. i read everything that comes through.',
   ],
   email: 'ray@critique.sh',
+  emails: [
+    { address: 'ray@critique.sh', label: 'critique, agents, dev tools' },
+    { address: 'ray@daildex.com', label: 'dáildex, civic tech, press' },
+  ],
 }
 
 export const closingNote =

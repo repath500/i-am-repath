@@ -6,6 +6,7 @@ export type AppRoute =
   | { page: 'notes'; noteIndex?: number }
   | { page: 'letter'; deliveryId?: string }
   | { page: 'working-on' }
+  | { page: 'lost' }
 
 export const parseRoute = (path: string): AppRoute => {
   if (path === '/working-on') return { page: 'working-on' }
@@ -26,7 +27,8 @@ export const parseRoute = (path: string): AppRoute => {
   }
 
   if (path === '/notes') return { page: 'notes' }
-  return { page: 'home' }
+  if (path === '/' || path === '') return { page: 'home' }
+  return { page: 'lost' }
 }
 
 export const getNoteSharePath = (noteIndex: number) =>

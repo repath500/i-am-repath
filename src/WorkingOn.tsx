@@ -215,12 +215,22 @@ function WorkingOn() {
               </p>
             ))}
           </div>
-          <a
-            href={`mailto:${openToWork.email}`}
-            className="mt-6 inline-block border-b border-white/25 pb-1 font-stoke text-[clamp(1.1rem,3.5vw,1.35rem)] lowercase text-stone-100 transition hover:border-white/55 hover:text-white"
-          >
-            {openToWork.email}
-          </a>
+          <div className="mt-6 flex flex-col gap-3">
+            {openToWork.emails.map((item) => (
+              <a
+                key={item.address}
+                href={`mailto:${item.address}`}
+                className="inline-flex max-w-full flex-col border-b border-white/25 pb-1"
+              >
+                <span className="font-stoke text-[0.62rem] lowercase tracking-[0.16em] text-stone-500">
+                  {item.label}
+                </span>
+                <span className="font-stoke text-[clamp(1.1rem,3.5vw,1.35rem)] lowercase text-stone-100 transition hover:text-white">
+                  {item.address}
+                </span>
+              </a>
+            ))}
+          </div>
         </section>
 
         <p className={`note-row mt-16 max-w-[58ch] md:mt-20 ${bodyText} text-stone-400`}>
